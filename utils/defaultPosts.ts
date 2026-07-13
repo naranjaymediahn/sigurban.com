@@ -19,7 +19,7 @@ export const defaultPosts = [
       <p>Si querés empezar hoy mismo, escribinos por WhatsApp o hablá con Julia, nuestra asesora digital.</p>
     `,
         content_en: "",
-        image: "/images/blog/proceso-compra.png",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/proceso-compra.png",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -53,7 +53,7 @@ export const defaultPosts = [
       <p>Con atención prioritaria usando el código #FBSIGURBAN, una asesora revisa tu caso y te acompaña en todo el trámite.</p>
     `,
         content_en: "",
-        image: "/images/blog/requisitos.png",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/requisitos.png",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -75,7 +75,7 @@ export const defaultPosts = [
       <p>Escribinos por WhatsApp con el código #FBSIGURBAN y te contamos cómo funciona esta opción en tu caso.</p>
     `,
         content_en: "",
-        image: "/images/blog/usa.png",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/usa.png",
         category: "Inversión",
         external_url: "",
         product_slug: "el-circilar",
@@ -94,7 +94,7 @@ export const defaultPosts = [
       <p>Escribinos por WhatsApp con el código #FBSIGURBAN y te contamos cómo funciona esta opción en tu caso.</p>
     `,
         content_en: "",
-        image: "/images/blog/espana.png",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/espana.png",
         category: "Inversión",
         external_url: "",
         product_slug: "el-circilar",
@@ -147,7 +147,7 @@ export const defaultPosts = [
       <p>En Honduras, actualmente existen tasas de interés competitivas (entre 9.75% y 11.75% según el perfil del cliente), créditos en moneda local, tasa fija durante todo el plazo, plazos flexibles de 5 a 20 años y posibilidad de hacer abonos anticipados sin penalidad.</p>
     `,
         content_en: "",
-        image: "/images/blog/buen-momento-comprar-casa.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/buen-momento-comprar-casa.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -180,7 +180,7 @@ export const defaultPosts = [
       <p>Documentos, joyas y dinero en efectivo deben viajar siempre con vos, no con la mudanza.</p>
     `,
         content_en: "",
-        image: "/images/blog/8-pasos-mudanza.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/8-pasos-mudanza.jpg",
         category: "Hogar",
         external_url: "",
         product_slug: "las-teresas",
@@ -208,7 +208,7 @@ export const defaultPosts = [
       </ul>
     `,
         content_en: "",
-        image: "/images/blog/renta-vs-compra.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/renta-vs-compra.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -229,7 +229,7 @@ export const defaultPosts = [
       <p>Los precios van de 25 a 1,500 lempiras según el tamaño y la decoración. La aldea produce más de 3,500 piezas al año, en su mayoría elaboradas por mujeres que sostienen económicamente a sus familias con la venta de artesanías.</p>
     `,
         content_en: "",
-        image: "/images/blog/siguatepeque-flores-barro.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/siguatepeque-flores-barro.jpg",
         category: "Siguatepeque",
         external_url: "",
         product_slug: "el-circilar",
@@ -269,7 +269,7 @@ export const defaultPosts = [
       <p>Una vez que tengas los fondos suficientes, buscá un crédito a 20 años, en moneda local (lempiras) y a tasa fija. Comprar casa propia requiere años de constancia, responsabilidad y paciencia — no hay que apurar el proceso.</p>
     `,
         content_en: "",
-        image: "/images/blog/decimocuarto-enganche.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/decimocuarto-enganche.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -310,7 +310,7 @@ export const defaultPosts = [
       <p>Tu actitud debe ser franca, sin amenazas del tipo "si no me dan el aumento, me voy", y siempre de manera educada. Si no pueden darte más dinero, quizás estén dispuestos a reducir tu horario, dándote más tiempo libre para otras actividades productivas.</p>
     `,
         content_en: "",
-        image: "/images/blog/aumento-sueldo.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/aumento-sueldo.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -339,7 +339,7 @@ export const defaultPosts = [
       <p>Minimizá los préstamos y pagá en efectivo cuando puedas: los intereses y cuotas mensuales se vuelven un dolor de cabeza.</p>
     `,
         content_en: "",
-        image: "/images/blog/como-ahorrar.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/como-ahorrar.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -364,7 +364,7 @@ export const defaultPosts = [
       <p>Antes de cada compra, tomate un instante para pensar si el producto o servicio que estás adquiriendo realmente lo necesitás.</p>
     `,
         content_en: "",
-        image: "/images/blog/presupuesto-mensual.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/presupuesto-mensual.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",
@@ -392,7 +392,7 @@ export const defaultPosts = [
       </ol>
     `,
         content_en: "",
-        image: "/images/blog/negociar-salario.jpg",
+        image: "https://apiuploads.sigurban.com/storage-api/images/blog/2026/07/negociar-salario.jpg",
         category: "Finanzas",
         external_url: "",
         product_slug: "el-circilar",

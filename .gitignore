@@ -26,3 +26,9 @@ logs
 
 # Almacén de respaldo local (se regenera solo, no versionar)
 data/fallback-admin.json
+
+# Fotos ya subidas a apiuploads.sigurban.com (storage-api) — no duplicar en el repo.
+# Quedan en disco solo como copia de trabajo local.
+public/images/proyectos/
+public/images/modelos/
+public/images/blog/

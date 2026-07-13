@@ -16,7 +16,13 @@
       </div>
 
       <div class="chat-body" ref="bodyRef">
-        <div v-for="(m, i) in messages" :key="i" class="chat-msg" :class="m.role === 'user' ? 'user' : 'bot'">{{ m.text }}</div>
+        <div
+          v-for="(m, i) in messages"
+          :key="i"
+          class="chat-msg"
+          :class="m.role === 'user' ? 'user' : 'bot'"
+          v-html="formatMessage(m.text)"
+        />
         <div v-if="loading" class="chat-typing">Julia está escribiendo…</div>
       </div>
 
@@ -73,6 +79,33 @@ function saveState() {
 function ensureSenderId() {
   if (senderId.value) return
   senderId.value = 'web_' + Math.random().toString(36).slice(2) + Date.now().toString(36)
+}
+
+const IMAGE_EXT_RE = /\.(jpg|jpeg|png|gif|webp)(\?\S*)?$/i
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+function formatMessage(text) {
+  let safe = escapeHtml(String(text || ''))
+
+  // Negrita **texto**
+  safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+
+  // URLs -> imagen embebida o enlace clicable
+  safe = safe.replace(/(https?:\/\/[^\s<]+)/g, (url) => {
+    const clean = url.replace(/[.,;)]+$/, '')
+    if (IMAGE_EXT_RE.test(clean)) {
+      return `<a href="${clean}" target="_blank" rel="noopener"><img src="${clean}" alt="Imagen" class="chat-msg-image" /></a>`
+    }
+    return `<a href="${clean}" target="_blank" rel="noopener">${clean}</a>`
+  })
+
+  return safe.replace(/\n/g, '<br>')
 }
 
 async function scrollToBottom() {

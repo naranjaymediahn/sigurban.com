@@ -810,6 +810,29 @@
                 <ElTabPane label="Configuración de Correo" name="correo">
                   <div class="editor-stack settings-stack">
                     <div class="settings-card">
+                      <label>Servidor SMTP (host)</label>
+                      <ElInput v-model="settingsForm.smtp_host" placeholder="smtp.hostinger.com" />
+                    </div>
+                    <div class="editor-grid-2col">
+                      <div class="settings-card">
+                        <label>Puerto</label>
+                        <ElInput v-model="settingsForm.smtp_port" placeholder="587" />
+                      </div>
+                      <div class="settings-card">
+                        <label>Nombre remitente</label>
+                        <ElInput v-model="settingsForm.smtp_from_name" placeholder="Sig-Urban Web" />
+                      </div>
+                    </div>
+                    <div class="settings-card">
+                      <label>Usuario SMTP</label>
+                      <ElInput v-model="settingsForm.smtp_user" placeholder="info@sigurban.com" />
+                    </div>
+                    <div class="settings-card">
+                      <label>Contraseña SMTP</label>
+                      <ElInput v-model="settingsForm.smtp_pass" type="password" show-password placeholder="••••••••" />
+                      <span class="seo-note">Se guarda en la base de datos, junto con el resto de la configuración del sitio.</span>
+                    </div>
+                    <div class="settings-card">
                       <label>Correo destinatario principal (TO)</label>
                       <ElInput
                         v-model="settingsForm.smtp_to"
@@ -1151,6 +1174,11 @@ const userEditorOpen = ref(false)
 const editingUser = ref(emptyUser())
 
 const settingsForm = ref({
+  smtp_host: '',
+  smtp_port: '587',
+  smtp_user: '',
+  smtp_pass: '',
+  smtp_from_name: 'Sig-Urban Web',
   smtp_to: '',
   notification_cc: '',
   admin_template_html: '',
@@ -1779,6 +1807,11 @@ async function loadSettings() {
   try {
     const res = await adminFetch('/api/settings-admin', { method: 'POST', body: { action: 'get' } })
     settingsForm.value = {
+      smtp_host: res.data?.smtp_host || '',
+      smtp_port: res.data?.smtp_port || '587',
+      smtp_user: res.data?.smtp_user || '',
+      smtp_pass: res.data?.smtp_pass || '',
+      smtp_from_name: res.data?.smtp_from_name || 'Sig-Urban Web',
       smtp_to: res.data?.smtp_to || '',
       notification_cc: res.data?.notification_cc || '',
       admin_template_html: res.data?.admin_template_html || DEFAULT_ADMIN_TEMPLATE_HTML.trim(),
