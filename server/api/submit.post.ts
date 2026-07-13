@@ -39,8 +39,14 @@ export default defineEventHandler(async (event) => {
   }
 
   // ── 2. Enviar correos ──────────────────────────────────────────
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_TO, SMTP_FROM_NAME } = config
-  const smtpTo = settings.smtp_to || SMTP_TO
+  // Prioridad: configuración guardada en /admin → Configuración → Correo.
+  // .env solo sirve como respaldo si /admin no tiene nada configurado aún.
+  const SMTP_HOST = settings.smtp_host || config.SMTP_HOST
+  const SMTP_USER = settings.smtp_user || config.SMTP_USER
+  const SMTP_PASS = settings.smtp_pass || config.SMTP_PASS
+  const SMTP_PORT = settings.smtp_port || config.SMTP_PORT
+  const SMTP_FROM_NAME = settings.smtp_from_name || config.SMTP_FROM_NAME
+  const smtpTo = settings.smtp_to || config.SMTP_TO
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !smtpTo) {
     return { ok: true, emailSent: false, reason: 'SMTP no configurado' }

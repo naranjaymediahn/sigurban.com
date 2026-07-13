@@ -131,12 +131,12 @@ useHead({ title: 'Contáctanos | Sig-Urban' })
 
 onMounted(async () => {
   try {
-    const [info, kb] = await Promise.all([
+    const [info, faqRes] = await Promise.all([
       $fetch('/api/site-info'),
-      $fetch('/landings/facebook/sigurban-data.json'),
+      $fetch('/api/faq'),
     ])
     waNumber.value = info.data?.whatsapp_number || '50431731754'
-    faq.value = Array.isArray(kb?.faq) ? kb.faq.sort((a, b) => (b.priority || 0) - (a.priority || 0)) : []
+    faq.value = faqRes.data || []
   } catch {}
 })
 </script>

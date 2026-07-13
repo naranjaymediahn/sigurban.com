@@ -2,8 +2,14 @@ import { query } from './db'
 import { ensureContentSchema } from './contentSchema'
 import { getFallbackSettings, saveFallbackSettings } from './fallbackStore'
 import { DEFAULT_CHATBOT_SYSTEM_PROMPT, DEFAULT_CRM_LEAD_ENDPOINT, DEFAULT_N8N_LEAD_WEBHOOK_URL } from '../../utils/chatbotDefaults'
+import { DEFAULT_CTA_QUOTES } from '../../utils/defaultCtaQuotes'
 
 export const DEFAULT_SITE_SETTINGS = {
+  smtp_host: '',
+  smtp_port: '587',
+  smtp_user: '',
+  smtp_pass: '',
+  smtp_from_name: 'Sig-Urban Web',
   smtp_to: '',
   notification_cc: '',
   admin_template_html: '',
@@ -19,11 +25,17 @@ export const DEFAULT_SITE_SETTINGS = {
   n8n_lead_webhook_url: DEFAULT_N8N_LEAD_WEBHOOK_URL,
   crm_lead_endpoint: DEFAULT_CRM_LEAD_ENDPOINT,
   blog_permalink_mode: 'date',
+  cta_quotes_json: JSON.stringify(DEFAULT_CTA_QUOTES),
 }
 
 function normalizeSettings(input: Record<string, any> = {}) {
   const autoplay = Number(input.hero_autoplay_seconds)
   return {
+    smtp_host: String(input.smtp_host || ''),
+    smtp_port: String(input.smtp_port || '587'),
+    smtp_user: String(input.smtp_user || ''),
+    smtp_pass: String(input.smtp_pass || ''),
+    smtp_from_name: String(input.smtp_from_name || 'Sig-Urban Web'),
     smtp_to: String(input.smtp_to || ''),
     notification_cc: String(input.notification_cc || ''),
     admin_template_html: String(input.admin_template_html || ''),
@@ -39,6 +51,7 @@ function normalizeSettings(input: Record<string, any> = {}) {
     n8n_lead_webhook_url: String(input.n8n_lead_webhook_url || ''),
     crm_lead_endpoint: String(input.crm_lead_endpoint || DEFAULT_CRM_LEAD_ENDPOINT),
     blog_permalink_mode: ['date', 'category', 'simple'].includes(input.blog_permalink_mode) ? input.blog_permalink_mode : 'date',
+    cta_quotes_json: String(input.cta_quotes_json || JSON.stringify(DEFAULT_CTA_QUOTES)),
   }
 }
 

@@ -9,6 +9,9 @@ export default defineEventHandler(async () => {
       promo_code: settings.promo_code,
       ga_measurement_id: settings.ga_measurement_id,
       blog_permalink_mode: settings.blog_permalink_mode,
+      cta_quotes: (() => {
+        try { return JSON.parse(settings.cta_quotes_json) } catch { return [] }
+      })(),
     },
   }
 })

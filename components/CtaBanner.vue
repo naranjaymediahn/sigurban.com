@@ -14,25 +14,21 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { DEFAULT_CTA_QUOTES } from '../utils/defaultCtaQuotes'
 
 const waNumber = ref('50431731754')
 const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`)
 
-const QUOTES = [
-  { title: 'Tu casa propia empieza con un mensaje', text: 'No dejes para mañana el hogar que tu familia merece hoy.', cta: 'Quiero aplicar' },
-  { title: 'El mejor momento para empezar es ahora', text: 'Cada mes que pagás renta es un mes que no invertís en tu futuro.', cta: 'Precalificar ahora' },
-  { title: 'Tu familia merece un hogar propio', text: 'Te acompañamos en cada paso, desde la precalificación hasta la entrega de llaves.', cta: 'Hablar con un asesor' },
-  { title: 'Agenda tu visita hoy', text: 'Conocé nuestros proyectos y encontrá el hogar ideal para tu familia.', cta: 'Agendar visita' },
-  { title: 'Convertí tu aguinaldo en tu nueva casa', text: 'Con acompañamiento financiero, tu casa propia está más cerca de lo que pensás.', cta: 'Quiero saber cómo' },
-]
-
-const quote = ref(QUOTES[0])
+const quote = ref(DEFAULT_CTA_QUOTES[0])
 
 onMounted(async () => {
-  quote.value = QUOTES[Math.floor(Math.random() * QUOTES.length)]
   try {
     const info = await $fetch('/api/site-info')
     waNumber.value = info.data?.whatsapp_number || '50431731754'
-  } catch {}
+    const quotes = Array.isArray(info.data?.cta_quotes) && info.data.cta_quotes.length ? info.data.cta_quotes : DEFAULT_CTA_QUOTES
+    quote.value = quotes[Math.floor(Math.random() * quotes.length)]
+  } catch {
+    quote.value = DEFAULT_CTA_QUOTES[Math.floor(Math.random() * DEFAULT_CTA_QUOTES.length)]
+  }
 })
 </script>

@@ -27,6 +27,7 @@
             <button v-if="isSuperadmin" :class="navClass('products')" @click="openTab('products')">🏘️ Proyectos</button>
             <button v-if="isSuperadmin" :class="navClass('hero')" @click="openTab('hero')">🎬 Slider Principal (Home)</button>
             <button v-if="isSuperadmin" :class="navClass('slider')" @click="openTab('slider')">🏡 Modelos de casa</button>
+            <button v-if="isSuperadmin" :class="navClass('faq')" @click="openTab('faq')">❓ Preguntas frecuentes</button>
             <button :class="navClass('multimedia')" @click="openTab('multimedia')">📸 Multimedia</button>
             <button v-if="isSuperadmin" :class="navClass('chatbot')" @click="openTab('chatbot')">🤖 Chatbot (Julia)</button>
             <button v-if="isSuperadmin" :class="navClass('users')" @click="openTab('users')">👥 Usuarios</button>
@@ -618,6 +619,59 @@
             </ElDialog>
           </section>
 
+          <section v-if="tab === 'faq' && isSuperadmin">
+            <div class="section-header">
+              <div>
+                <h2>Preguntas frecuentes</h2>
+                <p class="section-hint">Se muestran en /contactanos y las usa el chatbot Julia como base de conocimiento.</p>
+              </div>
+              <ElButton type="primary" size="small" @click="openFaqEditor(null)">+ Nueva pregunta</ElButton>
+            </div>
+
+            <div v-if="loadingFaqs" class="empty-state">Cargando...</div>
+            <div v-else-if="!faqs.length" class="empty-state">Sin preguntas aún.</div>
+            <div v-else class="editor-stack">
+              <div v-for="item in faqs" :key="item.id" class="settings-card" style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+                <div>
+                  <strong>{{ item.q }}</strong>
+                  <p class="seo-note" style="margin-top:6px;">{{ item.a }}</p>
+                  <span class="seo-note">Orden: {{ item.sort_order }} · {{ item.is_active ? 'Activa' : 'Inactiva' }}</span>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0;">
+                  <ElButton size="small" @click="openFaqEditor(item)">Editar</ElButton>
+                  <ElButton size="small" type="danger" @click="deleteFaq(item.id)">Eliminar</ElButton>
+                </div>
+              </div>
+            </div>
+
+            <ElDialog v-model="faqEditorOpen" title="Pregunta frecuente" width="620px">
+              <div class="editor-stack">
+                <div>
+                  <label>Pregunta</label>
+                  <ElInput v-model="editingFaq.q" placeholder="¿Ya están construidas las casas?" />
+                </div>
+                <div>
+                  <label>Respuesta</label>
+                  <ElInput v-model="editingFaq.a" type="textarea" :rows="4" />
+                </div>
+                <div class="editor-grid-2col">
+                  <div>
+                    <label>Orden</label>
+                    <ElInputNumber v-model="editingFaq.sort_order" :min="0" />
+                  </div>
+                  <div>
+                    <label>Activa</label>
+                    <ElSwitch v-model="editingFaq.is_active" />
+                  </div>
+                </div>
+              </div>
+              <template #footer>
+                <ElButton @click="faqEditorOpen = false">Cancelar</ElButton>
+                <ElButton type="primary" @click="saveFaq" :loading="savingFaq">Guardar</ElButton>
+              </template>
+            </ElDialog>
+          </section>
+
           <!-- ── Multimedia ── -->
           <section v-if="tab === 'multimedia'">
             <div class="section-header">
@@ -869,6 +923,20 @@
                       </ElSelect>
                       <span class="seo-note">"Por fecha" mantiene la misma estructura de URL que el sitio actual en WordPress (mejor para no perder posicionamiento).</span>
                     </div>
+
+                    <div class="settings-card">
+                      <div class="settings-card-header">
+                        <label>Citas de los banners CTA</label>
+                        <ElButton size="small" plain @click="addCtaQuote">+ Nueva cita</ElButton>
+                      </div>
+                      <span class="seo-note">Se muestran al azar en los banners de "Agenda tu visita" del sitio.</span>
+                      <div v-for="(q, i) in ctaQuotes" :key="i" class="cta-quote-row">
+                        <ElInput v-model="q.title" placeholder="Título" size="small" />
+                        <ElInput v-model="q.text" placeholder="Texto" size="small" />
+                        <ElInput v-model="q.cta" placeholder="Texto del botón" size="small" style="max-width:180px;" />
+                        <ElButton size="small" type="danger" plain @click="removeCtaQuote(i)">✕</ElButton>
+                      </div>
+                    </div>
                   </div>
                 </ElTabPane>
 
@@ -1056,6 +1124,12 @@ const savingSliderProduct = ref(false)
 const sliderProductEditorOpen = ref(false)
 const editingSliderProduct = ref(emptySliderProduct())
 
+const faqs = ref([])
+const loadingFaqs = ref(false)
+const savingFaq = ref(false)
+const faqEditorOpen = ref(false)
+const editingFaq = ref(emptyFaq())
+
 const heroSlides = ref([])
 const loadingHeroSlides = ref(false)
 const savingHeroSlide = ref(false)
@@ -1092,12 +1166,21 @@ const settingsForm = ref({
   n8n_lead_webhook_url: '',
   crm_lead_endpoint: '',
   blog_permalink_mode: 'date',
+  cta_quotes_json: '',
 })
 const settingsTab = ref('correo')
 const chatbotEnabledBool = computed({
   get: () => settingsForm.value.chatbot_enabled === '1',
   set: (val) => { settingsForm.value.chatbot_enabled = val ? '1' : '0' },
 })
+
+const ctaQuotes = ref([])
+function addCtaQuote() {
+  ctaQuotes.value.push({ title: '', text: '', cta: 'Quiero aplicar' })
+}
+function removeCtaQuote(index) {
+  ctaQuotes.value.splice(index, 1)
+}
 function restoreDefaultChatbotPrompt() {
   settingsForm.value.chatbot_system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
 }
@@ -1228,6 +1311,16 @@ function emptyProduct() {
     description_long_es: '',
     badge_es: 'Disponible',
     maps_url: '',
+  }
+}
+
+function emptyFaq() {
+  return {
+    id: null,
+    q: '',
+    a: '',
+    sort_order: 0,
+    is_active: true,
   }
 }
 
@@ -1413,8 +1506,8 @@ async function bootAdmin() {
   }
 }
 
-const SUPERADMIN_ONLY_TABS = ['submissions', 'products', 'hero', 'slider', 'users', 'settings', 'chatbot']
-const VALID_TABS = ['submissions', 'blog', 'products', 'hero', 'slider', 'multimedia', 'users', 'settings', 'chatbot']
+const SUPERADMIN_ONLY_TABS = ['submissions', 'products', 'hero', 'slider', 'faq', 'users', 'settings', 'chatbot']
+const VALID_TABS = ['submissions', 'blog', 'products', 'hero', 'slider', 'faq', 'multimedia', 'users', 'settings', 'chatbot']
 
 function tabAllowed(name) {
   if (!VALID_TABS.includes(name)) return false
@@ -1431,6 +1524,7 @@ async function openTab(nextTab, options = {}) {
   if (nextTab === 'products' && isSuperadmin.value) await loadProducts()
   if (nextTab === 'hero' && isSuperadmin.value) await Promise.all([loadHeroSlides(), loadSettings()])
   if (nextTab === 'slider' && isSuperadmin.value) await loadSliderProducts()
+  if (nextTab === 'faq' && isSuperadmin.value) await loadFaqs()
   if (nextTab === 'users' && isSuperadmin.value) await loadUsers()
   if (nextTab === 'submissions' && isSuperadmin.value) await loadSubmissions()
   if (nextTab === 'settings' && isSuperadmin.value) await loadSettings()
@@ -1604,6 +1698,47 @@ async function loadProducts() {
   }
 }
 
+async function loadFaqs() {
+  loadingFaqs.value = true
+  try {
+    const res = await adminFetch('/api/faq-admin', { method: 'POST', body: { action: 'list' } })
+    faqs.value = res.data || []
+  } catch {
+    ElMessage.error('Error al cargar preguntas frecuentes')
+  } finally {
+    loadingFaqs.value = false
+  }
+}
+
+function openFaqEditor(item) {
+  editingFaq.value = item ? { ...emptyFaq(), ...item, is_active: !!item.is_active } : emptyFaq()
+  faqEditorOpen.value = true
+}
+
+async function saveFaq() {
+  savingFaq.value = true
+  try {
+    const action = editingFaq.value.id ? 'update' : 'create'
+    await adminFetch('/api/faq-admin', { method: 'POST', body: { action, faq: editingFaq.value } })
+    faqEditorOpen.value = false
+    await loadFaqs()
+    ElMessage.success('Guardado')
+  } catch {
+    ElMessage.error('Error al guardar')
+  } finally {
+    savingFaq.value = false
+  }
+}
+
+async function deleteFaq(id) {
+  try {
+    await adminFetch('/api/faq-admin', { method: 'POST', body: { action: 'delete', faq: { id } } })
+    await loadFaqs()
+  } catch {
+    ElMessage.error('Error al eliminar')
+  }
+}
+
 async function loadSliderProducts() {
   loadingSliderProducts.value = true
   try {
@@ -1659,6 +1794,12 @@ async function loadSettings() {
       n8n_lead_webhook_url: res.data?.n8n_lead_webhook_url || '',
       crm_lead_endpoint: res.data?.crm_lead_endpoint || '',
       blog_permalink_mode: res.data?.blog_permalink_mode || 'date',
+      cta_quotes_json: res.data?.cta_quotes_json || '',
+    }
+    try {
+      ctaQuotes.value = JSON.parse(settingsForm.value.cta_quotes_json || '[]')
+    } catch {
+      ctaQuotes.value = []
     }
     heroAutoplaySeconds.value = Number(settingsForm.value.hero_autoplay_seconds) || 4.5
   } catch {
@@ -1671,6 +1812,7 @@ async function loadSettings() {
 async function saveSettings() {
   savingSettings.value = true
   try {
+    settingsForm.value.cta_quotes_json = JSON.stringify(ctaQuotes.value.filter((q) => q.title && q.text))
     await adminFetch('/api/settings-admin', {
       method: 'POST',
       body: {
@@ -2222,6 +2364,13 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
+}
+
+.cta-quote-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
 }
 
 .sidebar-user {
