@@ -218,6 +218,13 @@ button { font-family: inherit; cursor: pointer; }
 .card-specs span { display: flex; align-items: center; gap: 4px; }
 .card-body .btn-link { margin-top: 4px; font-size: 13.5px; }
 
+/* ── Bancos aliados ──────────────────────────────────────── */
+.banks-label { text-align: center; font-size: 12.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.banks-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.bank-pill { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; color: var(--azul); display: flex; align-items: center; }
+.bank-pill.has-logo { padding: 8px 16px; }
+.bank-pill img { height: 22px; max-width: 110px; object-fit: contain; }
+
 /* ── Financing strip ─────────────────────────────────────── */
 .finance-strip {
   background: var(--azul);

@@ -12,6 +12,9 @@ export default defineEventHandler(async () => {
       cta_quotes: (() => {
         try { return JSON.parse(settings.cta_quotes_json) } catch { return [] }
       })(),
+      bank_partners: (() => {
+        try { return JSON.parse(settings.bank_partners_json) } catch { return [] }
+      })(),
     },
   }
 })

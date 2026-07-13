@@ -3,6 +3,7 @@ import { ensureContentSchema } from './contentSchema'
 import { getFallbackSettings, saveFallbackSettings } from './fallbackStore'
 import { DEFAULT_CHATBOT_SYSTEM_PROMPT, DEFAULT_CRM_LEAD_ENDPOINT, DEFAULT_N8N_LEAD_WEBHOOK_URL } from '../../utils/chatbotDefaults'
 import { DEFAULT_CTA_QUOTES } from '../../utils/defaultCtaQuotes'
+import { DEFAULT_BANK_PARTNERS } from '../../utils/defaultBankPartners'
 
 export const DEFAULT_SITE_SETTINGS = {
   smtp_host: '',
@@ -26,6 +27,7 @@ export const DEFAULT_SITE_SETTINGS = {
   crm_lead_endpoint: DEFAULT_CRM_LEAD_ENDPOINT,
   blog_permalink_mode: 'date',
   cta_quotes_json: JSON.stringify(DEFAULT_CTA_QUOTES),
+  bank_partners_json: JSON.stringify(DEFAULT_BANK_PARTNERS),
 }
 
 function normalizeSettings(input: Record<string, any> = {}) {
@@ -52,6 +54,7 @@ function normalizeSettings(input: Record<string, any> = {}) {
     crm_lead_endpoint: String(input.crm_lead_endpoint || DEFAULT_CRM_LEAD_ENDPOINT),
     blog_permalink_mode: ['date', 'category', 'simple'].includes(input.blog_permalink_mode) ? input.blog_permalink_mode : 'date',
     cta_quotes_json: String(input.cta_quotes_json || JSON.stringify(DEFAULT_CTA_QUOTES)),
+    bank_partners_json: String(input.bank_partners_json || JSON.stringify(DEFAULT_BANK_PARTNERS)),
   }
 }
 

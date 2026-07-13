@@ -29,22 +29,66 @@
                   <label class="check-item"><input type="checkbox" value="Prefiero que me contacten por WhatsApp" v-model="form.reasons" /> Prefiero que me contacten por WhatsApp</label>
                 </div>
               </div>
+
+              <div class="calc-row">
+                <label class="check-item" style="font-weight:600;">
+                  <input type="checkbox" v-model="form.livesAbroad" /> Vivo en el extranjero 🌎
+                </label>
+              </div>
+
+              <div v-if="form.livesAbroad" class="calc-row">
+                <label>¿Desde dónde nos escribís?</label>
+                <select v-model="form.country" class="country-select">
+                  <option value="usa">🇺🇸 Estados Unidos</option>
+                  <option value="espana">🇪🇸 España</option>
+                  <option value="otro">🌎 Otro país</option>
+                </select>
+              </div>
+
+              <div v-if="form.livesAbroad" class="abroad-note">
+                <p v-if="form.country === 'usa'">
+                  🇺🇸 Si vivís en USA y soñás con tu casa propia en Siguatepeque: si tenés <strong>TPS, residencia permanente o ciudadanía</strong>, podés aplicar directamente
+                  (tus ingresos deben ser demostrables y se evalúan caso por caso). Si tu estatus es distinto, existe una alternativa: un familiar o persona de
+                  confianza en Honduras puede tramitar el crédito y coordinar el pago con vos.
+                </p>
+                <p v-else-if="form.country === 'espana'">
+                  🇪🇸 Si vivís en España y soñás con tu casa propia en Siguatepeque, es importante que sepas cómo funciona el proceso desde el exterior: por
+                  reglamento bancario y de la CNBS, nuestros proyectos aplican para personas con residencia en Honduras. Existe una alternativa: un familiar o
+                  persona de confianza acá puede tramitar el crédito y coordinar el pago con vos — una opción que usan varios de nuestros clientes en el exterior.
+                </p>
+                <p v-else>
+                  🌎 Por reglamento bancario y de la CNBS, nuestros proyectos aplican para personas con residencia en Honduras. Aun así podés contactarnos:
+                  te contamos la alternativa de tramitarlo con un familiar o persona de confianza acá.
+                </p>
+                <p style="margin-top:8px;">Si aun así querés aplicar, contactanos y con gusto te explicamos con detalle, de forma clara y sin compromiso. 😊</p>
+              </div>
+
               <div class="calc-row">
                 <label>Nombre completo</label>
                 <input v-model="form.name" type="text" required placeholder="Ej. María González" />
               </div>
-              <div class="calc-row">
-                <label>Teléfono</label>
-                <input v-model="form.phone" type="text" required placeholder="9999-9999" />
+
+              <div v-if="wantsToApply && !form.livesAbroad" class="calc-row">
+                <label>Número de identidad (DNI)</label>
+                <input v-model="form.dni" type="text" required placeholder="0801-1990-12345" />
+                <span class="field-hint">Nos ayuda a precalificar tu perfil más rápido.</span>
               </div>
+
+              <div class="calc-row">
+                <label>Teléfono {{ form.livesAbroad ? '(con código de área)' : '' }}</label>
+                <input v-model="form.phone" type="text" required :placeholder="form.livesAbroad ? '+1 305 555 0100' : '9999-9999'" />
+              </div>
+
               <div class="calc-row">
                 <label>Correo (opcional)</label>
                 <input v-model="form.email" type="email" placeholder="tucorreo@ejemplo.com" />
               </div>
+
               <div class="calc-row">
                 <label>Mensaje</label>
                 <textarea v-model="form.message" rows="4" placeholder="Contanos qué proyecto te interesa o tu consulta..." />
               </div>
+
               <button class="btn btn-primary" type="submit" :disabled="sending">{{ sending ? 'Enviando...' : 'Enviar mensaje' }}</button>
               <p v-if="sent" class="form-note ok">¡Gracias! En breve una asesora te contacta.</p>
               <p v-if="errorMsg" class="form-note err">{{ errorMsg }}</p>
@@ -94,32 +138,37 @@ import { ref, computed, onMounted } from 'vue'
 const waNumber = ref('50431731754')
 const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`)
 
-const form = ref({ reasons: [], name: '', phone: '', email: '', message: '' })
+const form = ref({ reasons: [], livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' })
 const sending = ref(false)
 const sent = ref(false)
 const errorMsg = ref('')
 const faq = ref([])
 const openFaq = ref(-1)
 
+const wantsToApply = computed(() => form.value.reasons.includes('Quiero aplicar a una casa'))
+
 async function submit() {
   sending.value = true
   errorMsg.value = ''
   try {
+    const countryLabel = { usa: 'Estados Unidos', espana: 'España', otro: 'Otro país' }[form.value.country]
     await $fetch('/api/submit', {
       method: 'POST',
       body: {
         type: 'contactanos',
         fields: {
           Nombre: form.value.name,
+          DNI: form.value.dni,
           Teléfono: form.value.phone,
           Email: form.value.email,
+          Estado: form.value.livesAbroad ? `Extranjero — ${countryLabel}` : 'Honduras',
           Asunto: form.value.reasons.join(', ') || 'Consulta general',
           Mensaje: form.value.message,
         },
       },
     })
     sent.value = true
-    form.value = { reasons: [], name: '', phone: '', email: '', message: '' }
+    form.value = { reasons: [], livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' }
   } catch {
     errorMsg.value = 'No pudimos enviar tu mensaje. Escribinos por WhatsApp mejor.'
   } finally {
@@ -150,6 +199,9 @@ textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px soli
 .check-group { display: flex; flex-direction: column; gap: 8px; }
 .check-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text); font-weight: 400; }
 .check-item input { width: 16px; height: 16px; accent-color: var(--azul); }
+.country-select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; background: var(--bg-soft); }
+.field-hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; display: block; }
+.abroad-note { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 6px; }
 .faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
 .faq-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 .faq-question { width: 100%; text-align: left; padding: 14px 16px; background: none; border: none; font-size: 14.5px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 10px; }

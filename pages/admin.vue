@@ -960,6 +960,20 @@
                         <ElButton size="small" type="danger" plain @click="removeCtaQuote(i)">✕</ElButton>
                       </div>
                     </div>
+
+                    <div class="settings-card">
+                      <div class="settings-card-header">
+                        <label>Instituciones financieras aliadas</label>
+                        <ElButton size="small" plain @click="addBankPartner">+ Nuevo banco</ElButton>
+                      </div>
+                      <span class="seo-note">Se muestran en el home, debajo de "Modelos de casas". El logo es opcional — si lo dejás vacío se muestra solo el nombre.</span>
+                      <div v-for="(b, i) in bankPartnersForm" :key="i" class="cta-quote-row">
+                        <ElInput v-model="b.name" placeholder="Nombre del banco" size="small" style="max-width:180px;" />
+                        <ElInput v-model="b.logo" placeholder="URL del logo (opcional)" size="small" />
+                        <ElButton size="small" @click="openAssetBrowser('bank-logo-' + i, '/images/banks')">📂</ElButton>
+                        <ElButton size="small" type="danger" plain @click="removeBankPartner(i)">✕</ElButton>
+                      </div>
+                    </div>
                   </div>
                 </ElTabPane>
 
@@ -1195,6 +1209,7 @@ const settingsForm = ref({
   crm_lead_endpoint: '',
   blog_permalink_mode: 'date',
   cta_quotes_json: '',
+  bank_partners_json: '',
 })
 const settingsTab = ref('correo')
 const chatbotEnabledBool = computed({
@@ -1208,6 +1223,13 @@ function addCtaQuote() {
 }
 function removeCtaQuote(index) {
   ctaQuotes.value.splice(index, 1)
+}
+const bankPartnersForm = ref([])
+function addBankPartner() {
+  bankPartnersForm.value.push({ name: '', logo: '' })
+}
+function removeBankPartner(index) {
+  bankPartnersForm.value.splice(index, 1)
 }
 function restoreDefaultChatbotPrompt() {
   settingsForm.value.chatbot_system_prompt = DEFAULT_CHATBOT_SYSTEM_PROMPT
@@ -1828,11 +1850,17 @@ async function loadSettings() {
       crm_lead_endpoint: res.data?.crm_lead_endpoint || '',
       blog_permalink_mode: res.data?.blog_permalink_mode || 'date',
       cta_quotes_json: res.data?.cta_quotes_json || '',
+      bank_partners_json: res.data?.bank_partners_json || '',
     }
     try {
       ctaQuotes.value = JSON.parse(settingsForm.value.cta_quotes_json || '[]')
     } catch {
       ctaQuotes.value = []
+    }
+    try {
+      bankPartnersForm.value = JSON.parse(settingsForm.value.bank_partners_json || '[]')
+    } catch {
+      bankPartnersForm.value = []
     }
     heroAutoplaySeconds.value = Number(settingsForm.value.hero_autoplay_seconds) || 4.5
   } catch {
@@ -1846,6 +1874,7 @@ async function saveSettings() {
   savingSettings.value = true
   try {
     settingsForm.value.cta_quotes_json = JSON.stringify(ctaQuotes.value.filter((q) => q.title && q.text))
+    settingsForm.value.bank_partners_json = JSON.stringify(bankPartnersForm.value.filter((b) => b.name))
     await adminFetch('/api/settings-admin', {
       method: 'POST',
       body: {
@@ -1895,6 +1924,13 @@ function applyAsset(path) {
   if (assetTarget.value === 'hero') editingHeroSlide.value.image = path
   if (assetTarget.value === 'hero-video') editingHeroSlide.value.video = path
   if (assetTarget.value === 'hero-video-en') editingHeroSlide.value.video_en = path
+  if (assetTarget.value.startsWith('bank-logo-')) {
+    const index = Number(assetTarget.value.replace('bank-logo-', ''))
+    if (bankPartnersForm.value[index]) {
+      const base = 'https://apiuploads.sigurban.com/storage-api'
+      bankPartnersForm.value[index].logo = path.startsWith('http') ? path : base + path
+    }
+  }
 }
 
 function selectAsset(path) {

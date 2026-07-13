@@ -18,7 +18,18 @@
           </div>
         </div>
         <div class="hero-image">
-          <img src="/landings/facebook/assets/img/Renders_30.png" alt="Casa modelo Sig-Urban" />
+          <video
+            v-if="currentSlide.media_type === 'video' && currentSlide.video"
+            :key="currentSlide.id"
+            :src="currentSlide.video"
+            autoplay muted loop playsinline
+          />
+          <img
+            v-else
+            :src="currentSlide.image || '/landings/facebook/assets/img/Renders_30.png'"
+            :alt="currentSlide.alt_es || 'Casa modelo Sig-Urban'"
+            @error="onImgError"
+          />
         </div>
       </div>
     </section>
@@ -26,7 +37,7 @@
     <div class="container">
       <div class="stats-bar">
         <div class="stat-item"><div class="icon"><Icon name="award" :size="20" /></div><div><strong>+20 años</strong><span>de experiencia</span></div></div>
-        <div class="stat-item"><div class="icon"><Icon name="home" :size="20" /></div><div><strong>{{ proyectos.length || 4 }} proyectos</strong><span>residenciales</span></div></div>
+        <div class="stat-item"><div class="icon"><Icon name="home" :size="20" /></div><div><strong>+10 proyectos</strong><span>residenciales</span></div></div>
         <div class="stat-item"><div class="icon"><Icon name="users" :size="20" /></div><div><strong>Atención</strong><span>personalizada</span></div></div>
         <div class="stat-item"><div class="icon"><Icon name="bank" :size="20" /></div><div><strong>Financiamiento</strong><span>con bancos aliados</span></div></div>
       </div>
@@ -82,6 +93,18 @@
               <span class="btn-link">Ver modelo →</span>
             </div>
           </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-soft" style="padding:32px 0;">
+      <div class="container">
+        <p class="banks-label">Trabajamos con instituciones financieras aliadas</p>
+        <div class="banks-strip">
+          <span v-for="bank in bankPartners" :key="bank.name" class="bank-pill" :class="{ 'has-logo': bank.logo }">
+            <img v-if="bank.logo" :src="bank.logo" :alt="bank.name" />
+            <template v-else>{{ bank.name }}</template>
+          </span>
         </div>
       </div>
     </section>
@@ -203,7 +226,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const proyectos = ref([])
 const modelos = ref([])
@@ -212,6 +235,21 @@ const waNumber = ref('50431731754')
 const permalinkMode = ref('date')
 
 const calc = ref({ price: 1200000, downPct: 20, years: 20 })
+
+const bankPartners = ref([])
+
+const heroSlides = ref([])
+const heroIndex = ref(0)
+let heroTimer = null
+const currentSlide = computed(() => heroSlides.value[heroIndex.value] || {})
+
+function startHeroRotation(seconds) {
+  if (heroTimer) clearInterval(heroTimer)
+  if (heroSlides.value.length < 2) return
+  heroTimer = setInterval(() => {
+    heroIndex.value = (heroIndex.value + 1) % heroSlides.value.length
+  }, Math.max(3, Number(seconds) || 4.5) * 1000)
+}
 
 const waHref = computed(() =>
   `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`
@@ -255,17 +293,25 @@ useHead({
 
 onMounted(async () => {
   try {
-    const [p, m, b, info] = await Promise.all([
+    const [p, m, b, info, hero] = await Promise.all([
       $fetch('/api/products'),
       $fetch('/api/slider-products'),
       $fetch('/api/blog'),
       $fetch('/api/site-info'),
+      $fetch('/api/hero-slides'),
     ])
     proyectos.value = p.data || []
     modelos.value = (m.data || []).slice(0, 4)
     posts.value = (b.data || []).filter((post) => Number(post.published) === 1).slice(0, 4)
     waNumber.value = info.data?.whatsapp_number || '50431731754'
     permalinkMode.value = info.data?.blog_permalink_mode || 'date'
+    heroSlides.value = hero.data || []
+    startHeroRotation(hero.autoplaySeconds)
+    bankPartners.value = info.data?.bank_partners || []
   } catch {}
+})
+
+onUnmounted(() => {
+  if (heroTimer) clearInterval(heroTimer)
 })
 </script>
