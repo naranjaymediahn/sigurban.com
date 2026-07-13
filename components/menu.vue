@@ -21,7 +21,7 @@
       <div class="header-actions">
         <a
           class="btn btn-primary btn-sm"
-          :href="`https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent('Hola, quiero cotizar por WhatsApp')}`"
+          :href="`https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`"
           target="_blank" rel="noopener"
         ><Icon name="whatsapp" :size="16" /> <span>Cotizar por WhatsApp</span></a>
         <button class="nav-toggle" @click="open = !open" aria-label="Menú">
