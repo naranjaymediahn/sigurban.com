@@ -948,6 +948,16 @@
                     </div>
 
                     <div class="settings-card">
+                      <label>Imagen Open Graph por defecto</label>
+                      <span class="seo-note">Se usa como vista previa al compartir el sitio en Facebook/WhatsApp/Twitter en las páginas que no tienen imagen propia (inicio, quiénes somos, contacto, listados). Recomendado 1200×630px.</span>
+                      <div style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;">
+                        <ElInput v-model="settingsForm.og_image" placeholder="https://apiuploads.sigurban.com/storage-api/..." />
+                        <ElButton size="small" @click="openAssetBrowser('og-image', '/images')">📂</ElButton>
+                      </div>
+                      <img v-if="settingsForm.og_image" :src="settingsForm.og_image" style="margin-top:10px;max-width:280px;border-radius:8px;border:1px solid var(--border);" />
+                    </div>
+
+                    <div class="settings-card">
                       <div class="settings-card-header">
                         <label>Citas de los banners CTA</label>
                         <ElButton size="small" plain @click="addCtaQuote">+ Nueva cita</ElButton>
@@ -1210,6 +1220,7 @@ const settingsForm = ref({
   blog_permalink_mode: 'date',
   cta_quotes_json: '',
   bank_partners_json: '',
+  og_image: '',
 })
 const settingsTab = ref('correo')
 const chatbotEnabledBool = computed({
@@ -1851,6 +1862,7 @@ async function loadSettings() {
       blog_permalink_mode: res.data?.blog_permalink_mode || 'date',
       cta_quotes_json: res.data?.cta_quotes_json || '',
       bank_partners_json: res.data?.bank_partners_json || '',
+      og_image: res.data?.og_image || '',
     }
     try {
       ctaQuotes.value = JSON.parse(settingsForm.value.cta_quotes_json || '[]')
@@ -1930,6 +1942,10 @@ function applyAsset(path) {
       const base = 'https://apiuploads.sigurban.com/storage-api'
       bankPartnersForm.value[index].logo = path.startsWith('http') ? path : base + path
     }
+  }
+  if (assetTarget.value === 'og-image') {
+    const base = 'https://apiuploads.sigurban.com/storage-api'
+    settingsForm.value.og_image = path.startsWith('http') ? path : base + path
   }
 }
 

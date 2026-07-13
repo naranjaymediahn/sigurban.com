@@ -176,7 +176,26 @@ async function submit() {
   }
 }
 
-useHead({ title: 'Contáctanos | Sig-Urban' })
+const CONTACTO_DESCRIPTION = 'Contactá a Sig-Urban: escribinos por WhatsApp o completá el formulario y un asesor te ayuda a encontrar tu casa ideal en Siguatepeque, Honduras.'
+const { data: seoInfo } = await useAsyncData('site-info-contacto', () => $fetch('/api/site-info'))
+const ogImage = computed(() => seoInfo.value?.data?.og_image || 'https://www.sigurban.com/images/sigurban-2.svg')
+
+useHead({
+  title: 'Contáctanos | Sig-Urban',
+  meta: [
+    { name: 'description', content: CONTACTO_DESCRIPTION },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Sig-Urban' },
+    { property: 'og:title', content: 'Contáctanos | Sig-Urban' },
+    { property: 'og:description', content: CONTACTO_DESCRIPTION },
+    { property: 'og:image', content: ogImage },
+    { property: 'og:url', content: 'https://www.sigurban.com/contactanos' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Contáctanos | Sig-Urban' },
+    { name: 'twitter:description', content: CONTACTO_DESCRIPTION },
+    { name: 'twitter:image', content: ogImage },
+  ],
+})
 
 onMounted(async () => {
   try {

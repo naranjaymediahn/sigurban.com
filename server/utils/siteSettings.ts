@@ -28,6 +28,7 @@ export const DEFAULT_SITE_SETTINGS = {
   blog_permalink_mode: 'date',
   cta_quotes_json: JSON.stringify(DEFAULT_CTA_QUOTES),
   bank_partners_json: JSON.stringify(DEFAULT_BANK_PARTNERS),
+  og_image: 'https://apiuploads.sigurban.com/storage-api/images/proyectos/2026/07/el-circilar.png',
 }
 
 function normalizeSettings(input: Record<string, any> = {}) {
@@ -55,6 +56,7 @@ function normalizeSettings(input: Record<string, any> = {}) {
     blog_permalink_mode: ['date', 'category', 'simple'].includes(input.blog_permalink_mode) ? input.blog_permalink_mode : 'date',
     cta_quotes_json: String(input.cta_quotes_json || JSON.stringify(DEFAULT_CTA_QUOTES)),
     bank_partners_json: String(input.bank_partners_json || JSON.stringify(DEFAULT_BANK_PARTNERS)),
+    og_image: String(input.og_image || DEFAULT_SITE_SETTINGS.og_image),
   }
 }
 

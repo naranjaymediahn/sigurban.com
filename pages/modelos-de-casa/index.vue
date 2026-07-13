@@ -37,14 +37,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const modelos = ref([])
 const loading = ref(true)
 
 function onImgError(e) { e.target.src = '/images/bg_gradiente.svg' }
 
-useHead({ title: 'Modelos de casas | Sig-Urban' })
+const MODELOS_DESCRIPTION = 'Descubrí los modelos de casa de Sig-Urban en Siguatepeque, Honduras: diseños pensados para cada familia con financiamiento disponible.'
+const { data: seoModelos } = await useAsyncData('modelos-seo', () => $fetch('/api/slider-products'))
+const { data: seoInfo } = await useAsyncData('site-info-modelos', () => $fetch('/api/site-info'))
+const ogImage = computed(() => seoModelos.value?.data?.[0]?.image || seoInfo.value?.data?.og_image || 'https://www.sigurban.com/images/sigurban-2.svg')
+
+useHead({
+  title: 'Modelos de casas | Sig-Urban',
+  meta: [
+    { name: 'description', content: MODELOS_DESCRIPTION },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Sig-Urban' },
+    { property: 'og:title', content: 'Modelos de casas | Sig-Urban' },
+    { property: 'og:description', content: MODELOS_DESCRIPTION },
+    { property: 'og:image', content: ogImage },
+    { property: 'og:url', content: 'https://www.sigurban.com/modelos-de-casa' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Modelos de casas | Sig-Urban' },
+    { name: 'twitter:description', content: MODELOS_DESCRIPTION },
+    { name: 'twitter:image', content: ogImage },
+  ],
+})
 
 onMounted(async () => {
   try {

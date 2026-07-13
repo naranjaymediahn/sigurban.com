@@ -52,25 +52,49 @@
 import { ref, computed, onMounted } from 'vue'
 
 const route = useRoute()
-const proyecto = ref(null)
 const modelos = ref([])
 const waNumber = ref('50431731754')
+
+const { data: proyectoRes } = await useAsyncData(`proyecto-${route.params.slug}`, () => $fetch(`/api/products/${route.params.slug}`))
+const proyecto = computed(() => proyectoRes.value?.data || null)
 
 const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y me interesa el proyecto ' + (proyecto.value?.name_es || '') + ' 😊')}`)
 
 function onImgError(e) { e.target.src = '/images/bg_gradiente.svg' }
 
+const seoTitle = computed(() => `${proyecto.value?.name_es || 'Proyecto'} | Sig-Urban`)
+const seoDescription = computed(() => proyecto.value?.description_es || 'Conocé este proyecto residencial de Sig-Urban en Siguatepeque, Honduras.')
+const seoImage = computed(() => {
+  const img = proyecto.value?.image || ''
+  return img?.startsWith('http') ? img : `https://www.sigurban.com${img}`
+})
+const canonicalUrl = computed(() => `https://www.sigurban.com${route.fullPath}`)
+
+useHead({
+  title: seoTitle,
+  meta: [
+    { name: 'description', content: seoDescription },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Sig-Urban' },
+    { property: 'og:title', content: seoTitle },
+    { property: 'og:description', content: seoDescription },
+    { property: 'og:image', content: seoImage },
+    { property: 'og:url', content: canonicalUrl },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: seoTitle },
+    { name: 'twitter:description', content: seoDescription },
+    { name: 'twitter:image', content: seoImage },
+  ],
+})
+
 onMounted(async () => {
   try {
-    const [res, m, info] = await Promise.all([
-      $fetch(`/api/products/${route.params.slug}`),
+    const [m, info] = await Promise.all([
       $fetch('/api/slider-products'),
       $fetch('/api/site-info'),
     ])
-    proyecto.value = res.data
     modelos.value = (m.data || []).slice(0, 4)
     waNumber.value = info.data?.whatsapp_number || '50431731754'
-    useHead({ title: `${proyecto.value?.name_es || 'Proyecto'} | Sig-Urban` })
   } catch {}
 })
 </script>

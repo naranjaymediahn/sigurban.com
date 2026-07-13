@@ -59,9 +59,12 @@
 import { ref, computed, onMounted } from 'vue'
 
 const route = useRoute()
-const modelo = ref(null)
 const waNumber = ref('50431731754')
 const activeImage = ref('')
+
+const { data: modeloRes } = await useAsyncData(`modelo-${route.params.slug}`, () => $fetch(`/api/slider-products/${route.params.slug}`))
+const modelo = computed(() => modeloRes.value?.data || null)
+if (modelo.value?.image) activeImage.value = modelo.value.image
 
 const gallery = computed(() => {
   const g = Array.isArray(modelo.value?.gallery) ? modelo.value.gallery.filter(Boolean) : []
@@ -72,16 +75,35 @@ const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.va
 
 function onImgError(e) { e.target.src = '/images/bg_gradiente.svg' }
 
+const seoTitle = computed(() => `Modelo ${modelo.value?.name_es || ''} | Sig-Urban`)
+const seoDescription = computed(() => modelo.value?.description_es || 'Conocé este modelo de casa de Sig-Urban en Siguatepeque, Honduras.')
+const seoImage = computed(() => {
+  const img = modelo.value?.image || ''
+  return img?.startsWith('http') ? img : `https://www.sigurban.com${img}`
+})
+const canonicalUrl = computed(() => `https://www.sigurban.com${route.fullPath}`)
+
+useHead({
+  title: seoTitle,
+  meta: [
+    { name: 'description', content: seoDescription },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Sig-Urban' },
+    { property: 'og:title', content: seoTitle },
+    { property: 'og:description', content: seoDescription },
+    { property: 'og:image', content: seoImage },
+    { property: 'og:url', content: canonicalUrl },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: seoTitle },
+    { name: 'twitter:description', content: seoDescription },
+    { name: 'twitter:image', content: seoImage },
+  ],
+})
+
 onMounted(async () => {
   try {
-    const [res, info] = await Promise.all([
-      $fetch(`/api/slider-products/${route.params.slug}`),
-      $fetch('/api/site-info'),
-    ])
-    modelo.value = res.data
-    activeImage.value = modelo.value?.image || ''
+    const info = await $fetch('/api/site-info')
     waNumber.value = info.data?.whatsapp_number || '50431731754'
-    useHead({ title: `Modelo ${modelo.value?.name_es || ''} | Sig-Urban` })
   } catch {}
 })
 </script>

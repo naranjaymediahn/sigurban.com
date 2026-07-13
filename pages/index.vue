@@ -9,7 +9,7 @@
           <p class="lead">Desarrollamos proyectos residenciales urbanizados con calidad, confianza y respaldo en Siguatepeque, Honduras.</p>
           <div class="hero-actions">
             <NuxtLink to="/proyectos" class="btn btn-primary">Ver proyectos <Icon name="arrowRight" :size="16" /></NuxtLink>
-            <a class="btn btn-outline" style="background:transparent;border-color:#fff;color:#fff;" :href="waHref"><Icon name="chat" :size="16" /> Hablar con un asesor</a>
+            <a class="btn btn-outline" style="background:transparent;border-color:#fff;color:#fff;" :href="waHref" target="_blank" rel="noopener"><Icon name="chat" :size="16" /> Hablar con un asesor</a>
           </div>
           <div class="hero-badges">
             <div><Icon name="building" :size="16" /> Proyectos urbanizados</div>
@@ -292,6 +292,9 @@ function formatDate(iso) {
 
 const HOME_DESCRIPTION = 'Sig-Urban: desarrolladora inmobiliaria en Siguatepeque, Honduras. Proyectos residenciales urbanizados con financiamiento y acompañamiento personalizado para encontrar tu hogar ideal.'
 
+const { data: seoInfo } = await useAsyncData('site-info-home', () => $fetch('/api/site-info'))
+const ogImage = computed(() => seoInfo.value?.data?.og_image || 'https://www.sigurban.com/images/sigurban-2.svg')
+
 useHead({
   title: 'Sig-Urban | Proyectos residenciales en Siguatepeque',
   meta: [
@@ -300,11 +303,12 @@ useHead({
     { property: 'og:site_name', content: 'Sig-Urban' },
     { property: 'og:title', content: 'Sig-Urban | Proyectos residenciales en Siguatepeque' },
     { property: 'og:description', content: HOME_DESCRIPTION },
-    { property: 'og:image', content: 'https://www.sigurban.com/images/sigurban-2.svg' },
+    { property: 'og:image', content: ogImage },
     { property: 'og:url', content: 'https://www.sigurban.com/' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: 'Sig-Urban | Proyectos residenciales en Siguatepeque' },
     { name: 'twitter:description', content: HOME_DESCRIPTION },
+    { name: 'twitter:image', content: ogImage },
   ],
 })
 

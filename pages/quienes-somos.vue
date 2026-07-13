@@ -71,7 +71,26 @@ import { ref, computed, onMounted } from 'vue'
 const waNumber = ref('50431731754')
 const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`)
 
-useHead({ title: 'Quiénes somos | Sig-Urban' })
+const QUIENES_DESCRIPTION = 'Conocé a Sig-Urban: desarrolladora inmobiliaria en Siguatepeque, Honduras, con proyectos residenciales urbanizados y acompañamiento personalizado.'
+const { data: seoInfo } = await useAsyncData('site-info-quienes', () => $fetch('/api/site-info'))
+const ogImage = computed(() => seoInfo.value?.data?.og_image || 'https://www.sigurban.com/images/sigurban-2.svg')
+
+useHead({
+  title: 'Quiénes somos | Sig-Urban',
+  meta: [
+    { name: 'description', content: QUIENES_DESCRIPTION },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Sig-Urban' },
+    { property: 'og:title', content: 'Quiénes somos | Sig-Urban' },
+    { property: 'og:description', content: QUIENES_DESCRIPTION },
+    { property: 'og:image', content: ogImage },
+    { property: 'og:url', content: 'https://www.sigurban.com/quienes-somos' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Quiénes somos | Sig-Urban' },
+    { name: 'twitter:description', content: QUIENES_DESCRIPTION },
+    { name: 'twitter:image', content: ogImage },
+  ],
+})
 
 onMounted(async () => {
   try {

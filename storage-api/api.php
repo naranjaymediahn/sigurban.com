@@ -22,10 +22,17 @@ define('VIDEO_EXTS',   ['mp4', 'webm', 'mov']);
 define('MAX_UPLOAD_BYTES', 150 * 1024 * 1024); // 150 MB
 
 // ── CORS & headers ────────────────────────────────────────────────────────────
+// El dominio final aún no apunta a Vercel (en propagación), así que además de
+// www.sigurban.com/sigurban.com se permiten los subdominios *.vercel.app
+// (preview + producción) y localhost, usados mientras tanto para probar
+// subidas de video directas desde el navegador hacia este storage.
 header('Content-Type: application/json; charset=utf-8');
 $allowedOrigins = ['https://www.sigurban.com', 'https://sigurban.com'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-header('Access-Control-Allow-Origin: ' . (in_array($origin, $allowedOrigins, true) ? $origin : 'https://www.sigurban.com'));
+$isAllowed = in_array($origin, $allowedOrigins, true)
+    || (bool) preg_match('#^https://[a-z0-9-]+\.vercel\.app$#i', $origin)
+    || (bool) preg_match('#^http://localhost(:\d+)?$#i', $origin);
+header('Access-Control-Allow-Origin: ' . ($isAllowed ? $origin : 'https://www.sigurban.com'));
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: X-Api-Key, Content-Type');
 

@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const posts = ref([])
 const loading = ref(true)
@@ -48,7 +48,26 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('es-HN', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-useHead({ title: 'Blog | Sig-Urban' })
+const BLOG_DESCRIPTION = 'Blog de Sig-Urban: consejos, novedades y guías sobre vivienda, financiamiento y proyectos residenciales en Siguatepeque, Honduras.'
+const { data: seoInfo } = await useAsyncData('site-info-blog-index', () => $fetch('/api/site-info'))
+const ogImage = computed(() => seoInfo.value?.data?.og_image || 'https://www.sigurban.com/images/sigurban-2.svg')
+
+useHead({
+  title: 'Blog | Sig-Urban',
+  meta: [
+    { name: 'description', content: BLOG_DESCRIPTION },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Sig-Urban' },
+    { property: 'og:title', content: 'Blog | Sig-Urban' },
+    { property: 'og:description', content: BLOG_DESCRIPTION },
+    { property: 'og:image', content: ogImage },
+    { property: 'og:url', content: 'https://www.sigurban.com/blog' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Blog | Sig-Urban' },
+    { name: 'twitter:description', content: BLOG_DESCRIPTION },
+    { name: 'twitter:image', content: ogImage },
+  ],
+})
 
 onMounted(async () => {
   try {

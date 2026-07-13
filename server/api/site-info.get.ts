@@ -15,6 +15,7 @@ export default defineEventHandler(async () => {
       bank_partners: (() => {
         try { return JSON.parse(settings.bank_partners_json) } catch { return [] }
       })(),
+      og_image: settings.og_image,
     },
   }
 })
