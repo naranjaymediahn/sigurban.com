@@ -1,0 +1,929 @@
+{
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2026-01-02",
+  "empresa": {
+    "nombre": "Sig-Urban",
+    "tipo": "Desarrolladora inmobiliaria",
+    "descripcionCorta": "Desarrolladora inmobiliaria en Siguatepeque, Honduras, especializada en viviendas y terrenos urbanizados con acompañamiento financiero.",
+    "descripcionLarga": "Sig-Urban es una desarrolladora inmobiliaria en Siguatepeque, Honduras, especializada en la venta de viviendas y terrenos urbanizados. Facilitamos el acceso a un hogar digno con apoyo financiero y acompañamiento humano durante todo el proceso.",
+    "experiencia": "20+ años de experiencia",
+    "meta": {
+      "periodo": "2024-2025",
+      "objetivo": "Vender 290 casas con atención cercana, beneficios financieros únicos y confianza como base"
+    },
+    "ubicacionFisica": {
+      "direccion": "Edificio Baires Palomo, Siguatepeque, Comayagua",
+      "ciudad": "Siguatepeque",
+      "departamento": "Comayagua",
+      "pais": "Honduras"
+    }
+  },
+  "proyecto": {
+    "nombre": "Sig-Urban",
+    "proyectosActuales": [
+      "El Circilar Etapa 4"
+    ],
+    "codigoPromocional": "#FBSIGURBAN",
+    "ubicacion": {
+      "colonia": "Colonia El Circilar",
+      "ciudad": "Siguatepeque",
+      "referencia": "A 5 minutos de la CA5 (salida a San Pedro Sula)",
+      "mapsUrl": "https://maps.app.goo.gl/CbpW6LvxcfsFynsbA?g_st=com.google.maps.preview.copy"
+    }
+  },
+  "oferta": {
+    "precio": "L 1,250,000",
+    "incluyeTerreno": true,
+    "cuotaMensual": "L 6,500",
+    "cuotasDesde": "L 6,600",
+    "prima": "0% (promo)",
+    "plazo": "Hasta 30 años",
+    "financiamientoDesde": "4%",
+    "beneficios": [
+      "Cero prima inicial",
+      "Cuotas accesibles (desde L 6,600)",
+      "3 meses de gracia para comenzar a pagar",
+      "Acompañamiento en precalificación"
+    ],
+    "nota": "Montos referenciales sujetos a evaluación y condiciones de financiamiento.",
+    "bancosConFinanciamientoNota": "Financiamiento disponible según perfil y evaluación bancaria (consultá por los bancos aliados)."
+  },
+  "modeloVivienda": {
+    "nombreModelo": "Tulipán",
+    "metros2Construccion": "60 m²",
+    "terreno": {
+      "varas2": "150.60 V²",
+      "metros2Aprox": "≈ 105.3 m²",
+      "nota": "Conversión aproximada: 1 V² ≈ 0.699 m²."
+    },
+    "dormitorios": "3",
+    "banos": "2",
+    "parqueos": "1",
+    "ambientes": [
+      "Sala",
+      "Comedor",
+      "Cocina",
+      "Área de lavandería"
+    ],
+    "serviciosProyecto": [
+      "Agua potable (pozo propio)",
+      "Energía eléctrica nueva",
+      "Alcantarillado sanitario",
+      "Calles vibrocompactadas"
+    ]
+  },
+  "requisitos": {
+    "asalariados": [
+      "Estar bien en la central de crédito",
+      "Ingresos mensuales: L 18,000 a L 36,000 (puede ser mancomunado)",
+      "Constancia de trabajo",
+      "Copia de DNI",
+      "Copia de RTN"
+    ],
+    "comerciantes": [
+      "Estar bien en la central de crédito",
+      "Ingresos mensuales mínimo: L 18,000",
+      "Constitución de comerciante individual",
+      "Permiso de operación municipal (últimos 2 años)",
+      "Movimientos bancarios (últimos 6 meses)"
+    ],
+    "extranjeros": [
+      "Pueden aplicar si están legalmente con visa vigente en USA o España (sujeto a evaluación).",
+      "Se revisa caso por caso según requisitos del banco."
+    ]
+  },
+  "financiamiento": {
+    "descripcion": "Opciones de financiamiento disponibles (sujeto a evaluación y condiciones de cada institución).",
+    "instituciones": [
+      "Davivienda",
+      "Promerica",
+      "Banpaís",
+      "Atlántida",
+      "Ficohsa",
+      "BAC",
+      "ELGA",
+      "Cuscatlán",
+      "BANHPROVI"
+    ],
+    "nota": "La aprobación, tasa, plazo y monto dependen del perfil del cliente y políticas del banco."
+  },
+  "contactos": {
+    "telefonoVentas": "3173-1754",
+    "telefonoOficina": "2773-5376",
+    "chatUrl": "https://www.sigurban.com/chat/",
+    "whatsappUrl": "https://www.sigurban.com/FBSIGURBAN",
+    "whatsappDirectSendUrl": "https://api.whatsapp.com/send?phone=50431731754&text=Hola,%20Necesito%20informaci%C3%B3n%20sobre%20Casas",
+    "sitioPrincipalUrl": "https://www.sigurban.com/"
+  },
+  "landing": {
+    "landingUrl": "https://www.sigurban.com/landings/facebook/",
+    "cta": {
+      "texto": "Atención prioritaria con el código #FBSIGURBAN",
+      "accionPrincipalUrl": "https://www.sigurban.com/FBSIGURBAN"
+    }
+  },
+  "asesoraDigital": {
+    "nombre": "Julia",
+    "rol": "Asesora digital",
+    "estilo": [
+      "Empática",
+      "Profesional",
+      "Carismática",
+      "Clara y orientada a acción"
+    ],
+    "privacidadDni": "Si el cliente no quiere compartir DNI por este medio, respetar su privacidad e invitar a WhatsApp con el código #FBSIGURBAN."
+  },
+  "faq": [
+    {
+      "id": "constructed",
+      "keywords": [
+        "ya estan construidas",
+        "ya están construidas",
+        "ya estan hechas",
+        "ya están hechas",
+        "para habitarlas",
+        "para habitar",
+        "entrega inmediata",
+        "ya las entregan"
+      ],
+      "q": "¿Ya están construidas las casas para habitarlas?",
+      "a": "No. Estas casas se construyen conforme avance tu proceso con la institución financiera. Trabajamos con: Davivienda, Promerica, Banpaís, Atlántida, Ficohsa, BAC, ELGA, Cuscatlán y BANHPROVI. (Sujeto a evaluación y condiciones de cada institución).",
+      "category": "proceso",
+      "priority": 85,
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "model_tulipan",
+      "keywords": [
+        "modelo tulipan",
+        "modelo tulipán",
+        "tulipan",
+        "tulipán",
+        "plano",
+        "distribucion",
+        "distribución",
+        "medidas",
+        "casa tulipan",
+        "casa tulipán"
+      ],
+      "q": "¿Cuál es el modelo y dónde lo puedo ver?",
+      "a": "Nuestro modelo de vivienda es Tulipán. Podés ver la información y galería aquí: https://www.sigurban.com/landings/facebook/",
+      "category": "recursos",
+      "priority": 82,
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "photos",
+      "keywords": [
+        "fotos",
+        "diseños",
+        "disenos",
+        "modelo",
+        "tulipan",
+        "galeria",
+        "galería",
+        "render",
+        "renders",
+        "imagenes",
+        "imágenes",
+        "videos",
+        "video"
+      ],
+      "q": "¿Tienen fotos o diseños del modelo de casa?",
+      "a": "Sí. Podés ver fotos, renders y la galería en: https://sigurban.com/landings/facebook/#galeria",
+      "category": "recursos",
+      "priority": 80,
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "foreign_applicants",
+      "keywords": [
+        "extranjero",
+        "extranjera",
+        "visa",
+        "residencia",
+        "aplicar desde usa",
+        "aplicar desde españa"
+      ],
+      "q": "¿Pueden aplicar personas extranjeras o que están fuera del país?",
+      "a": "Sí. Pueden aplicar si están legalmente con visa vigente en USA o España (sujeto a evaluación). Para revisarlo según tu caso, te apoyamos por WhatsApp con el código #FBSIGURBAN: https://www.sigurban.com/FBSIGURBAN",
+      "category": "requisitos",
+      "priority": 78,
+      "followUp": "handoff_whatsapp"
+    },
+    {
+      "id": "direct_financing",
+      "keywords": [
+        "financiamiento directo",
+        "credito directo",
+        "crédito directo",
+        "sin banco",
+        "sin bancos",
+        "sin tramite",
+        "sin trámite"
+      ],
+      "q": "¿Tienen financiamiento directo sin bancos?",
+      "a": "No contamos con financiamiento directo. El financiamiento es con BANHPROVI y bancos aliados (según evaluación y condiciones de cada institución).",
+      "category": "financiamiento",
+      "priority": 75,
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "capital_prepayment",
+      "keywords": [
+        "abono a capital",
+        "abonar a capital",
+        "pagar antes",
+        "salir antes",
+        "prepago",
+        "pago anticipado"
+      ],
+      "q": "¿Puedo hacer abonos a capital para pagar antes del plazo?",
+      "a": "Sí, podés hacer abonos a capital si querés cancelar antes del plazo máximo. (Sujeto a condiciones del banco).",
+      "category": "financiamiento",
+      "priority": 60,
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "plazo",
+      "keywords": [
+        "plazo",
+        "años",
+        "en cuantos años",
+        "en cuántos años",
+        "cuantos años se paga",
+        "cuánto tiempo"
+      ],
+      "q": "¿En cuántos años se paga?",
+      "a": "El plazo es hasta 30 años (sujeto a evaluación bancaria).",
+      "category": "oferta",
+      "priority": 90,
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "commissions_income",
+      "keywords": [
+        "comisiones",
+        "bonos",
+        "incentivos",
+        "comision",
+        "comisión",
+        "cuenta en salario",
+        "cuentan las comisiones"
+      ],
+      "q": "¿Las comisiones cuentan como salario?",
+      "a": "Esa info no está disponible en este momento. Para revisarlo bien según tu caso, escribinos por WhatsApp con el código #FBSIGURBAN: https://www.sigurban.com/FBSIGURBAN",
+      "category": "requisitos",
+      "priority": 70,
+      "followUp": "handoff_whatsapp"
+    }
+  ],
+  "process": {
+    "titulo": "Proceso general",
+    "steps": [
+      "Compartís tus datos para precalificación (nombre completo, DNI y teléfono).",
+      "Se valida tu perfil según la institución financiera (sujeto a evaluación).",
+      "Una asesora te contacta para continuar el proceso y coordinar la siguiente etapa."
+    ],
+    "notes": [
+      "Montos referenciales sujetos a evaluación y condiciones de financiamiento.",
+      "La aprobación, tasa, plazo y monto dependen del perfil del cliente y políticas del banco.",
+      "Sig-Urban acompaña el proceso y papeleo; la construcción se realiza conforme avance el trámite y no se inicia hasta contar con aprobación de la institución financiera."
+    ]
+  },
+  "leadCapture": {
+    "enabled": true,
+    "fieldsOrder": [
+      "name",
+      "dni",
+      "phone"
+    ],
+    "validators": {
+      "dni": {
+        "digits": 13,
+        "allowHyphen": true
+      },
+      "phone": {
+        "digits": 8,
+        "allowCountryCode504": true
+      }
+    },
+    "privacy": {
+      "dni": {
+        "allowAlternativeChannel": true,
+        "alternativeChannelText": "Si preferís no compartir tu DNI por este medio, podés enviarlo por WhatsApp con el código #FBSIGURBAN 📲 https://www.sigurban.com/FBSIGURBAN"
+      }
+    }
+  },
+  "conversationPolicy": {
+    "alwaysAnswerBeforeAskingData": true,
+    "maxSameQuestionRepeats": 2,
+    "repeatWindowSeconds": 120,
+    "handoffTriggers": [
+      "ya escribi a whatsapp",
+      "ya escribí a whatsapp",
+      "ya escribi al whatsapp",
+      "ya escribí al whatsapp",
+      "ya mande a whatsapp",
+      "ya mandé a whatsapp",
+      "ya lo envie por whatsapp",
+      "ya lo envié por whatsapp",
+      "ya hable por whatsapp",
+      "ya hablé por whatsapp",
+      "prefiero whatsapp",
+      "mejor whatsapp",
+      "quiero hablar con un asesor",
+      "quiero hablar con una asesora",
+      "quiero un asesor",
+      "quiero una asesora"
+    ],
+    "stopDataCollectionTriggers": [
+      "no doy mis datos",
+      "no quiero dar mis datos",
+      "solo informacion",
+      "solo información",
+      "solo quiero info",
+      "solo queria preguntar",
+      "solo quería preguntar",
+      "que servicios ofreces",
+      "qué servicios ofreces",
+      "que servicios ofrecen",
+      "qué servicios ofrecen",
+      "que cuestan tus servicios",
+      "qué cuestan tus servicios",
+      "cuanto cuestan tus servicios",
+      "cuánto cuestan tus servicios",
+      "puedo reservar una cita",
+      "¿puedo reservar una cita?",
+      "reservar una cita",
+      "agendar una cita"
+    ]
+  },
+  "messageTemplates": {
+    "ask_name": [
+      "¿Me compartís tu nombre completo? 😊",
+      "Para registrarte, ¿cuál es tu nombre completo? 😊"
+    ],
+    "ask_dni": [
+      "¿Me compartís tu DNI (13 dígitos, con o sin guiones)? 😊",
+      "Para precalificar, necesito tu DNI (13 dígitos). ¿Me lo compartís? 😊"
+    ],
+    "ask_phone": [
+      "¿Me compartís tu teléfono (8 dígitos)? 📲",
+      "¿A qué número te puede contactar la asesora (8 dígitos)? 📲"
+    ],
+    "prequalify_explainer": [
+      "Para iniciar la precalificación solo necesito 3 datos: nombre completo, DNI y teléfono 🏡. Con eso, Sig-Urban te acompaña con el proceso y papeleo con el banco. Importante: la casa se construye conforme avance tu proceso y no se inicia hasta tener aprobación."
+    ],
+    "consent_prompt": [
+      "¿Me autorizás a enviar tus datos para iniciar la precalificación? 🏡 Respondé “Sí” para enviar o “No” para pasarte WhatsApp 📲 https://www.sigurban.com/FBSIGURBAN"
+    ],
+    "handoff_whatsapp": [
+      "Perfecto 😊 Para atención prioritaria, escribinos por WhatsApp con el código #FBSIGURBAN 📲 https://www.sigurban.com/FBSIGURBAN"
+    ],
+    "closing_submitted": [
+      "¡Listo! 😊🏡 Ya registré tus datos para precalificación. En breve una asesora te contacta 📲 Si querés seguimiento inmediato: #FBSIGURBAN https://www.sigurban.com/FBSIGURBAN"
+    ]
+  },
+  "intents": [
+    {
+      "id": "ASK_PRICE_OR_OFFER",
+      "priority": 95,
+      "match": [
+        "precio",
+        "precios",
+        "cuota",
+        "cuotas",
+        "mensualidad",
+        "pago mensual",
+        "cuanto cuesta",
+        "cuánto cuesta",
+        "prima",
+        "enganche",
+        "inicial",
+        "financiamiento",
+        "financiar",
+        "credito",
+        "crédito",
+        "tasa",
+        "interes",
+        "interés"
+      ],
+      "response": {
+        "type": "offer_block",
+        "fields": [
+          "oferta.precio",
+          "oferta.cuotaMensual",
+          "oferta.prima",
+          "oferta.plazo",
+          "oferta.financiamientoDesde",
+          "oferta.nota"
+        ]
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "ASK_SERVICES",
+      "priority": 94,
+      "match": [
+        "que servicios ofreces",
+        "qué servicios ofreces",
+        "que servicios ofrecen",
+        "qué servicios ofrecen",
+        "que ofrecen",
+        "qué ofrecen",
+        "servicios",
+        "informacion de servicios",
+        "información de servicios"
+      ],
+      "response": {
+        "type": "text",
+        "text": "En Sig-Urban te ayudamos a adquirir tu vivienda en nuestro proyecto (El Circilar Etapa 4) con acompañamiento en el proceso y precalificación con bancos aliados 🏡\n\nSi querés, decime qué necesitás: Precio y cuota, Requisitos o Ubicación.\nTambién podés ver la info aquí: https://www.sigurban.com/landings/facebook/"
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "ASK_SERVICE_PRICING",
+      "priority": 94,
+      "match": [
+        "que cuestan tus servicios",
+        "qué cuestan tus servicios",
+        "cuanto cuestan tus servicios",
+        "cuánto cuestan tus servicios",
+        "costo de servicios",
+        "costos de servicios",
+        "precio de servicios",
+        "precios de servicios"
+      ],
+      "response": {
+        "type": "text",
+        "text": "Si te referís al costo de las casas del proyecto, estos son los montos referenciales 🏡:\n• Precio: L 1,250,000\n• Cuota mensual: L 6,500 (cuotas desde L 6,600)\n• Prima: 0% (promo)\n• Plazo: Hasta 30 años\n• Financiamiento desde: 4%\n\nMontos sujetos a evaluación y condiciones del banco. ¿Querés que te comparta también los requisitos?"
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "BOOK_APPOINTMENT",
+      "priority": 93,
+      "match": [
+        "puedo reservar una cita",
+        "¿puedo reservar una cita?",
+        "reservar una cita",
+        "reservar cita",
+        "agendar una cita",
+        "agendar cita",
+        "programar una cita",
+        "cita",
+        "quiero una cita",
+        "quiero agendar",
+        "quiero agendar visita",
+        "quiero una visita",
+        "agendar visita",
+        "visita"
+      ],
+      "response": {
+        "type": "text",
+        "text": "Sí 😊 Podés agendar una visita.\n\nPara atención prioritaria, escribinos por WhatsApp con el código #FBSIGURBAN 📲 https://www.sigurban.com/FBSIGURBAN\nO si preferís, también podés llamar al 3173-1754."
+      },
+      "followUp": "handoff_whatsapp"
+    },
+    {
+      "id": "ASK_PROCESS",
+      "priority": 92,
+      "match": [
+        "proceso",
+        "como es el proceso",
+        "cómo es el proceso",
+        "como funciona",
+        "cómo funciona",
+        "que tengo que hacer",
+        "qué tengo que hacer",
+        "que debo hacer",
+        "qué debo hacer",
+        "papeleo",
+        "papeleria",
+        "papelería",
+        "tramite",
+        "trámite",
+        "que sigue",
+        "qué sigue",
+        "cuando construyen",
+        "cuándo construyen",
+        "hasta que apruebe",
+        "hasta que aprueben",
+        "cuando apruebe el banco",
+        "cuándo apruebe el banco"
+      ],
+      "response": {
+        "type": "text",
+        "text": "El proceso es así 🏡:\n1) Nos compartís tus datos para precalificación (nombre completo, DNI y teléfono).\n2) Se valida tu perfil con la institución financiera (sujeto a evaluación).\n3) Cuando el banco aprueba, una asesora te acompaña con el proceso y el papeleo para continuar.\n\nImportante: la casa se construye conforme avance tu proceso con la institución financiera; no se inicia hasta tener la aprobación."
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "ASK_REQUIREMENTS",
+      "priority": 90,
+      "match": [
+        "requisitos",
+        "requisito",
+        "documentos",
+        "documento",
+        "papeles",
+        "papeleria",
+        "papelería",
+        "que necesito",
+        "que ocupo",
+        "qué ocupo",
+        "que piden",
+        "qué piden"
+      ],
+      "response": {
+        "type": "requirements_block",
+        "fields": [
+          "requisitos"
+        ]
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "ASK_LOCATION",
+      "priority": 90,
+      "match": [
+        "ubicacion",
+        "ubicación",
+        "donde queda",
+        "dónde queda",
+        "direccion",
+        "dirección",
+        "mapa",
+        "como llegar",
+        "cómo llegar",
+        "google maps",
+        "waze"
+      ],
+      "response": {
+        "type": "location_block",
+        "fields": [
+          "proyecto.ubicacion.referencia",
+          "proyecto.ubicacion.colonia",
+          "proyecto.ubicacion.ciudad",
+          "proyecto.ubicacion.mapsUrl"
+        ]
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "ASK_ROOMS",
+      "priority": 88,
+      "match": [
+        "cuantos cuartos",
+        "cuántos cuartos",
+        "cuartos tiene",
+        "habitaciones",
+        "cuantas habitaciones",
+        "cuántas habitaciones",
+        "dormitorios",
+        "cuantos dormitorios",
+        "cuántos dormitorios"
+      ],
+      "response": {
+        "type": "text",
+        "text": "El modelo Tulipán incluye 3 dormitorios 🏡"
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "ASK_FOREIGN_APPLICANTS",
+      "priority": 93,
+      "match": [
+        "usa",
+        "estoy en usa",
+        "aplicar desde usa",
+        "puede aplicar alguien de usa",
+        "extranjero",
+        "visa",
+        "residencia",
+        "españa",
+        "aplicar desde españa"
+      ],
+      "response": {
+        "type": "text",
+        "text": "Sí. Pueden aplicar si están legalmente con visa vigente en USA o España (sujeto a evaluación). Se revisa caso por caso según requisitos del banco. Si querés, te apoyamos por WhatsApp con #FBSIGURBAN 📲 https://www.sigurban.com/FBSIGURBAN"
+      },
+      "followUp": "handoff_whatsapp"
+    },
+    {
+      "id": "ASK_BUILD_ON_MY_LAND",
+      "priority": 92,
+      "match": [
+        "tengo terreno",
+        "ya tengo terreno",
+        "si tengo el terreno",
+        "si ya tengo terreno",
+        "construyen en mi terreno",
+        "me construyen en mi terreno",
+        "solo construccion",
+        "solo construcción",
+        "solo quiero construccion"
+      ],
+      "response": {
+        "type": "text",
+        "text": "Esa info no está disponible en este momento 📲 Si querés, escribinos por WhatsApp con el código #FBSIGURBAN: https://www.sigurban.com/FBSIGURBAN"
+      },
+      "followUp": "handoff_whatsapp"
+    },
+    {
+      "id": "ASK_PHOTOS",
+      "priority": 85,
+      "match": [
+        "fotos",
+        "galeria",
+        "galería",
+        "renders",
+        "render",
+        "imagenes",
+        "imágenes",
+        "videos",
+        "video"
+      ],
+      "response": {
+        "type": "text",
+        "text": "Podés ver fotos, renders y la galería aquí: https://sigurban.com/landings/facebook/#galeria"
+      },
+      "followUp": "offer_prequalify"
+    },
+    {
+      "id": "WANTS_PREQUALIFY",
+      "priority": 80,
+      "match": [
+        "quiero precalificar",
+        "precalificar",
+        "precalificacion",
+        "precalificación",
+        "aplicar",
+        "solicitud",
+        "credito",
+        "crédito",
+        "financiar",
+        "me contacten",
+        "contáctenme",
+        "llamenme",
+        "llámenme",
+        "agendar",
+        "cita",
+        "visita",
+        "quiero ir a verlas",
+        "quiero verlas",
+        "quiero ver la casa"
+      ],
+      "response": {
+        "type": "action",
+        "action": "start_lead_capture"
+      },
+      "followUp": "ask_next_missing"
+    }
+  ],
+  "normalization": {
+    "synonyms": [
+      {
+        "from": [
+          "wpp",
+          "wp",
+          "wasap",
+          "guasap",
+          "whats",
+          "whatssap",
+          "whatssapp"
+        ],
+        "to": "whatsapp"
+      },
+      {
+        "from": [
+          "imformasion",
+          "infromacion",
+          "imformación",
+          "infromación"
+        ],
+        "to": "información"
+      },
+      {
+        "from": [
+          "precalificacion",
+          "precalificasion",
+          "precalificacíon"
+        ],
+        "to": "precalificación"
+      },
+      {
+        "from": [
+          "reservar",
+          "reservación",
+          "reservar cita",
+          "reservar una cita"
+        ],
+        "to": "agendar"
+      }
+    ],
+    "typoHints": {
+      "habla": [
+        "abla"
+      ],
+      "ver": [
+        "ber"
+      ]
+    }
+  },
+  "quickReplies": {
+    "enabled": true,
+    "buttons": [
+      {
+        "id": "QR_PRICE",
+        "title": "Precio y cuota",
+        "payload": "precio"
+      },
+      {
+        "id": "QR_REQUIREMENTS",
+        "title": "Requisitos",
+        "payload": "requisitos"
+      },
+      {
+        "id": "QR_LOCATION",
+        "title": "Ubicación",
+        "payload": "ubicacion"
+      },
+      {
+        "id": "QR_PHOTOS",
+        "title": "Fotos",
+        "payload": "fotos"
+      },
+      {
+        "id": "QR_PREQUALIFY",
+        "title": "Quiero precalificar",
+        "payload": "quiero precalificar"
+      }
+    ]
+  },
+  "disclaimers": {
+    "evaluation": "Montos referenciales sujetos a evaluación y condiciones de financiamiento.",
+    "bankPolicy": "La aprobación, tasa, plazo y monto dependen del perfil del cliente y políticas del banco."
+  },
+  "visits": {
+    "enabled": true,
+    "ctaText": "Si querés agendar visita, te ayudamos con la precalificación para que una asesora te contacte.",
+    "fallbackWhatsApp": "https://www.sigurban.com/FBSIGURBAN",
+    "booking": {
+      "telefono": "3173-1754",
+      "codigo": "#FBNaranja",
+      "nota": "Para atención personalizada de citas."
+    }
+  },
+  "assets": {
+    "imagenes": [
+      {
+        "tipo": "logo",
+        "titulo": "Sig-Urban",
+        "url": "https://www.sigurban.com/wp-content/uploads/2019/05/sigurban-2.svg",
+        "alt": "Sig-Urban"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 53",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_53.png",
+        "alt": "Thumb Render 53"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 30",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_30.png",
+        "alt": "Render 30 - Sig-Urban"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 31",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_31.png",
+        "alt": "Thumb Render 31"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 32",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_32.png",
+        "alt": "Thumb Render 32"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 33",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_33.png",
+        "alt": "Thumb Render 33"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 35",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_35.png",
+        "alt": "Thumb Render 35"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 37",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_37.png",
+        "alt": "Thumb Render 37"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 38",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_38.png",
+        "alt": "Thumb Render 38"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 39",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_39.png",
+        "alt": "Thumb Render 39"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 40",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_40.png",
+        "alt": "Thumb Render 40"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 41",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_41.png",
+        "alt": "Thumb Render 41"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 42",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_42.png",
+        "alt": "Thumb Render 42"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 43",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_43.png",
+        "alt": "Thumb Render 43"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 44",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_44.png",
+        "alt": "Thumb Render 44"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 45",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_45.png",
+        "alt": "Thumb Render 45"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 46",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_46.png",
+        "alt": "Thumb Render 46"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 47",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_47.png",
+        "alt": "Thumb Render 47"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 51",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_51.png",
+        "alt": "Thumb Render 51"
+      },
+      {
+        "tipo": "galeria",
+        "titulo": "Render 52",
+        "url": "https://www.sigurban.com/landings/facebook/assets/img/Renders_52.png",
+        "alt": "Thumb Render 52"
+      }
+    ],
+    "videos": [
+      {
+        "id": "EIwwAkCVGbM",
+        "titulo": "Recorrido interior (Video 6)",
+        "tipo": "youtube",
+        "url": "https://youtube.com/shorts/EIwwAkCVGbM?feature=share",
+        "embedUrl": "https://www.youtube.com/embed/EIwwAkCVGbM",
+        "thumb": "https://img.youtube.com/vi/EIwwAkCVGbM/hqdefault.jpg"
+      },
+      {
+        "id": "eVCm_bnMnpc",
+        "titulo": "Vista exterior (Video 5)",
+        "tipo": "youtube",
+        "url": "https://youtube.com/shorts/eVCm_bnMnpc?feature=share",
+        "embedUrl": "https://www.youtube.com/embed/eVCm_bnMnpc",
+        "thumb": "https://img.youtube.com/vi/eVCm_bnMnpc/hqdefault.jpg"
+      },
+      {
+        "id": "gVUOeypQPq8",
+        "titulo": "Recorrido interior (Video 4)",
+        "tipo": "youtube",
+        "url": "https://youtube.com/shorts/gVUOeypQPq8?feature=share",
+        "embedUrl": "https://www.youtube.com/embed/gVUOeypQPq8",
+        "thumb": "https://img.youtube.com/vi/gVUOeypQPq8/hqdefault.jpg"
+      }
+    ]
+  }
+}

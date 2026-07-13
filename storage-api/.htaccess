@@ -1,0 +1,25 @@
+Options -Indexes
+
+<IfModule mod_php7.c>
+  php_value upload_max_filesize 150M
+  php_value post_max_size 150M
+  php_value max_execution_time 300
+  php_value max_input_time 300
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ api.php?route=$1 [QSA,L]
+</IfModule>
+
+<Files "api.php">
+  Require all granted
+</Files>
+
+<IfModule mod_headers.c>
+  Header always set Access-Control-Allow-Origin "https://sulafbc.com"
+  Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  Header always set Access-Control-Allow-Headers "X-Api-Key, Content-Type"
+</IfModule>

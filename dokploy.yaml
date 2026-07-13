@@ -1,0 +1,16 @@
+name: Sula FBC
+type: nodejs
+
+build:
+  cmd: npm run build
+
+deploy:
+  port: 3000
+  env:
+    NODE_ENV: production
+    NITRO_HOST: '0.0.0.0'
+    NITRO_PORT: 3000
+
+domains:
+  - domain: sulafbc.com
+    https: true  # Primero intentemos sin HTTPS

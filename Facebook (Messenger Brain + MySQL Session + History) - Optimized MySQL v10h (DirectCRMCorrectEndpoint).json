@@ -1,0 +1,1003 @@
+{
+  "name": "Facebook (Messenger Brain + MySQL Session + History) - Optimized MySQL v10h (DirectCRMCorrectEndpoint)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const body=$json.body??$json;if(body?.object==='page'&&Array.isArray(body.entry)){const messaging=body.entry?.[0]?.messaging?.[0]||{};const senderId=String(messaging?.sender?.id||'').trim();const isEcho=Boolean(messaging?.message?.is_echo);const text=String(messaging?.message?.text||messaging?.postback?.title||messaging?.message?.quick_reply?.payload||'').trim();const messageId=String(messaging?.message?.mid||messaging?.postback?.mid||'').trim();return [{json:{senderId,text,messageId,isEcho,now:Date.now(),raw:messaging}}];}const senderId=String(body.senderId||body.sender_id||body.psid||'').trim();const text=String(body.text||body.message||body.message_text||'').trim();const messageId=String(body.messageId||body.message_id||body.mid||body.messageMid||'').trim();return [{json:{senderId,text,messageId,isEcho:false,now:Date.now()}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11808,
+        7440
+      ],
+      "id": "16cb4acc-efb0-4cfb-b7d4-02d4ea22dee3",
+      "name": "Code: Normalize Input"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c4f6a2c5-8e7d-4b5a-9e2a-4d9a0e1b44d6",
+              "leftValue": "={{ $json.isEcho === true || !$json.senderId || !$json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        12016,
+        7440
+      ],
+      "id": "19d5b547-e8e2-4a78-a15e-1deb4bcc55bc",
+      "name": "IF: ignore echo/empty"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"ignored\": true } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        12288,
+        7264
+      ],
+      "id": "906959aa-febd-4e69-ae86-892f821d2522",
+      "name": "Respond: ignored"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        12288,
+        7600
+      ],
+      "id": "722f95c2-4a29-4d48-b905-13d00c3b4177",
+      "name": "Respond: ACK"
+    },
+    {
+      "parameters": {
+        "jsCode": "const esc=v=>String(v??'').replace(/\\\\/g,'\\\\\\\\').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r').replace(/\\t/g,'\\\\t').replace(/'/g,\"\\\\'\");const senderId=String($json.senderId||'').trim();const mid=String($json.messageId||'').trim()||('ts_'+String($json.now||Date.now()));return [{json:{...$json,dbLock:{senderId:esc(senderId),messageId:esc(mid)}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        12528,
+        7600
+      ],
+      "id": "39896c78-4594-4810-97f2-72ea0887d263",
+      "name": "Code: DB Lock Values"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sigurban_incoming_events (message_id, sender_id, created_at)\nVALUES (\n  '{{ $node[\"Code: DB Lock Values\"].json.dbLock.messageId }}',\n  '{{ $node[\"Code: DB Lock Values\"].json.dbLock.senderId }}',\n  NOW()\n);",
+        "options": {
+          "queryBatching": "single"
+        }
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2,
+      "position": [
+        12752,
+        7600
+      ],
+      "id": "605eac8e-68a1-4471-834b-951254fc2920",
+      "name": "MySQL: Lock Incoming Event",
+      "credentials": {
+        "mySql": {
+          "id": "XXyK2YUwmVaQ8PgK",
+          "name": "MySQL account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "3a56b245-0a8b-4dc2-8c90-4c8c0df3f0b2",
+              "leftValue": "={{ !$json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        12976,
+        7600
+      ],
+      "id": "5e226d17-08b1-4e94-b6df-344d9e28f460",
+      "name": "IF: lock ok?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{ok:true,duplicate:true}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        13216,
+        7792
+      ],
+      "id": "b8205ed0-e877-41dc-96e4-e9392c0a6ce4",
+      "name": "Code: Stop Duplicate Event"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  /* ===== SESSION ===== */\n  CASE WHEN s.sender_id IS NULL THEN 0 ELSE 1 END AS found,\n  COALESCE(s.sender_id, '') AS sender_id,\n  COALESCE(s.has_greeted, 0) AS has_greeted,\n  COALESCE(s.stage, 'info') AS stage,\n  COALESCE(s.lead_name, '') AS lead_name,\n  COALESCE(s.lead_dni, '') AS lead_dni,\n  COALESCE(s.lead_phone, '') AS lead_phone,\n  COALESCE(s.last_seen_ms, 0) AS last_seen_ms,\n  COALESCE(s.last_user_text, '') AS last_user_text,\n  COALESCE(s.last_message_id, '') AS last_message_id,\n  COALESCE(s.last_bot_reply, '') AS last_bot_reply,\n\n  /* ===== HISTORY (últimos 20) ===== */\n  (\n    SELECT\n      COALESCE(\n        JSON_ARRAYAGG(\n          JSON_OBJECT(\n            'role', role,\n            'text', text,\n            'ts', UNIX_TIMESTAMP(created_at) * 1000\n          )\n        ),\n        JSON_ARRAY()\n      ) AS history\n    FROM (\n      SELECT role, text, created_at\n      FROM sigurban_chat_messages\n      WHERE sender_id = '{{ $node[\"Code: Normalize Input\"].json.senderId }}'\n      ORDER BY id DESC\n      LIMIT 20\n    ) t\n  ) AS history,\n\n  /* ===== LEAD STATUS ===== */\n  CASE WHEN l.sender_id IS NULL THEN 0 ELSE 1 END AS lead_found,\n  COALESCE(l.status, '') AS lead_status,\n  COALESCE(l.lead_name, '') AS lead_name_db,\n  COALESCE(l.lead_dni, '') AS lead_dni_db,\n  COALESCE(l.lead_phone, '') AS lead_phone_db,\n  COALESCE(l.requested_count, 0) AS requested_count,\n  COALESCE(UNIX_TIMESTAMP(l.first_requested_at) * 1000, 0) AS first_requested_ms,\n  COALESCE(UNIX_TIMESTAMP(l.last_requested_at) * 1000, 0) AS last_requested_ms,\n  COALESCE(l.last_reason, '') AS last_reason,\n  COALESCE(l.last_api_response, '') AS last_api_response\nFROM (SELECT '{{ $node[\"Code: Normalize Input\"].json.senderId }}' AS sender_id) x\nLEFT JOIN sigurban_chat_sessions s\n  ON s.sender_id = x.sender_id\nLEFT JOIN sigurban_lead_requests l\n  ON l.sender_id = x.sender_id\nLIMIT 1;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2,
+      "position": [
+        13200,
+        7296
+      ],
+      "id": "5bc3c31d-6e33-45b4-ba28-bd4a1129708b",
+      "name": "MySQL: Load Context (Session+History+Lead)",
+      "credentials": {
+        "mySql": {
+          "id": "XXyK2YUwmVaQ8PgK",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const TWENTY_FOUR_HOURS=24*60*60*1000;const input=$node['Code: Normalize Input'].json;const db=$json;const isEcho=!!input.isEcho;const senderId=input.senderId;const text=input.text;const messageId=input.messageId;const now=input.now;let session={found:Number(db.found||0)===1,hasGreeted:!!db.has_greeted,stage:db.stage||'info',lead:{name:db.lead_name||'',dni:db.lead_dni||'',phone:db.lead_phone||''},lastSeen:Number(db.last_seen_ms||0),lastUserText:db.last_user_text||'',lastMessageId:db.last_message_id||'',lastBotReply:db.last_bot_reply||''};const isNewSession=!session.lastSeen||(now-session.lastSeen>TWENTY_FOUR_HOURS);if(isNewSession){session.hasGreeted=false;session.stage='info';session.lead={name:'',dni:'',phone:''};session.lastBotReply='';}session.collectingEnabled=!isNewSession&&['collecting','awaiting_consent'].includes(session.stage);const DEDUPE_WINDOW_MS=2*60*1000;let isDuplicate=false;if(messageId){const sameId=(messageId===session.lastMessageId);const within=session.lastSeen&&((now-session.lastSeen)<DEDUPE_WINDOW_MS);const sameText=!text||(text===session.lastUserText);isDuplicate=!!(sameId&&within&&sameText);}else{isDuplicate=!!(text&&text===session.lastUserText&&session.lastSeen&&(now-session.lastSeen)<15000);}if(isDuplicate&&!session.lastBotReply){isDuplicate=false;}session.lastSeen=now;session.lastUserText=text;if(messageId)session.lastMessageId=messageId;return [{json:{senderId,text,messageId,now,isEcho,isNewSession,isDuplicate,session}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        13440,
+        7504
+      ],
+      "id": "518ee52f-9fff-4560-926c-55ac5b2eebe2",
+      "name": "Code: Session + Dedupe + 24h"
+    },
+    {
+      "parameters": {
+        "url": "https://www.sigurban.com/landings/facebook/sigurban-data.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        13664,
+        7776
+      ],
+      "id": "4437bd02-995b-4a10-8e82-4e0cc2c4d79a",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $node['Code: Session + Dedupe + 24h'].json || {};\n\nconst senderId    = String(src.senderId || '').trim();\nconst messageId   = String(src.messageId || '').trim();\nconst now         = Number(src.now || Date.now());\nconst isDuplicate = !!src.isDuplicate;\n\nconst session = src.session || { hasGreeted: false, stage: 'info', lead: { name: '', dni: '', phone: '' } };\nsession.stage = String(session.stage || 'info');\nsession.lead  = session.lead || { name: '', dni: '', phone: '' };\n\nconst text = String(src.text || '').trim();\n\n// ====================== Normalización base ======================\nconst stripAccents = (s) =>\n  String(s || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\n\nconst norm = (s) =>\n  stripAccents(String(s || '').toLowerCase())\n    .replace(/\\s+/g, ' ')\n    .trim();\n\n// ====================== KB (COMPLETO) ======================\nconst kbRaw = $node['HTTP Request1'].json || {};\nconst sigurban = (kbRaw && typeof kbRaw === 'object') ? kbRaw : {};\n\n// ====================== Normalization.synonyms ======================\nconst applySynonyms = (inputText, normalization) => {\n  let s = String(inputText || '');\n  const syns = normalization?.synonyms;\n  if (!Array.isArray(syns)) return s;\n\n  const escapeRe = (x) => String(x).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n\n  for (const entry of syns) {\n    const to = String(entry?.to || '').trim();\n    const fromArr = entry?.from;\n    if (!to || !Array.isArray(fromArr)) continue;\n\n    for (const from of fromArr) {\n      const f = String(from || '').trim();\n      if (!f) continue;\n      const re = new RegExp(`\\\\b${escapeRe(f)}\\\\b`, 'gi');\n      s = s.replace(re, to);\n    }\n  }\n  return s;\n};\n\nconst textNormalized = applySynonyms(text, sigurban.normalization);\nconst lcPlain = norm(textNormalized);\n\n// ====================== DB Load ======================\nconst load = $node['MySQL: Load Context (Session+History+Lead)'].json || {};\n\n// ====================== History ======================\nlet history = load.history ?? [];\nif (typeof history === 'string') {\n  try { history = JSON.parse(history); } catch (e) { history = []; }\n}\nif (!Array.isArray(history)) history = [];\nhistory = history.slice().reverse().slice(-12).map(m => ({ role: m.role, text: String(m.text || '') }));\n\n// ====================== Helpers ======================\nconst includesAny = (hay, arr) => Array.isArray(arr) && arr.some(k => hay.includes(k));\n\nconst listIncludesNormalized = (hayLcPlain, list) => {\n  if (!Array.isArray(list)) return false;\n  return list.some(x => {\n    const t = norm(x);\n    return t && hayLcPlain.includes(t);\n  });\n};\n\n// Botones / respuestas cortas típicas (no son nombre)\nconst isQuickReplyLike =\n  /^(la\\s+)?ubicacion$/.test(lcPlain) ||\n  /^(los\\s+)?requisitos$/.test(lcPlain) ||\n  /^precio(s)?$/.test(lcPlain) ||\n  /^cuota(s)?$/.test(lcPlain) ||\n  /^prima$/.test(lcPlain) ||\n  /^plazo$/.test(lcPlain) ||\n  /^ok(ay|ey|i)?$/.test(lcPlain) ||\n  /^gracias$/.test(lcPlain) ||\n  /^(si|sí|no|nel|nop)$/.test(lcPlain) ||\n  /^quiero\\s+precalific(ar|arme|acion|ación)?$/.test(lcPlain) ||\n  /^precalific(ar|arme|acion|ación)$/.test(lcPlain);\n\n// ====================== Policy triggers from KB ======================\nconst policy = sigurban?.conversationPolicy || {};\nconst wantsHandoff = listIncludesNormalized(lcPlain, policy.handoffTriggers);\nconst stopDataCollection = listIncludesNormalized(lcPlain, policy.stopDataCollectionTriggers);\n\n// ---------- DNI ----------\nconst extractDni = (t) => {\n  const s = String(t || '');\n\n  const reA = /\\b(\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{5})\\b/;\n  const reB = /\\b(\\d{13})\\b/;\n\n  let m = s.match(reA);\n  if (m && m[1]) return { digits: m[1].replace(/[^0-9]/g, ''), raw: m[0] };\n\n  m = s.match(reB);\n  if (m && m[1]) return { digits: m[1], raw: m[0] };\n\n  return { digits: '', raw: '' };\n};\n\n// ---------- PHONE ----------\nconst extractPhone = (t) => {\n  const s = String(t || '');\n\n  const re1 = /\\b(?:\\+?504[-\\s]?)?(\\d{4})[-\\s]?(\\d{4})\\b/g;\n  const cands = [];\n  let m;\n  while ((m = re1.exec(s)) !== null) {\n    const d = String(m[1] || '') + String(m[2] || '');\n    if (d.length === 8) cands.push({ digits: d, raw: m[0] });\n  }\n\n  const re2 = /\\b(?:\\+?504[-\\s]?)?(\\d{8})\\b/;\n  const m2 = s.match(re2);\n  if (m2 && m2[1] && m2[1].length === 8) cands.push({ digits: m2[1], raw: m2[0] });\n\n  return cands.length ? cands[cands.length - 1] : { digits: '', raw: '' };\n};\n\n// ---------- NAME ----------\nconst NAME_LOCATION_WORDS = [\n  'tegucigalpa','siguatepeque','san pedro sula','sps','comayagua','la ceiba','choloma','el progreso','danli','danlí','juticalpa','choluteca','roatan','roatán','copan','copán','olancho','yoro','cortes','cortés','atlantida','atlántida','intibuca','intibucá','valle','colon','colón','francisco morazan','francisco morazán','honduras','usa','eeuu','estados unidos','miami','houston','dallas','new york','nueva york','los angeles','florida','texas','california','madrid','barcelona','espana','españa'\n];\n\nconst NAME_CONTEXT_WORDS = [\n  'casa','casas','construida','construidas','proyecto','proyectos','precio','precios','cuota','cuotas','prima','plazo','financiamiento','credito','crédito','requisito','requisitos','ubicacion','ubicación','direccion','dirección','mapa','whatsapp','asesor','asesora','precalificar','precalificacion','precalificación','aplicar','solicitar','informacion','información','terreno','lote','lotes','visita','visitar','dato','datos','enviar','envia','envía','envio','envío','enviado','enviados','enviaron','mandar','mandalo','mándalo','reenviar','reenvio','reenvío','reenviado','reintentar','reintento','registro','registrado','registrada','crm','sistema'\n];\n\nconst escapeRegExp = (x) => String(x).replace(/[|\\\\{}()[\\]^$+*?.]/g, '\\\\$&');\nconst locationRegex = new RegExp('\\\\b(' + NAME_LOCATION_WORDS.map(escapeRegExp).join('|') + ')\\\\b', 'i');\nconst contextRegex = new RegExp('\\\\b(' + NAME_CONTEXT_WORDS.map(escapeRegExp).join('|') + ')\\\\b', 'i');\n\nconst BAD_NAME_PHRASE_PATTERNS = [\n  /\\b(casa|casas|vivienda|viviendas|proyecto|proyectos|lote|lotes|terreno|terrenos)\\b/i,\n  /\\b(ya|si|sí|no|ok|okay|oki|bueno|pero|entonces|mira|gracias|listo|perfecto)\\b/i,\n  /\\b(es|son|esta|está|estan|están|hay|tiene|tienen|tengo|tenemos|incluye|incluyen)\\b/i,\n  /\\b(dato|datos|enviar|envia|envía|envio|envío|enviado|enviados|enviaron|mandar|mandalo|mándalo|reenviar|reenvio|reenvío|reenviado|reintentar|reintento|registro|registrar|registrado|registrada|crm|sistema)\\b/i,\n  /\\b(precio|precios|cuota|cuotas|prima|plazo|requisito|requisitos|ubicacion|ubicación|direccion|dirección|whatsapp|asesor|asesora|precalificar|precalificacion|precalificación)\\b/i\n];\n\nconst startsLikeChatControl = (plain) =>\n  /^(ok|okay|oki|bueno|pero|entonces|mira|gracias|listo|perfecto|si|sí|no)\\b/i.test(plain);\n\nconst cleanNameCandidate = (s) => String(s || '')\n  .replace(/https?:\\/\\/\\S+/gi, ' ')\n  .replace(/#[A-Za-z0-9_]+/g, ' ')\n  .replace(/[0-9]/g, ' ')\n  .replace(/[-_]/g, ' ')\n  .replace(/[^A-Za-zÁÉÍÓÚÑÜáéíóúñü\\s']/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst hasNameStopContext = (cand) => {\n  const cPlain = norm(cand);\n  return (\n    startsLikeChatControl(cPlain) ||\n    BAD_NAME_PHRASE_PATTERNS.some((re) => re.test(cPlain)) ||\n    /(^|\\s)(soy de|vivo en|resido en|estoy en|desde|radico en)(\\s|$)/i.test(cPlain) ||\n    locationRegex.test(cPlain) ||\n    contextRegex.test(cPlain)\n  );\n};\n\nconst looksLikeName = (cand) => {\n  if (!cand) return false;\n\n  const cPlain = norm(cand);\n\n  const blocked =\n    /(^(si|sí|no|ok(ay|ey|i)?|gracias|dale|de acuerdo|perfecto|listo)$)/i.test(cPlain) ||\n    /(^|\\s)(quiero|deseo|necesito|me interesa|solo|solamente|info|informacion|información)(\\s|$)/i.test(cPlain) ||\n    /(^|\\s)(precal|precalific|precalificacion|precalificación|calific|aplic|aplicar|solicit|solicitud|credito|crédito|financ|visita|cita|contact|llamar)(\\s|$)/i.test(cPlain) ||\n    /(^|\\s)(donde|dónde|ubicacion|ubicación|ubicad|mapa|direccion|dirección|llegar|como llegar|cómo llegar|requisitos?|precio|cuotas?|prima|plazo|whatsapp|sigurban|landing|galeria|galería|asesora|asesor)(\\s|$)/i.test(cPlain) ||\n    /(^|\\s)(soy de|vivo en|resido en|estoy en|radico en)(\\s|$)/i.test(cPlain);\n\n  if (blocked || hasNameStopContext(cPlain)) return false;\n\n  if (cand.length < 6 || cand.length > 60) return false;\n\n  const parts = cand.split(' ').filter(Boolean);\n  if (parts.length < 2 || parts.length > 5) return false;\n  if (parts.some(w => stripAccents(w).length < 2)) return false;\n  if (parts.some(w => /^([a-záéíóúñü])\\1{2,}$/i.test(w))) return false;\n  if (parts.some(w => BAD_NAME_PHRASE_PATTERNS.some((re) => re.test(norm(w))))) return false;\n\n  const alphaChars = cand.replace(/[^A-Za-zÁÉÍÓÚÑÜáéíóúñü]/g, '');\n  if (alphaChars.length < 5) return false;\n\n  return true;\n};\n\nconst extractNameByPatterns = (rawText) => {\n  const t = String(rawText || '');\n\n  const patterns = [\n    /(?:mi\\s+nombre\\s+correcto\\s+es)\\s+([^\\n,.]+)/i,\n    /(?:mi\\s+nombre\\s+completo\\s+es)\\s+([^\\n,.]+)/i,\n    /(?:mi\\s+nombre\\s+es)\\s+([^\\n,.]+)/i,\n    /(?:me\\s+llamo)\\s+([^\\n,.]+)/i,\n    /(?:^|\\b)(?:no,?\\s*)?es\\s+([^\\n,.]+)/i,\n    /(?:soy)\\s+([^\\n,.]+)/i,\n    /(?:nombre\\s+completo)\\s*[:\\-]\\s*([^\\n,.]+)/i,\n    /(?:nombre)\\s*[:\\-]\\s*([^\\n,.]+)/i,\n  ];\n\n  for (const re of patterns) {\n    const m = t.match(re);\n    if (m && m[1]) {\n      const candidate = cleanNameCandidate(m[1]);\n      if (/^(de|desde|en)\\s+/i.test(norm(m[1]))) continue;\n      if (looksLikeName(candidate)) return candidate;\n    }\n  }\n  return '';\n};\n\nconst extractNameLoose = (rawText) => {\n  const raw = String(rawText || '').trim();\n  if (!raw) return '';\n\n  const pieces = raw\n    .split(/[\\n,;|]+/)\n    .map(x => cleanNameCandidate(x))\n    .filter(Boolean);\n\n  if (pieces.length > 1) {\n    for (const piece of pieces) {\n      if (looksLikeName(piece)) return piece;\n    }\n  }\n\n  const cleaned = cleanNameCandidate(raw);\n  if (looksLikeName(cleaned)) return cleaned;\n  return '';\n};\n\nconst nameNeedsReview = (cand) => {\n  const c = String(cand || '').trim();\n  if (!c) return false;\n  const cPlain = norm(c);\n  const parts = c.split(' ').filter(Boolean);\n  return (\n    !looksLikeName(c) ||\n    parts.length < 2 ||\n    parts.length > 5 ||\n    hasNameStopContext(cPlain)\n  );\n};\n\n// ====================== Intent match from KB (simple) ======================\nconst matchIntent = (lc, intents) => {\n  if (!Array.isArray(intents)) return '';\n  let best = null;\n\n  for (const it of intents) {\n    const list = it?.match;\n    if (!Array.isArray(list)) continue;\n\n    const hits = list.filter(x => {\n      const t = norm(x);\n      return t && lc.includes(t);\n    }).length;\n\n    if (hits <= 0) continue;\n\n    const score = hits + (Number(it?.priority || 0) / 1000);\n    if (!best || score > best.score) best = { id: String(it?.id || ''), score };\n  }\n  return best?.id || '';\n};\n\nconst matchedIntentId = matchIntent(lcPlain, sigurban.intents);\n\n// ====================== Backward-compatible detectors ======================\nconst asksRequirements =\n  matchedIntentId === 'ASK_REQUIREMENTS' ||\n  includesAny(lcPlain, [\n    'requisito','requisitos','documento','documentos','documentacion','documentación',\n    'papel','papeles','papeleria','papelería',\n    'que piden','que necesito','que ocupo','que debo llevar','que tengo que llevar',\n    'requisitos para aplicar','requisitos para credito','requisitos para financiamiento'\n  ]);\n\nconst wantsInfoOnly =\n  !!matchedIntentId ||\n  includesAny(lcPlain, [\n    'precio','precios','cuota','cuotas','mensualidad','pago mensual','cuanto cuesta','cuánto cuesta',\n    'cuanto vale','cuánto vale','valor','costo','coste',\n    'prima','enganche','inicial','plazo','años','financiamiento','financiar','credito','crédito',\n    'ubic','ubicacion','ubicación','donde','dónde','direccion','dirección','referencia',\n    'como llegar','cómo llegar','como llego','cómo llego','mapa','waze','google maps',\n    'modelo','metros','m2','mt2','habit','habitaciones','cuartos','ban','bañ','baños',\n    'foto','fotos','galeria','galería','video','videos','tour'\n  ]);\n\n// ======================================================\n// ✅ CAMBIO MINIMO: NO disparar precalificación en preguntas de USA/visa/extranjero\n// ======================================================\nconst isForeignQuestion =\n  /\\b(usa|estados unidos|visa|extranjero|extranjera|españa|espana)\\b/i.test(lcPlain);\n\n\n// ====================== Detección de país/región ======================\nconst isSpain = /\\b(espana|madrid|barcelona|sevilla|valencia|bilbao|espanol|espanola)\\b/.test(lcPlain);\nconst isUSA = /\\b(estados unidos|usa|eeuu|miami|houston|nueva york|new york|los angeles|dallas|atlanta|chicago|virginia|maryland|california|arizona|texas|florida)\\b/.test(lcPlain);\nconst hasTPS = /\\b(tps|estatus temporal|temporary protected|residencia permanente|residente|ciudadano|ciudadana|green card|visa de trabajo|legal|documentado|documentada)\\b/.test(lcPlain);\nconst isUSALegal   = isUSA && hasTPS;\nconst isUSAUnknown = isUSA && !hasTPS;\nconst needsReferido = isSpain || isUSAUnknown;\n\n// ====================== Hora Honduras (UTC-6) ======================\nconst hourHN   = new Date(now - 6 * 3600000).getUTCHours();\nconst timeOfDay = hourHN < 12 ? 'manana' : hourHN < 18 ? 'tarde' : 'noche';\n\nconst wantsPrequalify =\n  !isForeignQuestion && (\n    matchedIntentId === 'WANTS_PREQUALIFY' ||\n    /(precal|precalific|precalificacion|precalificación|calific|calificacion|calificación)/i.test(lcPlain) ||\n\n    // Aplicar/solicitar SOLO si hay intención clara de trámite, no pregunta general:\n    /\\b(quiero|deseo|me interesa|como|cómo|puedo)\\s+(aplicar|solicitar|tramitar)\\b/i.test(lcPlain) ||\n    /\\b(aplicar|solicitar)\\s+(credito|crédito|financiamiento|precalificacion|precalificación|prestamo|préstamo)\\b/i.test(lcPlain) ||\n\n    /(credito|crédito|financ|hipotec|prestam|préstam|banco|bur(o|ó)|central de riesgo)/i.test(lcPlain) ||\n    /(ingres|salario|constancia|cuanto gano|cuánto gano)/i.test(lcPlain) ||\n    /(me pueden|podrian|podrían).*(contact|llamar|asesor|asesora)/i.test(lcPlain) ||\n    /(me contacten|contactenme|contáctenme|llamenme|llámenme|llamame|llámame)/i.test(lcPlain) ||\n    /(agendar|agenda|cita|visita|tour|quiero visitar|quiero verla|quiero ver la casa)/i.test(lcPlain) ||\n    /(me interesa).*(financ|credito|crédito|comprar)/i.test(lcPlain)\n  );\n\nconst stopPrequalify =\n  stopDataCollection ||\n  /(no precalificar|no aplicar|no autoriz|no enviar|olvidalo|olvídalo|cancelar|ya no)/i.test(lcPlain) ||\n  /(prefiero hablar con persona|prefiero un asesor|prefiero una asesora)/i.test(lcPlain);\n\n// ====================== Parse DNI / Phone / Name ======================\nconst dniObj = extractDni(text);\nlet textNoDni = text;\nif (dniObj.raw) textNoDni = textNoDni.replace(dniObj.raw, ' ');\n\nconst phoneObj = extractPhone(textNoDni);\nlet textNoDniPhone = textNoDni;\nif (phoneObj.raw) textNoDniPhone = textNoDniPhone.replace(phoneObj.raw, ' ');\n\nif (dniObj.digits && dniObj.digits.length === 13) session.lead.dni = dniObj.digits;\nif (phoneObj.digits && phoneObj.digits.length === 8) session.lead.phone = phoneObj.digits;\n\nlet requiresNameReview = false;\nif (session.lead.name && nameNeedsReview(session.lead.name)) {\n  requiresNameReview = true;\n  session.lead.name = '';\n}\n\nconst nameEmpty = !String(session.lead.name || '').trim();\n\nif (nameEmpty && !isQuickReplyLike) {\n  const byPattern = extractNameByPatterns(text);\n  if (byPattern) { session.lead.name = byPattern; requiresNameReview = false; }\n}\n\nif (!String(session.lead.name || '').trim() && !isQuickReplyLike) {\n  const hasDniOrPhone = !!(dniObj.digits || phoneObj.digits);\n  const candidateSource = hasDniOrPhone ? textNoDniPhone : text;\n  const loose = extractNameLoose(candidateSource);\n  if (loose) { session.lead.name = loose; requiresNameReview = false; }\n}\n\nif (!String(session.lead.name || '').trim()) {\n  for (let i = history.length - 1; i >= 0; i--) {\n    const h = history[i];\n    if (h?.role !== 'user') continue;\n\n    const ht = String(h.text || '');\n    const hdni = extractDni(ht);\n    let hNoDni = ht;\n    if (hdni.raw) hNoDni = hNoDni.replace(hdni.raw, ' ');\n    const hphone = extractPhone(hNoDni);\n    let hNoDniPhone = hNoDni;\n    if (hphone.raw) hNoDniPhone = hNoDniPhone.replace(hphone.raw, ' ');\n\n    const byPattern = extractNameByPatterns(ht);\n    if (byPattern) { session.lead.name = byPattern; requiresNameReview = false; break; }\n\n    const loose = extractNameLoose(hNoDniPhone);\n    if (loose) { session.lead.name = loose; requiresNameReview = false; break; }\n  }\n}\n\nif (session.lead.name && nameNeedsReview(session.lead.name)) {\n  requiresNameReview = true;\n  session.lead.name = '';\n}\n\n// ====================== nameConfidence (sin IA) ======================\nlet nameConfidence = 'none'; // none|low|medium|high\nconst nm = String(session.lead.name || '').trim();\nif (nm) {\n  const parts = nm.split(' ').filter(Boolean);\n  const plain = norm(nm);\n  const hasBadTokens = hasNameStopContext(plain);\n\n  if (!hasBadTokens && parts.length >= 2 && parts.length <= 4) nameConfidence = 'high';\n  else if (!hasBadTokens && parts.length >= 2 && parts.length <= 5) nameConfidence = 'medium';\n  else nameConfidence = 'low';\n}\n\nconst nameValidation = {\n  candidate: nm,\n  isValidForCrm: !!nm && !requiresNameReview && (nameConfidence === 'high' || nameConfidence === 'medium') && looksLikeName(nm),\n  confidence: nameConfidence,\n  requiresNameReview,\n  reason: !nm\n    ? 'missing_name'\n    : requiresNameReview\n      ? 'suspicious_or_not_person_name'\n      : (nameConfidence === 'low' || nameConfidence === 'none')\n        ? 'low_confidence'\n        : 'valid_person_name',\n  rules: 'Nombre de persona real: 2-5 palabras, sin ubicaciones, frases del proyecto, preguntas, CRM, envío, registro, ni respuestas cortas.'\n};\n\nif (!nameValidation.isValidForCrm && session.lead.name) {\n  session.lead.name = '';\n  nameValidation.candidate = '';\n}\n\n// ====================== Lead status from DB ======================\nconst leadStatusRaw = {\n  found: Number(load.lead_found || 0) === 1,\n  status: String(load.lead_status || ''),\n  name: String(load.lead_name_db || ''),\n  dni: String(load.lead_dni_db || ''),\n  phone: String(load.lead_phone_db || ''),\n  requestedCount: Number(load.requested_count || 0),\n  firstRequestedMs: Number(load.first_requested_ms || 0),\n  lastRequestedMs: Number(load.last_requested_ms || 0),\n  lastReason: String(load.last_reason || ''),\n  lastApiResponse: String(load.last_api_response || '')\n};\n\nconst leadNameDbValid = !!(leadStatusRaw.name.trim() && looksLikeName(leadStatusRaw.name) && !nameNeedsReview(leadStatusRaw.name));\nconst hasAllDb  = !!(leadNameDbValid && leadStatusRaw.dni.trim() && leadStatusRaw.phone.trim());\nconst isSent    = /sent|submitted|contacted|enviado/i.test(leadStatusRaw.status);\nconst isPending = /pending|sending|in_flight|proces|queue/i.test(leadStatusRaw.status);\n\nconst leadSent = !!(leadStatusRaw.found && hasAllDb && isSent);\nconst leadInFlight = !!(\n  leadStatusRaw.found &&\n  hasAllDb &&\n  isPending &&\n  leadStatusRaw.lastRequestedMs &&\n  (now - leadStatusRaw.lastRequestedMs < 10 * 60 * 1000)\n);\n\nconst leadStatus = {\n  ...leadStatusRaw,\n  leadHasAllFields: hasAllDb,\n  leadNameDbValid,\n  leadSent,\n  leadInFlight\n};\n\n// ====================== Missing fields (desde KB) ======================\nconst fieldsOrder = Array.isArray(sigurban?.leadCapture?.fieldsOrder)\n  ? sigurban.leadCapture.fieldsOrder\n  : ['name', 'dni', 'phone'];\n\nconst missing = [];\nfor (const f of fieldsOrder) {\n  if (f === 'name'  && !nameValidation.isValidForCrm) missing.push('name');\n  if (f === 'dni'   && !String(session.lead.dni   || '').trim()) missing.push('dni');\n  if (f === 'phone' && !String(session.lead.phone || '').trim()) missing.push('phone');\n}\nconst nextMissing = missing[0] || '';\n\n// ====================== Consent ======================\nconst isNameCorrection =\n  /^(no,?\\s*)?(es|mi nombre correcto es|mi nombre completo es|mi nombre es|me llamo|soy)\\s+[a-záéíóúñü]/i.test(lcPlain);\n\nconst consentNo =\n  !isNameCorrection &&\n  /(^(no|nel|nop|negativo)\\b|no gracias|prefiero whatsapp|mejor whatsapp|mejor por whatsapp|mejor por wpp|mejor por wasap|no autoriz|no lo envies|no lo envie|no enviar|despues|después|luego|mas tarde|más tarde|otro dia|otro día)/i.test(lcPlain);\n\nconst consentYes =\n  !consentNo && /(^(si|sí)\\b|claro\\b|dale\\b|de una\\b|va\\b|ok(ay|ey|i)?\\b|perfecto\\b|listo\\b|de acuerdo\\b|autorizo\\b|te autorizo\\b|acepto\\b|confirmo\\b|proced(e|a)\\b|envi(a|á|e)\\b|mand(a|á|e)\\b)/i.test(lcPlain);\n\n// ====================== Collecting Gate (solo si el usuario lo activó) ======================\n// Si no existe, por defecto NO está habilitado\nif (typeof session.collectingEnabled !== 'boolean') {\n  session.collectingEnabled = false;\n}\n\n// Si el usuario expresa intención de precalificar, habilitamos collecting\nif (wantsPrequalify) {\n  session.collectingEnabled = true;\n}\n\n// Si el usuario detiene precalificación, deshabilitamos collecting\nif (stopPrequalify) {\n  session.collectingEnabled = false;\n}\n\nconst collectingEnabled = session.collectingEnabled === true;\n\n// ====================== Stage logic (prioridades) ======================\nconst hasAnyLead =\n  !!String(session.lead?.name || '').trim() ||\n  !!String(session.lead?.dni || '').trim() ||\n  !!String(session.lead?.phone || '').trim();\n\nif (leadSent) session.stage = 'submitted';\nelse if (leadInFlight) session.stage = 'in_flight';\nelse if (wantsHandoff) session.stage = 'handoff';\nelse {\n  // Si el usuario pidió parar y no hay datos, volvemos a info\n  if (stopPrequalify && !hasAnyLead) session.stage = 'info';\n\n  // Solo entramos a collecting si collectingEnabled está activo\n  if (collectingEnabled && !['collecting', 'awaiting_consent'].includes(session.stage)) {\n    session.stage = 'collecting';\n  }\n\n  // Si hay datos capturados pero collecting NO está habilitado,\n  // no forzamos collecting (evita pedir DNI cuando solo preguntan info)\n  if (hasAnyLead) {\n    if (collectingEnabled) {\n      session.stage = (missing.length === 0) ? 'awaiting_consent' : 'collecting';\n    } else {\n      session.stage = 'info';\n    }\n  }\n\n  // Si no hay lead y solo pide info, mantener info\n  if (!hasAnyLead && wantsInfoOnly && !wantsPrequalify) {\n    session.stage = 'info';\n  }\n}\n\n\n// ====================== Flags ======================\nconst needsConsentPrompt =\n  !leadSent &&\n  !leadInFlight &&\n  missing.length === 0 &&\n  session.stage === 'awaiting_consent' &&\n  !consentYes &&\n  !consentNo;\n\nconst leadReady =\n  collectingEnabled &&\n  !leadSent &&\n  !leadInFlight &&\n  missing.length === 0 &&\n  ['awaiting_consent', 'collecting'].includes(String(session.stage || '')) &&\n  consentYes;\n\n// ====================== Output ======================\nreturn [{\n  json: {\n    senderId,\n    text,\n    textNormalized,\n    messageId,\n    now,\n    isDuplicate,\n    session,\n\n    matchedIntentId,\n    wantsHandoff,\n    wantsInfoOnly,\n    asksRequirements,\n    wantsPrequalify,\n    stopPrequalify,\n\n    missing,\n    nextMissing,\n    consentYes,\n    consentNo,\n    needsConsentPrompt,\n    leadReady,\n\n    nameValidation,\n    leadStatus,\n    history,\n    sigurban,\n\n    isSpain,\n    isUSA,\n    isUSALegal,\n    isUSAUnknown,\n    needsReferido,\n    timeOfDay,\n\n    parsed: {\n      dni: dniObj.digits || '',\n      phone: phoneObj.digits || '',\n      stage: session.stage,\n      nameConfidence,\n      requiresNameReview\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        13792,
+        7376
+      ],
+      "id": "be509b1f-4873-473e-8f91-2828a3e521b9",
+      "name": "Code: Context + Lead + Stage"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Sos Julia, asesora digital de Sig-Urban. Respondé siempre en español, con calidez y naturalidad — como una persona real, no un formulario automático.\nUsá 1–2 emojis por mensaje (🏡📲😊✨). Variá tus frases entre turnos — no repitas exactamente las mismas palabras.\n\nTe voy a dar: (1) consulta del cliente (2) base de conocimiento SIGURBAN_DATA (3) estado de sesión SESSION (4) historial HISTORY (5) estado del lead LEAD_STATUS (6) timeOfDay (7) flags: isSpain, isUSALegal, isUSAUnknown, needsReferido.\n\n═══ REGLA MÁXIMA ═══\nRespondé SIEMPRE primero lo que el cliente pregunta. NUNCA arranques pidiendo datos sin antes responder su consulta.\n\n═══ ANTES DE PEDIR UN DATO — REVISÁ HISTORY ═══\nSi el bot ya pidió ese mismo dato (nombre/DNI/teléfono) en los últimos 2 turnos y el cliente no lo dio, NO lo repitas de forma idéntica ahora. Respondé lo que pregunta y, si querés recordárselo, hacelo muy brevemente al final, con otra redacción.\n\n═══ PRIMER CONTACTO (SESSION.hasGreeted = false) ═══\nEnviá un mensaje completo que incluya:\n1) Saludo cálido usando timeOfDay: \"buenos días\" / \"buenas tardes\" / \"buenas noches\"\n2) Presentación breve del proyecto y ubicación\n3) Precio, cuota mensual, prima, plazo y financiamiento (datos exactos de SIGURBAN_DATA — nunca inventés cifras)\n4) Requisitos resumidos para asalariados y comerciantes\n5) Pregunta natural si le interesa precalificar (son solo 3 datos: nombre, DNI y teléfono)\nEste primer mensaje filtra a quien no aplica — mostrá precio y requisitos siempre.\n\n═══ CLIENTES EN EE.UU. ═══\n• isUSALegal = true (mencionaron TPS, residencia legal, ciudadanía americano): respondeles positivamente. Ej: \"¡Claro que podés aplicar! Tenemos clientes con TPS y residencia que han tramitado con nosotros 😊 Los ingresos deben ser demostrables. ¿Querés que te guíe con la precalificación?\"\n• isUSAUnknown = true (están en EE.UU. pero no mencionaron estatus legal): ofrecé gentilmente la opción del referido (ver abajo). NUNCA preguntés directamente sobre estatus migratorio ni documentos.\n\n═══ CLIENTES EN ESPAÑA U OTROS PAÍSES (isSpain = true) ═══\nCon mucha empatía, nunca rechaces de forma seca: \"Lamentablemente nuestros proyectos aplican para personas con residencia en Honduras 😔 Pero si tenés un familiar o persona de confianza allá, ellos pueden tramitar el crédito — es una alternativa que varios de nuestros clientes en el exterior usan con éxito 😊 ¿Te interesa saber cómo funciona?\"\n\n═══ OPCIÓN REFERIDO (needsReferido = true) ═══\nCuando alguien no puede aplicar directamente, presentá así (sin mencionar que el referido \"pone su nombre\" — solo que tramita):\n\"También existe una alternativa: si tenés un familiar o persona de confianza en Honduras, ellos pueden tramitar el crédito y coordinar el pago con vos — es algo que muchos de nuestros clientes en el exterior hacen 😊 ¿Te cuento más sobre esa opción?\"\n\n═══ PRECALIFICACIÓN (solo si SESSION.collectingEnabled = true) ═══\n• Un dato por turno: nombre completo → DNI (13 dígitos) → teléfono (8 dígitos).\n• Si SESSION.lead.name/dni/phone ya tiene valor → NO lo volvás a pedir.\n• Con los 3 datos: mostrá resumen y pedí confirmación explícita antes de enviar.\n• SOLO enviás los datos si el cliente responde \"Sí\" o confirmación clara.\n• Si prefiere WhatsApp: invitalo a #FBSIGURBAN.\n• Explicá brevemente para qué son los datos (precalificar y para que una asesora le contacte).\n\n═══ INFORMACIÓN ═══\nSolo de SIGURBAN_DATA. Si no está: \"Esa info no está disponible en este momento\" + WhatsApp #FBSIGURBAN. NUNCA inventés números, precios, condiciones ni requisitos.\n\n═══ LEAD YA ENVIADO (LEAD_STATUS.leadSent = true) ═══\nInformá que los datos ya fueron enviados y una asesora le contactará. Ofrecé WhatsApp #FBSIGURBAN y la landing.\n\n═══ TONO FINAL ═══\nNatural, cálido, conversacional. Sin sonar a guión ni robótica. Variá el vocabulario entre turnos.\n\n═══ v10d guardrail CRM/CONSENT ═══\nNo afirmés que los datos fueron enviados, registrados, remitidos o reintentados. El sistema externo confirma eso después de llamar al CRM. Si están los 3 datos, solo pedí autorización explícita mostrando Nombre, DNI y Teléfono. Si el nombre parece una frase, una ubicación, una pregunta o un dato incompleto, pedí que lo confirme antes de continuar.\n\n═══ v10e VALIDACIÓN DE NOMBRE (OBLIGATORIA) ═══\nNAME_VALIDATION manda sobre cualquier suposición del modelo.\nUn nombre válido debe parecer una persona real: 2 a 5 palabras, letras, sin frases de trámite, sin ubicación, sin preguntas y sin palabras del proyecto.\nRechazá como nombre cualquier frase tipo: \"las casas ya están construidas\", \"ok se enviaron los datos\", \"pero envía mis datos\", \"soy de USA\", \"Tegucigalpa\", preguntas de precios/requisitos/ubicación, o textos sobre CRM/sistema/envío/registro.\nSi NAME_VALIDATION.isValidForCrm=false o SESSION.lead.name está vacío, NO digás que los 3 datos están listos y NO digás que enviás/reintentás. Pedí únicamente el nombre completo correcto.\nSi el cliente corrige con \"no, es [nombre]\" o \"mi nombre correcto es [nombre]\", aceptá la corrección solo si NAME_VALIDATION la marca válida; luego mostrá los 3 datos y pedí autorización.\nNunca inventés ni completes nombres.\n\n═══ v10f AI NAME JUDGE ═══\nAntes de esta respuesta ya se ejecutó un validador de nombre con ChatGPT. Usá NAME_VALIDATION.aiValidation. Si isValidForCrm=false, no trates el texto como nombre aunque parezca tener 2 palabras."
+            },
+            {
+              "content": "=SESSION:\n{{ JSON.stringify($node[\"Code: Apply AI Name Validation\"].json.session, null, 2) }}\n\nLEAD_STATUS:\n{{ JSON.stringify($node[\"Code: Apply AI Name Validation\"].json.leadStatus, null, 2) }}\n\nHISTORY (últimos mensajes):\n{{ JSON.stringify($node[\"Code: Apply AI Name Validation\"].json.history, null, 2) }}\n\nNAME_VALIDATION:\n{{ JSON.stringify($node[\"Code: Apply AI Name Validation\"].json.nameValidation, null, 2) }}\n\nPARSED:\n{{ JSON.stringify($node[\"Code: Apply AI Name Validation\"].json.parsed, null, 2) }}\\n\\nConsulta del cliente:\n{{ $node[\"Code: Apply AI Name Validation\"].json.text }}\n\nSIGURBAN_DATA (resumen):\n{{ JSON.stringify($node[\"Code: Apply AI Name Validation\"].json.sigurban, null, 2) }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        14096,
+        7584
+      ],
+      "id": "e1ee4bff-9ad6-4f25-9d5f-a51015985e21",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "TvAhX852rznUn7jg",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json;\n\n// ---- Extractor robusto del texto del modelo ----\nfunction pickFirstString(...candidates) {\n  for (const c of candidates) {\n    if (typeof c === 'string' && c.trim()) return c.trim();\n  }\n  return '';\n}\n\nconst out0 = raw?.output?.[0];\nconst c0 = out0?.content?.[0];\n\n// En tus capturas, el texto está aquí:\nconst fromLogprobs =\n  c0?.annotations?.logprobs?.[0]?.text ||\n  c0?.annotations?.logprobs?.text;\n\n// Otras rutas comunes (según nodo/versión):\nconst fromContentText =\n  c0?.text ||\n  c0?.value ||\n  c0?.output_text;\n\nconst fromOutputText =\n  out0?.text ||\n  out0?.output_text;\n\nconst fromResponseText =\n  raw?.response?.text ||\n  raw?.text;\n\nlet reply = pickFirstString(\n  fromLogprobs,\n  fromContentText,\n  fromOutputText,\n  fromResponseText\n);\n\n// Si viene como objeto/array raro, stringify (último recurso)\nif (!reply && raw?.output) {\n  try {\n    reply = JSON.stringify(raw.output);\n  } catch (e) {}\n}\n\n// Fallback SOLO si definitivamente no hay texto\nif (!reply) reply = 'Perfecto 😊 ¿Me compartís tu nombre completo?';\n\n// ---- Contexto base que ya traés ----\nconst base = $node['Code: Apply AI Name Validation'].json;\nconst session = base.session || { stage: 'info', lead: { name: '', dni: '', phone: '' } };\nconst isDuplicate = !!base.isDuplicate;\n\nsession.hasGreeted = true;\n// IMPORTANTE: NO setear session.lastBotReply aquí.\n// El guardrail puede cambiar el reply y queda desincronizado.\n\nreturn [{\n  json: {\n    ...base,\n    reply,\n    session,\n    shouldLogMessages: !isDuplicate,\n    shouldUpsertLeadRequest: false,\n    leadRequestStatus: '',\n    leadRequestReason: ''\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        14464,
+        7440
+      ],
+      "id": "c1df9883-70d7-4a25-b731-2aa138a7ac03",
+      "name": "Code: Build Reply + Flags"
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $json;\n\n// -------- Session --------\nconst session = base.session || { stage: 'info', lead: { name: '', dni: '', phone: '' } };\nsession.stage = String(session.stage || 'info');\nsession.lead  = session.lead || { name: '', dni: '', phone: '' };\n\n// -------- Text --------\nconst text = String(base.text || '').trim();\nconst textNormalized = String(base.textNormalized || text).trim();\n\nconst norm = (s) => String(s || '')\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[̀-ͯ]/g, '')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst lcPlain = norm(textNormalized);\n\n// -------- KB --------\nconst sigurban = base.sigurban || {};\nconst templates = sigurban.messageTemplates || {};\n\n// -------- Utilities --------\nconst pickTemplate = (arr, fallback) => {\n  if (Array.isArray(arr) && arr.length) return String(arr[Math.floor(Math.random() * arr.length)]);\n  return String(fallback || '').trim();\n};\n\n// Fallback ask messages — primera vez pidiendo el dato\nconst askMapFallback = {\n  name:  '¿Me compartís tu nombre completo?',\n  dni:   '¿Me compartís tu DNI (13 dígitos, con o sin guiones)?',\n  phone: '¿Me compartís tu número de teléfono (8 dígitos)?'\n};\n\n// Soft ask — cuando ya se pidió el dato y el usuario no lo dio\nconst askMapSoft = {\n  name:  'Cuando quieras, ¿me compartís tu nombre completo para seguir? 😊',\n  dni:   'Y cuando puedas, ¿me compartís tu DNI (13 dígitos)? Sin apuro 😊',\n  phone: 'Solo me falta tu teléfono (8 dígitos) para completar la solicitud 📲'\n};\n\nconst askForField = (field, soft) => {\n  const map = soft ? askMapSoft : askMapFallback;\n  if (field === 'name')  return pickTemplate(templates.ask_name,  map.name);\n  if (field === 'dni')   return pickTemplate(templates.ask_dni,   map.dni);\n  if (field === 'phone') return pickTemplate(templates.ask_phone, map.phone);\n  return pickTemplate(templates.ask_name, map.name);\n};\n\nconst maskDNI = (dni) => {\n  const d = String(dni || '').replace(/[^0-9]/g, '');\n  return d.length <= 4 ? d : ('*********' + d.slice(-4));\n};\n\nconst formatReq = (req) => {\n  if (!req) return '';\n  if (Array.isArray(req)) return req.map(x => '• ' + String(x).trim()).join('\\n');\n  if (typeof req === 'object') {\n    return Object.entries(req).map(([k, v]) => {\n      if (Array.isArray(v)) return `• ${k}:\\n` + v.map(x => `   - ${String(x).trim()}`).join('\\n');\n      return `• ${k}: ${String(v)}`;\n    }).join('\\n');\n  }\n  return '• ' + String(req).trim();\n};\n\n// -------- Block renderers --------\nconst renderOfferBlock = () => {\n  const o = sigurban.oferta || {};\n  const lines = [];\n  if (o.precio)            lines.push(`• Precio referencial: ${o.precio}`);\n  if (o.cuotaMensual)      lines.push(`• Cuota mensual: ${o.cuotaMensual}`);\n  if (o.cuotasDesde)       lines.push(`• Cuotas desde: ${o.cuotasDesde}`);\n  if (o.prima)             lines.push(`• Prima: ${o.prima}`);\n  if (o.plazo)             lines.push(`• Plazo: ${o.plazo}`);\n  if (o.financiamientoDesde) lines.push(`• Financiamiento desde: ${o.financiamientoDesde}`);\n  if (o.nota)              lines.push(`\\n${o.nota}`);\n  return lines.join('\\n').trim();\n};\n\nconst renderLocationBlock = () => {\n  const u = sigurban.proyecto?.ubicacion || {};\n  const lines = [];\n  if (u.referencia) lines.push(`• Referencia: ${u.referencia}`);\n  if (u.colonia)    lines.push(`• Colonia: ${u.colonia}`);\n  if (u.ciudad)     lines.push(`• Ciudad: ${u.ciudad}`);\n  if (u.mapsUrl)    lines.push(`• Mapa: ${u.mapsUrl}`);\n  return lines.join('\\n').trim();\n};\n\nconst renderRequirementsBlock = () => {\n  return 'Estos son los requisitos 🏡:\\n' + formatReq(sigurban.requisitos);\n};\n\nconst renderIntentReply = () => {\n  const matchedIntentId = String(base.matchedIntentId || '').trim();\n  if (!matchedIntentId || !Array.isArray(sigurban.intents)) return '';\n  const it = sigurban.intents.find(x => String(x?.id || '') === matchedIntentId);\n  if (!it || !it.response) return '';\n  const r = it.response;\n  if (r.type === 'offer_block')        return renderOfferBlock() || '';\n  if (r.type === 'requirements_block') return renderRequirementsBlock();\n  if (r.type === 'location_block')     return renderLocationBlock() || '';\n  if (r.type === 'text')               return String(r.text || '').trim();\n  return '';\n};\n\n// -------- State from previous nodes --------\nlet reply = String(base.reply || '').trim();\n\nlet missing      = Array.isArray(base.missing) ? [...base.missing] : [];\nif (base.nameValidation && base.nameValidation.isValidForCrm !== true && !missing.includes('name')) {\n  missing.unshift('name');\n}\nconst nextMissing  = String(base.nextMissing || missing[0] || '') || 'name';\n\nconst leadSent     = base.leadStatus?.leadSent === true;\nconst leadInFlight = base.leadStatus?.leadInFlight === true;\nconst consentYes   = base.consentYes === true;\nconst consentNo    = base.consentNo  === true;\nconst wantsHandoff = base.wantsHandoff === true || String(session.stage || '') === 'handoff';\n\n// -------- Nuevos flags de país y hora --------\nconst isSpain       = base.isSpain     === true;\nconst isUSALegal    = base.isUSALegal  === true;\nconst isUSAUnknown  = base.isUSAUnknown === true;\nconst needsReferido = base.needsReferido === true;\nconst timeOfDay     = String(base.timeOfDay || 'dia');\n\n// -------- Anti-repetición: detectar qué pidió el bot recientemente --------\nconst recentBotTexts = (base.history || [])\n  .filter(h => h.role === 'assistant')\n  .slice(-3)\n  .map(h => String(h.text || '').toLowerCase());\n\nconst alreadyAskedName  = recentBotTexts.some(t => /nombre completo/i.test(t));\nconst alreadyAskedDni   = recentBotTexts.some(t => /\\bdni\\b|c[eé]dula|identidad/i.test(t));\nconst alreadyAskedPhone = recentBotTexts.some(t => /tel[eé]fono|celular|\\btel\\b/i.test(t));\n\nconst fieldAlreadyAsked = (field) =>\n  (field === 'name'  && alreadyAskedName)  ||\n  (field === 'dni'   && alreadyAskedDni)   ||\n  (field === 'phone' && alreadyAskedPhone);\n\nconst useAskSoft   = fieldAlreadyAsked(nextMissing);\nconst askNext      = askForField(nextMissing, false);\nconst askNextSoft  = askForField(nextMissing, true);\nconst askNextFinal = useAskSoft ? askNextSoft : askNext;\n\n// -------- Re-calc leadReady --------\nconst leadReadyCandidate =\n  session.collectingEnabled === true &&\n  base.nameValidation?.isValidForCrm === true &&\n  !leadSent &&\n  !leadInFlight &&\n  missing.length === 0 &&\n  ['awaiting_consent', 'collecting'].includes(String(session.stage || '')) &&\n  consentYes;\n\nbase.leadReady = leadReadyCandidate;\n\n// -------- Small detectors --------\nconst saysAlreadyGave = /(ya te (lo|la) di|ya lo di|ya la di|te lo di|te la di|ya te los di|ya se los di|ya los di)/i.test(lcPlain);\n\nconst matchedIntentId = String(base.matchedIntentId || '').trim();\nconst asksRequirements =\n  (base.asksRequirements === true) ||\n  matchedIntentId === 'ASK_REQUIREMENTS' ||\n  /(requisitos?|documentos?|papeles?)/i.test(lcPlain);\n\n// -------- Referido message --------\nconst buildReferidoMsg = () =>\n  pickTemplate(\n    templates.referido_option,\n    '\\n\\nTambién existe una alternativa: si tenés un familiar o persona de confianza en Honduras, ellos pueden tramitar el crédito y coordinar el pago con vos 😊\\n\\n¿Te cuento más sobre esa opción?'\n  );\n\n// -------- CADENA DE PRIORIDADES --------\n\n// 1) Lead ya enviado\nif (leadSent) {\n  session.stage = 'submitted';\n  reply = pickTemplate(\n    templates.closing_submitted,\n    '¡Listo! Ya registré tu información para precalificación 🏡 En breve una asesora te contacta.\\nSi querés seguimiento inmediato: #FBSIGURBAN\\nhttps://www.sigurban.com/FBSIGURBAN'\n  );\n\n// 2) En vuelo\n} else if (leadInFlight) {\n  session.stage = 'in_flight';\n  reply = '¡Listo! 😊 Ya estoy procesando tu solicitud de precalificación.\\nEn breve una asesora te contacta 📲\\nSi querés seguimiento inmediato: #FBSIGURBAN\\nhttps://www.sigurban.com/FBSIGURBAN';\n\n// 3) Handoff a WhatsApp\n} else if (wantsHandoff) {\n  session.stage = 'handoff';\n  reply = pickTemplate(\n    templates.handoff_whatsapp,\n    'Perfecto. Para atención prioritaria, escribínos por WhatsApp con el código #FBSIGURBAN 📲\\nhttps://www.sigurban.com/FBSIGURBAN'\n  );\n\n// 4) España — rechazo empático + opción referido\n} else if (isSpain && !session.collectingEnabled) {\n  session.stage = 'info';\n  session.collectingEnabled = false;\n  reply = pickTemplate(\n    templates.spain_rejection,\n    'Lamentablemente nuestros proyectos aplican para personas con residencia en Honduras 😔' +\n    buildReferidoMsg()\n  );\n\n// 5) EE.UU. con estatus legal (TPS, residencia, ciudadanía)\n} else if (isUSALegal && !session.collectingEnabled) {\n  const aiYaCubreUSA = /tps|residencia|ciudadan|pueden aplicar|pod[eé]s aplicar|pod[eé]s tramitar/i.test(reply);\n  if (!aiYaCubreUSA) {\n    reply = '¡Claro que podés aplicar! 😊 Tenemos clientes con TPS, residencia y ciudadanía que han tramitado con nosotros.\\n\\nLos ingresos deben ser demostrables. ¿Querés que te explique los requisitos o empezamos con la precalificación? 🏡';\n  }\n\n// 6) EE.UU. sin estatus mencionado — oferta suave de referido\n} else if (isUSAUnknown && !session.collectingEnabled) {\n  const aiYaCubreUSA = /referido|familiar|confianza|tramitar|pueden aplicar/i.test(reply);\n  if (!aiYaCubreUSA) {\n    reply = '¡Hola desde EE.UU.! 😊\\n\\nPara aplicar directamente al crédito se necesita residencia en Honduras o ingresos demostrables.' +\n    buildReferidoMsg();\n  }\n\n// 7) Respuesta de intent KB\n} else {\n  const intentReply = renderIntentReply();\n  if (intentReply) {\n    reply = intentReply;\n    const inFlow = ['collecting', 'awaiting_consent'].includes(String(session.stage || ''));\n    if (inFlow && missing.length > 0) {\n      reply += '\\n\\n' + askNextFinal + '\\nEs para precalificar y para que una asesora te contacte 📲';\n    } else if (!inFlow && matchedIntentId === 'WANTS_PREQUALIFY') {\n      session.stage = 'collecting';\n      reply += '\\n\\n' + askNextFinal;\n    }\n\n  } else if (consentNo) {\n    // 8) No da consentimiento\n    session.stage = 'info';\n    reply = 'Está bien, no te preocupés 😊\\nPara atención prioritaria, escribínos por WhatsApp con el código #FBSIGURBAN 📲\\nhttps://www.sigurban.com/FBSIGURBAN';\n\n  } else if (base.needsConsentPrompt === true) {\n    // 9) Pedir consentimiento\n    const n = String(session.lead?.name  || '').trim();\n    const d = maskDNI(session.lead?.dni);\n    const p = String(session.lead?.phone || '').trim();\n    session.stage = 'awaiting_consent';\n    const consentTpl = pickTemplate(templates.consent_prompt, '');\n    const dataBlock = 'Perfecto 😊 Antes de enviarlos, confirmame que estos datos están correctos:\\n• Nombre: ' + (n || '(pendiente)') + '\\n• DNI: ' + (d || '(pendiente)') + '\\n• Teléfono: ' + (p || '(pendiente)');\n    if (consentTpl) {\n      reply = dataBlock + '\\n\\n' + consentTpl;\n    } else {\n      reply = dataBlock + '\\n\\n¿Me autorizás a enviarlos para iniciar la precalificación? 🏡\\nRespondé SI para enviar o NO y te paso a WhatsApp 📲\\nhttps://www.sigurban.com/FBSIGURBAN';\n    }\n\n  } else if (consentYes && missing.length > 0) {\n    // 10) Dijo sí pero faltan datos\n    session.stage = 'collecting';\n    reply = '¡Dale! 😊 Para poder enviarla me falta este dato:\\n' + askNext + '\\nSi preferís, también podés enviarlo por WhatsApp con #FBSIGURBAN\\nhttps://www.sigurban.com/FBSIGURBAN';\n\n  } else if (asksRequirements && sigurban.requisitos) {\n    // 11) Requisitos (fallback)\n    reply = renderRequirementsBlock();\n    const inFlow = ['collecting', 'awaiting_consent'].includes(String(session.stage || ''));\n    if (inFlow && missing.length > 0) {\n      reply += '\\n\\n' + askNextFinal + '\\nEs para precalificar y para que una asesora te contacte 📲';\n    } else {\n      reply += '\\n\\nSi querés que te ayudemos con la precalificación, decíme: \"Quiero precalificar\" — son solo 3 datos: nombre completo, DNI y teléfono.';\n    }\n\n  } else if (String(session.stage || '') === 'collecting') {\n    // 12) Recopilando datos — con lógica anti-repetición\n    if (saysAlreadyGave) {\n      reply = '¡Gracias! 😊 Para completar la precalificación me falta:\\n' + askNext + '\\nSi preferís, podés escribírnos por WhatsApp con #FBSIGURBAN 📲\\nhttps://www.sigurban.com/FBSIGURBAN';\n    } else if (useAskSoft) {\n      // Ya se pidió este campo — versión suave para no sonar robótico\n      reply = askNextSoft + '\\nSi preferís no compartirlo acá, podés escribírnos por WhatsApp con #FBSIGURBAN 📲\\nhttps://www.sigurban.com/FBSIGURBAN';\n    } else {\n      reply = askNext + '\\nEs para precalificar y para que una asesora te contacte 🏡\\nSi preferís no compartirlo acá, podés escribírnos por WhatsApp con #FBSIGURBAN\\nhttps://www.sigurban.com/FBSIGURBAN';\n    }\n\n  } else {\n    // 13) Anti-promesas: bot NO puede afirmar que envió datos si leadSent = false\n    const claimsToHaveSent = /ya envi[eé]|ya registr[eé]|ya mand[eé]|ya pas[eé]|datos.*envi|envi.*datos/i.test(reply);\n    if (claimsToHaveSent && !leadSent) {\n      if (missing.length > 0) {\n        // Faltan datos — pedir el siguiente\n        session.stage = 'collecting';\n        reply = 'Para poder enviarla primero necesito este dato 😊:\\n' + askNext + '\\nSi preferís, WhatsApp con #FBSIGURBAN\\nhttps://www.sigurban.com/FBSIGURBAN';\n      } else if (!consentYes) {\n        // Tiene datos pero no hubo consentimiento real aún\n        const n = String(session.lead?.name  || '').trim();\n        const d = maskDNI(session.lead?.dni);\n        const p = String(session.lead?.phone || '').trim();\n        session.stage = 'awaiting_consent';\n        reply = 'Perfecto 😊 Tengo tus datos:\\n• Nombre: ' + (n||'(pendiente)') + '\\n• DNI: ' + (d||'(pendiente)') + '\\n• Teléfono: ' + (p||'(pendiente)') + '\\n\\n¿Me autorizás a enviarlos para iniciar la precalificación? 🏡\\nRespondé SI para enviar o NO y te paso a WhatsApp 📲\\nhttps://www.sigurban.com/FBSIGURBAN';\n      }\n      // Si consentYes && missing=0 → leadReady debería ser true y el HTTP Request lo maneja\n    } else if (/procedo a enviar|voy a enviar|enviando tu precalific/i.test(reply) && missing.length > 0) {\n      session.stage = 'collecting';\n      reply = 'Para poder enviarla primero necesito este dato 😊:\\n' + askNext + '\\nSi preferís, WhatsApp con #FBSIGURBAN\\nhttps://www.sigurban.com/FBSIGURBAN';\n    }\n  }\n}\n\nbase.reply   = reply;\nbase.session = session;\nbase.shouldUpsertLeadRequest = false;\nbase.leadRequestStatus = '';\nbase.leadRequestReason = '';\n\nsession.hasGreeted  = true;\nsession.lastBotReply = base.reply;\nbase.session = session;\n\nreturn [{ json: base }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        14672,
+        7664
+      ],
+      "id": "50c29a7b-f83b-4d09-bb39-7a87720d3eb0",
+      "name": "Code: Guardrail Collecting Reply"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "69c1a5c6-9a66-4f24-9708-9975b03f1b54",
+              "leftValue": "={{ $json.leadReady === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        14896,
+        7424
+      ],
+      "id": "97b1d07b-5cfb-4459-a377-0c12e0de4ed5",
+      "name": "IF: leadReady"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.crm.sigurban.com/api/leads/chatbot",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-From-N8N",
+              "value": "1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"name\": $json.session.lead.name, \"dni\": $json.session.lead.dni, \"phone\": $json.session.lead.phone } }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        15120,
+        7136
+      ],
+      "id": "728886f5-048c-48b2-83a7-a8a414ca386b",
+      "name": "HTTP Request: Send Lead API",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $node['Code: Guardrail Collecting Reply'].json;\nconst session = base.session || { stage: 'awaiting_consent', lead: { name: '', dni: '', phone: '' } };\nconst api = $json || {};\n\nconst parseMaybeJson = (value) => {\n  if (typeof value !== 'string') return value;\n  const s = value.trim();\n  if (!s) return value;\n  try { return JSON.parse(s); } catch (e) {}\n  const first = s.indexOf('{');\n  const last = s.lastIndexOf('}');\n  if (first >= 0 && last > first) {\n    try { return JSON.parse(s.slice(first, last + 1).replace(/\\\\\"/g, '\"')); } catch (e) {}\n  }\n  return value;\n};\n\nconst pickBody = () => {\n  const candidates = [\n    api.body,\n    api.data,\n    api.response?.body,\n    api.response?.data,\n    api.json,\n    api.error?.response?.body,\n    api.error?.message,\n    api.message,\n    api\n  ];\n  for (const value of candidates) {\n    const parsed = parseMaybeJson(value);\n    if (parsed && typeof parsed === 'object') return parsed;\n  }\n  return parseMaybeJson(api.body ?? api.data ?? api.error?.message ?? api.message ?? api);\n};\n\nconst body = pickBody();\n\nconst statusCode = Number(\n  api.statusCode ||\n  api.status ||\n  api.response?.statusCode ||\n  api.response?.status ||\n  api.error?.status ||\n  api.error?.statusCode ||\n  body?.status ||\n  body?.statusCode ||\n  0\n);\n\nconst crmMessage = String(\n  body?.message ||\n  api.message ||\n  api.error?.message ||\n  api.response?.message ||\n  ''\n).trim();\n\nconst messageLc = crmMessage.toLowerCase();\nconst duplicate = /ya existe un prospecto/.test(messageLc) ||\n  (messageLc.includes('dni') && messageLc.includes('existe')) ||\n  messageLc.includes('duplicate') ||\n  messageLc.includes('duplicado');\n\nconst okWrapped = body?.ok === true || api.ok === true;\nconst exists = body?.exists === true || api.exists === true || body?.data?.exists === true || duplicate;\n\nconst looksLikeCreatedLead = !!(\n  body &&\n  typeof body === 'object' &&\n  (body._id || body.id || (body.name && body.phone && (body.dni || body.passport || body.residenceNumber)))\n);\n\nconst explicitFailure = (body?.ok === false || api.ok === false) && !exists;\nconst transportError = !!api.error && !exists;\nconst httpError = statusCode >= 400 && !exists;\nconst success = (okWrapped || exists || looksLikeCreatedLead || (statusCode >= 200 && statusCode < 300 && body && typeof body === 'object')) &&\n  !explicitFailure &&\n  !transportError &&\n  !httpError;\n\nconst crmDebug = {\n  endpoint: 'https://api.crm.sigurban.com/api/leads/chatbot',\n  statusCode,\n  okWrapped,\n  exists,\n  duplicate,\n  looksLikeCreatedLead,\n  explicitFailure,\n  transportError,\n  httpError,\n  message: crmMessage,\n  body\n};\n\nlet leadRequestStatus = 'error';\nlet leadRequestReason = 'api_error';\n\nif (!success) {\n  if (statusCode) leadRequestReason = 'api_error_http_' + statusCode;\n  if (explicitFailure) leadRequestReason = 'api_error_ok_false';\n  if (transportError) leadRequestReason = 'api_error_transport';\n  if (/faltan campos|bad request/i.test(crmMessage)) leadRequestReason = 'api_error_missing_or_invalid_fields';\n  if (/token|authorization|unauthorized|forbidden|401|403/i.test(crmMessage) || [401, 403].includes(statusCode)) leadRequestReason = 'api_error_auth';\n  if (/cannot post/i.test(crmMessage) || statusCode === 404) leadRequestReason = 'api_error_wrong_endpoint';\n\n  const diagnostic = crmMessage\n    ? '\\n\\nDetalle técnico: el CRM respondió \"' + crmMessage.slice(0, 180) + '\".'\n    : (statusCode ? '\\n\\nDetalle técnico: HTTP ' + statusCode + ' del CRM.' : '\\n\\nDetalle técnico: n8n no recibió cuerpo de confirmación del CRM.');\n\n  const reply = 'No pude confirmar el envío al CRM en este momento 😕\\nTus datos no se marcaron como registrados.' + diagnostic + '\\n\\n¿Me respondés SI para reintentar, o preferís WhatsApp con #FBSIGURBAN? 📲\\nhttps://www.sigurban.com/FBSIGURBAN';\n  session.stage = 'awaiting_consent';\n  session.hasGreeted = true;\n  session.lastBotReply = reply;\n  return [{\n    json: {\n      ...base,\n      apiResponse: api,\n      crmBody: body,\n      crmDebug,\n      reply,\n      session,\n      shouldLogMessages: true,\n      shouldUpsertLeadRequest: true,\n      leadRequestStatus,\n      leadRequestReason\n    }\n  }];\n}\n\nleadRequestStatus = 'sent';\nleadRequestReason = exists ? 'api_duplicate_ok' : 'api_ok';\nconst reply = exists\n  ? '¡Listo! 😊 Ya recibimos tu solicitud de precalificación. Para seguimiento, escribinos por WhatsApp con #FBSIGURBAN 📲\\nhttps://www.sigurban.com/FBSIGURBAN'\n  : '¡Listo! 😊🏡 Ya registré tus datos para precalificación. En breve una asesora te contacta 📲\\nSi querés seguimiento inmediato: #FBSIGURBAN https://www.sigurban.com/FBSIGURBAN';\n\nsession.stage = 'submitted';\nsession.hasGreeted = true;\nsession.lastBotReply = reply;\n\nreturn [{\n  json: {\n    ...base,\n    apiResponse: api,\n    crmBody: body,\n    crmDebug,\n    reply,\n    session,\n    shouldLogMessages: true,\n    shouldUpsertLeadRequest: true,\n    leadRequestStatus,\n    leadRequestReason\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        15344,
+        7136
+      ],
+      "id": "ee15a513-8417-4569-b904-d99cb91704d3",
+      "name": "Code: Reply Lead Ready"
+    },
+    {
+      "parameters": {
+        "jsCode": "const session = $json.session;\nconst reply = $json.reply || \"\";\nconst text = $json.text || \"\";\nconst nowMs = Number($json.now || Date.now());\nconst senderId = $json.senderId || \"\";\nconst incomingMessageId = $json.messageId || \"\";\n\nconst safeUserMsgId = incomingMessageId ? String(incomingMessageId) : `ts_${nowMs}`;\nconst safeBotMsgId  = `reply_${safeUserMsgId}`;\n\nconst esc = (v) => String(v ?? \"\")\n  .replace(/\\\\/g, \"\\\\\\\\\")\n  .replace(/\\n/g, \"\\\\n\")\n  .replace(/\\r/g, \"\\\\r\")\n  .replace(/\\t/g, \"\\\\t\")\n  .replace(/'/g, \"\\\\'\");\n\nsession.lastBotReply = reply;\n\nconst shouldLogMessages = Boolean($json.shouldLogMessages);\nconst shouldUpsertLeadRequest = Boolean($json.shouldUpsertLeadRequest ?? $json.shouldInsertLeadRequest);\n\nlet apiResponseStr = \"\";\ntry {\n  apiResponseStr = $json.apiResponse ? JSON.stringify($json.apiResponse) : \"\";\n} catch (e) {\n  apiResponseStr = String($json.apiResponse || \"\");\n}\n\nconst leadRequestStatus = String($json.leadRequestStatus || \"\");\nconst leadRequestReason = String($json.leadRequestReason || \"\");\n\nreturn [{\n  json: {\n    ...$json,\n    senderId,\n    text,\n    reply,\n    session,\n    shouldLogMessages,\n    shouldUpsertLeadRequest,\n    leadRequestStatus,\n    leadRequestReason,\n    db: {\n      senderId: esc(senderId),\n      hasGreeted: session.hasGreeted ? 1 : 0,\n      stage: esc(session.stage),\n      lead_name: esc(session.lead?.name),\n      lead_dni: esc(session.lead?.dni),\n      lead_phone: esc(session.lead?.phone),\n      last_seen_ms: Number(session.lastSeen || nowMs),\n      last_user_text: esc(session.lastUserText || text),\n      last_message_id: esc(session.lastMessageId || safeUserMsgId),\n      last_bot_reply: esc(session.lastBotReply || reply),\n\n      user_text: esc(text),\n      bot_text: esc(reply),\n      user_message_id: esc(safeUserMsgId),\n      bot_message_id: esc(safeBotMsgId),\n      now_ms: nowMs,\n\n      last_api_response: esc(apiResponseStr),\n      lead_req_status: esc(leadRequestStatus),\n      lead_req_reason: esc(leadRequestReason),\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        15408,
+        7488
+      ],
+      "id": "efcbde9f-3e70-4f6e-b68f-c16c73b2383d",
+      "name": "Code: Prepare DB Values"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "3b8fbf59-2d8e-48d8-9ef0-c8c6c1b151a9",
+              "leftValue": "={{ !$json.isDuplicate && !!$json.senderId && !!$json.reply && !String($json.senderId).startsWith('test_') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        15648,
+        7488
+      ],
+      "id": "1d194106-b55d-4198-9783-431517bcea08",
+      "name": "IF: sendToMessenger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v24.0/me/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "=EAAZArGxqDrFgBQRt8coxRwRKZBK60BLvXLjJmdC0gT7JvhQzdMNxSePmeWVbPiid4ueTzRkvdNW4fUmgIUlZAsWZAGQRIczFwSi5RCOhveXTkFoTMXQq5OzES682ltVenMVJM14FZBk9IxYq1OJyJ55eR4gSYDnJGb5d6WjF99oL3WZC1Mr2My5ZCSfZCxzniZCVMeXvE17uG4aZCytXBbq9pypxFQyQZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"messaging_type\": \"RESPONSE\", \"recipient\": { \"id\": $json.senderId }, \"message\": { \"text\": $json.reply } } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        16064,
+        7360
+      ],
+      "id": "e9a1ca3d-bd4a-415b-8aba-277e1ce0c236",
+      "name": "HTTP Request: Send API – Messenger",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ String($json.shouldUpsertLeadRequest).toLowerCase() }}",
+              "operation": "equals",
+              "value2": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        15968,
+        7776
+      ],
+      "id": "cf4c8f20-c353-4230-89dc-47ee0cd6a4aa",
+      "name": "IF: upsertLeadRequest"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sigurban_lead_requests (sender_id, lead_name, lead_dni, lead_phone, status, requested_count, first_requested_at, last_requested_at, last_reason, last_api_response) VALUES ('{{ $node[\"Code: Prepare DB Values\"].json.db.senderId }}','{{ $node[\"Code: Prepare DB Values\"].json.db.lead_name }}','{{ $node[\"Code: Prepare DB Values\"].json.db.lead_dni }}','{{ $node[\"Code: Prepare DB Values\"].json.db.lead_phone }}','{{ $node[\"Code: Prepare DB Values\"].json.db.lead_req_status }}',1,NOW(),NOW(),'{{ $node[\"Code: Prepare DB Values\"].json.db.lead_req_reason }}','{{ $node[\"Code: Prepare DB Values\"].json.db.last_api_response }}') ON DUPLICATE KEY UPDATE lead_name=VALUES(lead_name),lead_dni=VALUES(lead_dni),lead_phone=VALUES(lead_phone),status=VALUES(status),requested_count=requested_count+1,last_requested_at=NOW(),last_reason=VALUES(last_reason),last_api_response=VALUES(last_api_response);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2,
+      "position": [
+        16304,
+        7600
+      ],
+      "id": "09d746ec-a90a-4e9b-8f16-01e2f267b11d",
+      "name": "MySQL: Upsert Lead Request",
+      "credentials": {
+        "mySql": {
+          "id": "XXyK2YUwmVaQ8PgK",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ String($json.shouldLogMessages).toLowerCase() }}",
+              "operation": "equals",
+              "value2": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        16784,
+        7776
+      ],
+      "id": "e50114ea-1a1c-4d9d-ab0d-2669c66c67c7",
+      "name": "IF: logMessages"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT IGNORE INTO sigurban_chat_messages (sender_id, role, text, message_id, created_at) VALUES ('{{ $node[\"Code: Prepare DB Values\"].json.db.senderId }}','user','{{ $node[\"Code: Prepare DB Values\"].json.db.user_text }}','{{ $node[\"Code: Prepare DB Values\"].json.db.user_message_id }}',FROM_UNIXTIME({{ $node[\"Code: Prepare DB Values\"].json.db.now_ms }}/1000)),('{{ $node[\"Code: Prepare DB Values\"].json.db.senderId }}','assistant','{{ $node[\"Code: Prepare DB Values\"].json.db.bot_text }}','{{ $node[\"Code: Prepare DB Values\"].json.db.bot_message_id }}',FROM_UNIXTIME({{ $node[\"Code: Prepare DB Values\"].json.db.now_ms }}/1000));",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2,
+      "position": [
+        16912,
+        7168
+      ],
+      "id": "15297484-6ea4-41c6-9fd3-742a4d2cc48f",
+      "name": "MySQL: Insert Messages (User+Bot)",
+      "credentials": {
+        "mySql": {
+          "id": "XXyK2YUwmVaQ8PgK",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sigurban_chat_sessions\n(sender_id, has_greeted, stage, lead_name, lead_dni, lead_phone, last_seen_ms, last_user_text, last_message_id, last_bot_reply)\nVALUES\n(\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.senderId }}',\n  {{ $node[\"Code: Prepare DB Values\"].json.db.hasGreeted }},\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.stage }}',\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.lead_name }}',\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.lead_dni }}',\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.lead_phone }}',\n  {{ $node[\"Code: Prepare DB Values\"].json.db.last_seen_ms }},\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.last_user_text }}',\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.last_message_id }}',\n  '{{ $node[\"Code: Prepare DB Values\"].json.db.last_bot_reply }}'\n)\nON DUPLICATE KEY UPDATE\n  has_greeted = VALUES(has_greeted),\n  stage = VALUES(stage),\n  lead_name = VALUES(lead_name),\n  lead_dni = VALUES(lead_dni),\n  lead_phone = VALUES(lead_phone),\n  last_seen_ms = VALUES(last_seen_ms),\n  last_user_text = VALUES(last_user_text),\n  last_message_id = VALUES(last_message_id),\n  last_bot_reply = VALUES(last_bot_reply);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2,
+      "position": [
+        17328,
+        7264
+      ],
+      "id": "40356808-c8ff-4efb-aff1-1b53e6de2121",
+      "name": "MySQL: Upsert Session",
+      "credentials": {
+        "mySql": {
+          "id": "XXyK2YUwmVaQ8PgK",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sigurban_chat_sessions\n(sender_id, has_greeted, stage, lead_name, lead_dni, lead_phone, last_seen_ms, last_user_text, last_message_id, last_bot_reply)\nVALUES\n(\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.senderId }}',\n  {{ $node[\"Code: Apply AI Name Validation\"].json.session.hasGreeted ? 1 : 0 }},\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.session.stage }}',\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.session.lead.name }}',\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.session.lead.dni }}',\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.session.lead.phone }}',\n  {{ $node[\"Code: Apply AI Name Validation\"].json.session.lastSeen }},\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.session.lastUserText }}',\n  '{{ $node[\"Code: Apply AI Name Validation\"].json.session.lastMessageId }}',\n  ''\n)\nON DUPLICATE KEY UPDATE\n  has_greeted = VALUES(has_greeted),\n  stage = VALUES(stage),\n  lead_name = VALUES(lead_name),\n  lead_dni = VALUES(lead_dni),\n  lead_phone = VALUES(lead_phone),\n  last_seen_ms = VALUES(last_seen_ms),\n  last_user_text = VALUES(last_user_text),\n  last_message_id = VALUES(last_message_id);\n",
+        "options": {
+          "queryBatching": "single"
+        }
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2,
+      "position": [
+        13968,
+        7776
+      ],
+      "id": "13800907-30b4-4b1d-b9c3-295f3bd01cd5",
+      "name": "MySQL: Upsert Session (pre)",
+      "credentials": {
+        "mySql": {
+          "id": "XXyK2YUwmVaQ8PgK",
+          "name": "MySQL account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sigurban-messenger-brain",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        11424,
+        7408
+      ],
+      "id": "d7503974-69de-4414-9851-11fb8c191a82",
+      "name": "Webhook",
+      "webhookId": "2df09b67-33f5-46fd-9ed9-72993de6d0f2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Sos un validador estricto de nombres de personas para un CRM inmobiliario.\nRespondé SOLO JSON válido, sin markdown.\nTu trabajo es decidir si el texto candidato realmente parece un nombre completo de una persona o si es una frase de conversación que se fue por error.\n\nReglas:\n- Aceptá nombres reales de persona con 2 a 5 palabras: \"Danny Sinoé Velásquez\", \"María José López\", \"Juan de la Cruz\".\n- Rechazá frases sobre casas, proyecto, precios, requisitos, ubicación, WhatsApp, CRM, envío, registro, sistema o contacto.\n- Rechazá ubicaciones o países: \"Tegucigalpa\", \"Soy de USA\", \"Honduras\".\n- Rechazá respuestas conversacionales: \"ok se enviaron los datos\", \"pero envia mis datos entonces\", \"las casas ya están construidas\".\n- No inventés nombres ni completes apellidos.\n\nJSON exacto:\n{\n  \"is_person_name\": true|false,\n  \"normalized_name\": \"nombre limpio si aplica, o string vacío\",\n  \"confidence\": \"high\"|\"medium\"|\"low\",\n  \"reason\": \"explicación corta\"\n}"
+            },
+            {
+              "content": "=CANDIDATE_NAME:\n{{ $node[\"Code: Context + Lead + Stage\"].json.session.lead.name }}\n\nUSER_TEXT:\n{{ $node[\"Code: Context + Lead + Stage\"].json.text }}\n\nDETERMINISTIC_NAME_VALIDATION:\n{{ JSON.stringify($node[\"Code: Context + Lead + Stage\"].json.nameValidation, null, 2) }}\n\nSESSION_LEAD:\n{{ JSON.stringify($node[\"Code: Context + Lead + Stage\"].json.session.lead, null, 2) }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        13936,
+        7584
+      ],
+      "id": "87f12567-ece3-4475-be09-30a13400f8ee",
+      "name": "Message a model: Validate Name",
+      "credentials": {
+        "openAiApi": {
+          "id": "TvAhX852rznUn7jg",
+          "name": "OpenAi account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = JSON.parse(JSON.stringify($node['Code: Context + Lead + Stage'].json || {}));\nconst raw = $json || {};\n\nfunction pickFirstString(...candidates) {\n  for (const c of candidates) {\n    if (typeof c === 'string' && c.trim()) return c.trim();\n  }\n  return '';\n}\n\nfunction extractModelText(value) {\n  const out0 = value?.output?.[0];\n  const c0 = out0?.content?.[0];\n  return pickFirstString(\n    value?.text,\n    value?.output_text,\n    value?.response?.text,\n    out0?.text,\n    out0?.output_text,\n    c0?.text,\n    c0?.value,\n    c0?.output_text,\n    c0?.annotations?.logprobs?.[0]?.text,\n    c0?.annotations?.logprobs?.text\n  );\n}\n\nfunction parseJsonObject(text) {\n  const s = String(text || '').trim();\n  if (!s) return null;\n  try { return JSON.parse(s); } catch (e) {}\n  const match = s.match(/\\{[\\s\\S]*\\}/);\n  if (!match) return null;\n  try { return JSON.parse(match[0]); } catch (e) { return null; }\n}\n\nconst stripAccents = (s) => String(s || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\nconst compact = (s) => stripAccents(String(s || '').toLowerCase()).replace(/[^a-zñ]/g, '');\n\nconst text = extractModelText(raw);\nconst parsed = parseJsonObject(text) || {};\n\nconst session = base.session || { stage: 'info', lead: { name: '', dni: '', phone: '' } };\nsession.lead = session.lead || { name: '', dni: '', phone: '' };\n\nconst deterministic = base.nameValidation || {};\nconst candidate = String(session.lead.name || '').trim();\nconst normalized = String(parsed.normalized_name || candidate).trim();\nconst aiConfidence = String(parsed.confidence || '').toLowerCase();\nconst aiReturnedBoolean = typeof parsed.is_person_name === 'boolean';\nconst aiAccepts = parsed.is_person_name === true && ['high', 'medium'].includes(aiConfidence) && !!normalized;\nconst aiRejects = parsed.is_person_name === false;\nconst deterministicAccepts = deterministic.isValidForCrm === true;\n\nconst similarEnough =\n  !candidate ||\n  !normalized ||\n  compact(candidate) === compact(normalized) ||\n  compact(candidate).includes(compact(normalized)) ||\n  compact(normalized).includes(compact(candidate));\n\nconst aiValidation = {\n  rawText: text,\n  isPersonName: aiReturnedBoolean ? parsed.is_person_name : null,\n  normalizedName: normalized,\n  confidence: aiConfidence || 'unknown',\n  reason: String(parsed.reason || (raw.error ? 'openai_validation_error' : '')),\n  usedFallback: !aiReturnedBoolean\n};\n\nconst finalNameValid =\n  deterministicAccepts &&\n  similarEnough &&\n  (aiAccepts || (!aiReturnedBoolean && deterministicAccepts));\n\nif (finalNameValid) {\n  if (aiAccepts && normalized && similarEnough) session.lead.name = normalized;\n  base.nameValidation = {\n    ...deterministic,\n    candidate: session.lead.name,\n    isValidForCrm: true,\n    reason: 'valid_person_name_ai_confirmed',\n    aiValidation\n  };\n} else {\n  session.lead.name = '';\n  base.nameValidation = {\n    ...deterministic,\n    candidate: '',\n    isValidForCrm: false,\n    reason: aiRejects ? 'ai_rejected_not_person_name' : (deterministic.reason || 'invalid_name'),\n    aiValidation\n  };\n}\n\nconst fieldsOrder = Array.isArray(base.sigurban?.leadCapture?.fieldsOrder)\n  ? base.sigurban.leadCapture.fieldsOrder\n  : ['name', 'dni', 'phone'];\n\nconst missing = [];\nfor (const f of fieldsOrder) {\n  if (f === 'name' && base.nameValidation.isValidForCrm !== true) missing.push('name');\n  if (f === 'dni' && !String(session.lead.dni || '').trim()) missing.push('dni');\n  if (f === 'phone' && !String(session.lead.phone || '').trim()) missing.push('phone');\n}\n\nif (missing.length > 0 && ['awaiting_consent', 'submitted'].includes(String(session.stage || ''))) {\n  session.stage = 'collecting';\n}\nif (missing.length === 0 && session.collectingEnabled === true && !['submitted', 'in_flight'].includes(String(session.stage || ''))) {\n  session.stage = 'awaiting_consent';\n}\n\nconst leadSent = base.leadStatus?.leadSent === true;\nconst leadInFlight = base.leadStatus?.leadInFlight === true;\nbase.session = session;\nbase.missing = missing;\nbase.nextMissing = missing[0] || '';\nbase.needsConsentPrompt =\n  !leadSent &&\n  !leadInFlight &&\n  missing.length === 0 &&\n  session.stage === 'awaiting_consent' &&\n  base.consentYes !== true &&\n  base.consentNo !== true;\n\nbase.leadReady =\n  session.collectingEnabled === true &&\n  base.nameValidation.isValidForCrm === true &&\n  !leadSent &&\n  !leadInFlight &&\n  missing.length === 0 &&\n  ['awaiting_consent', 'collecting'].includes(String(session.stage || '')) &&\n  base.consentYes === true;\n\nbase.parsed = {\n  ...(base.parsed || {}),\n  aiNameValidation: aiValidation\n};\n\nreturn [{ json: base }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        14080,
+        7776
+      ],
+      "id": "1d48336e-0c37-4023-812b-c3133997b30d",
+      "name": "Code: Apply AI Name Validation"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code: Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "IF: ignore echo/empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ignore echo/empty": {
+      "main": [
+        [
+          {
+            "node": "Respond: ignored",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond: ACK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond: ACK": {
+      "main": [
+        [
+          {
+            "node": "Code: DB Lock Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: DB Lock Values": {
+      "main": [
+        [
+          {
+            "node": "MySQL: Lock Incoming Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL: Lock Incoming Event": {
+      "main": [
+        [
+          {
+            "node": "IF: lock ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: lock ok?": {
+      "main": [
+        [
+          {
+            "node": "MySQL: Load Context (Session+History+Lead)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code: Stop Duplicate Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL: Load Context (Session+History+Lead)": {
+      "main": [
+        [
+          {
+            "node": "Code: Session + Dedupe + 24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Session + Dedupe + 24h": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code: Context + Lead + Stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Context + Lead + Stage": {
+      "main": [
+        [
+          {
+            "node": "Message a model: Validate Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Code: Build Reply + Flags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Build Reply + Flags": {
+      "main": [
+        [
+          {
+            "node": "Code: Guardrail Collecting Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Guardrail Collecting Reply": {
+      "main": [
+        [
+          {
+            "node": "IF: leadReady",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: leadReady": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Send Lead API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code: Prepare DB Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Send Lead API": {
+      "main": [
+        [
+          {
+            "node": "Code: Reply Lead Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Reply Lead Ready": {
+      "main": [
+        [
+          {
+            "node": "Code: Prepare DB Values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Prepare DB Values": {
+      "main": [
+        [
+          {
+            "node": "IF: sendToMessenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: sendToMessenger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Send API – Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF: upsertLeadRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Send API – Messenger": {
+      "main": [
+        [
+          {
+            "node": "IF: upsertLeadRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: upsertLeadRequest": {
+      "main": [
+        [
+          {
+            "node": "MySQL: Upsert Lead Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF: logMessages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL: Upsert Lead Request": {
+      "main": [
+        [
+          {
+            "node": "IF: logMessages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: logMessages": {
+      "main": [
+        [
+          {
+            "node": "MySQL: Insert Messages (User+Bot)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MySQL: Upsert Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL: Insert Messages (User+Bot)": {
+      "main": [
+        [
+          {
+            "node": "MySQL: Upsert Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL: Upsert Session (pre)": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code: Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model: Validate Name": {
+      "main": [
+        [
+          {
+            "node": "Code: Apply AI Name Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Apply AI Name Validation": {
+      "main": [
+        [
+          {
+            "node": "MySQL: Upsert Session (pre)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "360ed0a1-2259-44d0-926d-a0a98c71afaf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49e4c2dd6fbc065f20f958ad218a8902f6fdc80611aa661ec36e3f6d558985d4"
+  },
+  "id": "Y-iHLwTIUfiSezokrUZMt",
+  "tags": []
+}
