@@ -29,6 +29,8 @@
       </div>
     </section>
 
+    <CtaBanner v-if="post" />
+
     <Footer />
   </div>
 </template>

@@ -30,6 +30,8 @@
       </div>
     </section>
 
+    <CtaBanner />
+
     <Footer />
   </div>
 </template>

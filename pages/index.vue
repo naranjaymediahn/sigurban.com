@@ -196,17 +196,7 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="cta-banner">
-          <div>
-            <h3>Agenda tu visita hoy</h3>
-            <p>Conocé nuestros proyectos y encontrá el hogar ideal para tu familia.</p>
-          </div>
-          <a :href="waHref" target="_blank" rel="noopener" class="btn btn-primary">Agendar visita <Icon name="calendar" :size="16" /></a>
-        </div>
-      </div>
-    </section>
+    <CtaBanner />
 
     <Footer />
   </div>

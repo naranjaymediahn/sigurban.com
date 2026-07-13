@@ -24,5 +24,5 @@ logs
 .env.*
 !.env.example
 
-# Videos de staging local — ya viven en el Storage API (assets.sulafbc.com), no se versionan
-public/videos/
+# Almacén de respaldo local (se regenera solo, no versionar)
+data/fallback-admin.json

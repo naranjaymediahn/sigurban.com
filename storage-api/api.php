@@ -1,25 +1,31 @@
 <?php
 
 /**
- * sulafbc.com — Storage API
- * Puente HTTP entre Vercel (Nuxt) y el almacenamiento de imágenes/videos en cPanel.
- * Subir este archivo a: /home/sulafbc/sulafbc_storage/api.php
+ * api_uploads.sigurban.com — Storage API
+ * Puente HTTP entre el sitio Nuxt de Sig-Urban y el almacenamiento de imágenes/videos en Hostinger.
+ * Subir esta carpeta completa a: /home/u466876219/domains/sigurban.com/public_html/api_uploads
+ *
+ * Los archivos subidos se organizan automáticamente por fecha (igual que WordPress):
+ *   /images/<dir-elegido>/<AAAA>/<MM>/archivo.jpg
+ *   /videos/<dir-elegido>/<AAAA>/<MM>/archivo.mp4
  *
  * Acciones:
  *   GET  ?action=list&dir=/images           → lista archivos y carpetas
- *   POST ?action=upload&dir=/images         → sube imagen o video (multipart/form-data)
- *   POST ?action=delete&dir=/images&name=x  → elimina archivo
+ *   POST ?action=upload&dir=/images         → sube imagen o video (multipart/form-data), se guarda en /images/AAAA/MM/
+ *   POST ?action=delete&dir=/images/2026/01&name=x → elimina archivo
  */
 
-define('SECRET_KEY',   getenv('STORAGE_API_KEY') ?: 'sfb_K9mPxV2026storage');
+define('SECRET_KEY',   getenv('STORAGE_API_KEY') ?: 'sigurban_storage_2026');
 define('STORAGE_ROOT', __DIR__);
 define('IMAGE_EXTS',   ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp']);
 define('VIDEO_EXTS',   ['mp4', 'webm', 'mov']);
-define('MAX_UPLOAD_BYTES', 120 * 1024 * 1024); // 120 MB, cubre video del hero
+define('MAX_UPLOAD_BYTES', 150 * 1024 * 1024); // 150 MB
 
 // ── CORS & headers ────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: https://sulafbc.com');
+$allowedOrigins = ['https://www.sigurban.com', 'https://sigurban.com'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+header('Access-Control-Allow-Origin: ' . (in_array($origin, $allowedOrigins, true) ? $origin : 'https://www.sigurban.com'));
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: X-Api-Key, Content-Type');
 
@@ -120,15 +126,13 @@ if ($action === 'list') {
 }
 
 // ── UPLOAD ────────────────────────────────────────────────────────────────────
+// Los archivos se guardan siempre dentro de una subcarpeta AAAA/MM del directorio
+// elegido, igual que la estructura de subidas de WordPress.
 if ($action === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $uploadErr = $_FILES['file']['error'] ?? -1;
     if (!isset($_FILES['file']) || $uploadErr !== UPLOAD_ERR_OK) {
         http_response_code(400);
         exit(json_encode(['ok' => false, 'error' => "Upload error code: $uploadErr"]));
-    }
-
-    if (!is_dir($fullPath)) {
-        mkdir($fullPath, 0755, true);
     }
 
     $file = $_FILES['file'];
@@ -140,11 +144,27 @@ if ($action === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($file['size'] > MAX_UPLOAD_BYTES) {
         http_response_code(413);
-        exit(json_encode(['ok' => false, 'error' => 'El archivo supera el límite de 120 MB']));
+        exit(json_encode(['ok' => false, 'error' => 'El archivo supera el límite de 150 MB']));
+    }
+
+    $datedSubdir = date('Y') . '/' . date('m');
+    $dir         = rtrim($dir, '/') . '/' . $datedSubdir;
+    $fullPath    = STORAGE_ROOT . $dir;
+
+    if (!is_dir($fullPath)) {
+        mkdir($fullPath, 0755, true);
     }
 
     $name       = safeName($file['name']);
     $targetPath = rtrim($fullPath, '/') . '/' . $name;
+
+    // Evita sobreescribir si ya existe un archivo con el mismo nombre ese mes
+    if (file_exists($targetPath)) {
+        $ext  = fileExt($name);
+        $base = pathinfo($name, PATHINFO_FILENAME);
+        $name = $base . '-' . substr(md5(uniqid('', true)), 0, 6) . '.' . $ext;
+        $targetPath = rtrim($fullPath, '/') . '/' . $name;
+    }
 
     if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
         http_response_code(500);

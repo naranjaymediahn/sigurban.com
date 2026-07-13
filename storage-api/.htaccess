@@ -18,8 +18,5 @@ Options -Indexes
   Require all granted
 </Files>
 
-<IfModule mod_headers.c>
-  Header always set Access-Control-Allow-Origin "https://sulafbc.com"
-  Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-  Header always set Access-Control-Allow-Headers "X-Api-Key, Content-Type"
-</IfModule>
+# El CORS se maneja dinámicamente dentro de api.php (valida el Origin contra
+# una lista blanca), por eso no se fija aquí para evitar cabeceras duplicadas.
