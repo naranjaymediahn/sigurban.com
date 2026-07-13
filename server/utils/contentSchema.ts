@@ -2,6 +2,7 @@ import { query } from './db'
 import { defaultProducts } from '../../utils/defaultProducts'
 import { defaultModelos } from '../../utils/defaultModelos'
 import { defaultPosts } from '../../utils/defaultPosts'
+import { defaultFaqs } from '../../utils/defaultFaqs'
 import { buildSeoFields } from './content'
 import { hashPassword } from './auth'
 
@@ -177,6 +178,18 @@ async function ensureAdminUsersSeed() {
   )
 }
 
+async function ensureFaqsSeed() {
+  const rows = await query<{ total: number }>('SELECT COUNT(*) AS total FROM faqs')
+  if ((rows[0]?.total ?? 0) > 0) return
+
+  for (const faq of defaultFaqs) {
+    await query(
+      `INSERT INTO faqs (q, a, sort_order, is_active) VALUES (?, ?, ?, 1)`,
+      [faq.q, faq.a, faq.sort_order]
+    )
+  }
+}
+
 async function ensureSamplePostsSeed() {
   const rows = await query<{ total: number }>('SELECT COUNT(*) AS total FROM blog_posts')
   if ((rows[0]?.total ?? 0) > 0) return
@@ -341,6 +354,18 @@ async function initSchema() {
   `)
 
   await query(`
+    CREATE TABLE IF NOT EXISTS faqs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      q VARCHAR(255) NOT NULL,
+      a TEXT NOT NULL,
+      sort_order INT NOT NULL DEFAULT 0,
+      is_active TINYINT(1) NOT NULL DEFAULT 1,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `)
+
+  await query(`
     CREATE TABLE IF NOT EXISTS sigurban_chat_sessions (
       sender_id VARCHAR(190) PRIMARY KEY,
       has_greeted TINYINT(1) NOT NULL DEFAULT 0,
@@ -447,6 +472,7 @@ async function initSchema() {
   await ensureHeroSlidesSeed()
   await ensureAdminUsersSeed()
   await ensureSamplePostsSeed()
+  await ensureFaqsSeed()
 }
 
 export async function ensureContentSchema() {
