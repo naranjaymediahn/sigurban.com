@@ -14,7 +14,7 @@
           <div class="footer-social">
             <a href="https://www.facebook.com/SigUrban/" target="_blank" rel="noopener" aria-label="Facebook"><Icon name="facebook" :size="16" /></a>
             <a href="https://www.instagram.com/sigurban/" target="_blank" rel="noopener" aria-label="Instagram"><Icon name="instagram" :size="16" /></a>
-            <a :href="`https://api.whatsapp.com/send?phone=${waNumber}`" target="_blank" rel="noopener" aria-label="WhatsApp"><Icon name="whatsapp" :size="16" /></a>
+            <a :href="`https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`" target="_blank" rel="noopener" aria-label="WhatsApp"><Icon name="whatsapp" :size="16" /></a>
           </div>
         </div>
 

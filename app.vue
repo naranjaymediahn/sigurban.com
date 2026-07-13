@@ -4,7 +4,7 @@
     <a
       v-if="waNumber"
       class="wa-float"
-      :href="`https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent('Hola, necesito información sobre Sig-Urban')}`"
+      :href="`https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`"
       target="_blank"
       rel="noopener"
       aria-label="WhatsApp"
