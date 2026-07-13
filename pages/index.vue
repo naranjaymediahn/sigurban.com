@@ -30,6 +30,15 @@
             :alt="currentSlide.alt_es || 'Casa modelo Sig-Urban'"
             @error="onImgError"
           />
+          <div v-if="heroSlides.length > 1" class="hero-dots">
+            <button
+              v-for="(s, i) in heroSlides"
+              :key="s.id"
+              :class="{ active: i === heroIndex }"
+              :aria-label="`Ver slide ${i + 1}`"
+              @click="goToSlide(i)"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -101,10 +110,11 @@
       <div class="container">
         <p class="banks-label">Trabajamos con instituciones financieras aliadas</p>
         <div class="banks-strip">
-          <span v-for="bank in bankPartners" :key="bank.name" class="bank-pill" :class="{ 'has-logo': bank.logo }">
+          <div v-for="bank in bankPartners" :key="bank.name" class="bank-pill">
             <img v-if="bank.logo" :src="bank.logo" :alt="bank.name" />
-            <template v-else>{{ bank.name }}</template>
-          </span>
+            <Icon v-else name="bank" :size="28" />
+            <span class="bank-name">{{ bank.name }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -243,12 +253,19 @@ const heroIndex = ref(0)
 let heroTimer = null
 const currentSlide = computed(() => heroSlides.value[heroIndex.value] || {})
 
+let heroAutoplaySecondsCache = 4.5
 function startHeroRotation(seconds) {
+  heroAutoplaySecondsCache = Math.max(3, Number(seconds) || 4.5)
   if (heroTimer) clearInterval(heroTimer)
   if (heroSlides.value.length < 2) return
   heroTimer = setInterval(() => {
     heroIndex.value = (heroIndex.value + 1) % heroSlides.value.length
-  }, Math.max(3, Number(seconds) || 4.5) * 1000)
+  }, heroAutoplaySecondsCache * 1000)
+}
+
+function goToSlide(index) {
+  heroIndex.value = index
+  startHeroRotation(heroAutoplaySecondsCache)
 }
 
 const waHref = computed(() =>
