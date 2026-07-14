@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="hero-image">
-          <Transition name="hero-fade" mode="out-in">
+          <Transition name="hero-fade">
             <video
               v-if="currentSlide.media_type === 'video' && currentSlide.video"
               :key="'video-' + currentSlide.id"
