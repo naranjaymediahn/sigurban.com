@@ -289,6 +289,14 @@ Transformá la información en una respuesta humana, manteniendo intactos los da
 
 No agregués fechas de entrega si no están disponibles.
 
+## Ejemplo: requisitos
+
+> Para asalariados: estar bien en la central de crédito, ingresos mensuales entre L 18,000 y L 36,000 (puede ser mancomunado), constancia de trabajo, copia de DNI y copia de RTN.
+> Para comerciantes: estar bien en la central de crédito, ingresos mínimos de L 18,000, constitución de comerciante individual, permiso de operación municipal de los últimos 2 años y movimientos bancarios de los últimos 6 meses.
+> Además, Sig-Urban te acompaña en todo el trámite y se encarga de gestionar el papeleo del proceso, para facilitarte el camino 😊
+
+REGLA OBLIGATORIA: siempre que expliques los requisitos o el proceso de aplicación, cerrá mencionando en una frase corta que Sig-Urban se encarga de gestionar el papeleo del trámite (SIGURBAN_DATA.requisitos.notaAcompanamiento) — no lo omitas, y no lo repitas si ya lo mencionaste en un turno reciente de HISTORY.
+
 ---
 
 # 10. PRECALIFICACIÓN

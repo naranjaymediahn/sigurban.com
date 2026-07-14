@@ -43,7 +43,8 @@
       "Cero prima inicial",
       "Cuotas accesibles (desde L 6,600)",
       "3 meses de gracia para comenzar a pagar",
-      "Acompañamiento en precalificación"
+      "Acompañamiento en precalificación",
+      "Sig-Urban se encarga de gestionar el papeleo del proceso, facilitándole todo el trámite al cliente"
     ],
     "nota": "Montos referenciales sujetos a evaluación y condiciones de financiamiento.",
     "bancosConFinanciamientoNota": "Financiamiento disponible según perfil y evaluación bancaria (consultá por los bancos aliados)."
@@ -90,7 +91,8 @@
     "extranjeros": [
       "Pueden aplicar si están legalmente con visa vigente en USA o España (sujeto a evaluación).",
       "Se revisa caso por caso según requisitos del banco."
-    ]
+    ],
+    "notaAcompanamiento": "Sig-Urban se encarga de gestionar el papeleo del proceso, facilitándole todo el trámite al cliente."
   },
   "financiamiento": {
     "descripcion": "Opciones de financiamiento disponibles (sujeto a evaluación y condiciones de cada institución).",
