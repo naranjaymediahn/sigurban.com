@@ -42,6 +42,7 @@
 import { ref, nextTick, onMounted } from 'vue'
 
 const STORAGE_KEY = 'sigurban_chat_state_v1'
+const SESSION_TTL_MS = 6 * 60 * 60 * 1000 // la sesión vence tras 6h de inactividad: Julia vuelve a saludar
 const quickReplies = ['Precio y cuota', 'Requisitos', 'Ubicación', 'Quiero precalificar']
 
 const open = ref(false)
@@ -60,6 +61,13 @@ function loadState() {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return
     const parsed = JSON.parse(raw)
+
+    const lastActivity = Number(parsed.lastActivity) || 0
+    if (!lastActivity || Date.now() - lastActivity > SESSION_TTL_MS) {
+      window.localStorage.removeItem(STORAGE_KEY)
+      return
+    }
+
     senderId.value = parsed.senderId || ''
     session.value = parsed.session || session.value
     messages.value = parsed.messages || []
@@ -73,6 +81,7 @@ function saveState() {
     senderId: senderId.value,
     session: session.value,
     messages: messages.value,
+    lastActivity: Date.now(),
   }))
 }
 

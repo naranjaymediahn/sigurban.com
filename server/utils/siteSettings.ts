@@ -28,7 +28,7 @@ export const DEFAULT_SITE_SETTINGS = {
   blog_permalink_mode: 'date',
   cta_quotes_json: JSON.stringify(DEFAULT_CTA_QUOTES),
   bank_partners_json: JSON.stringify(DEFAULT_BANK_PARTNERS),
-  og_image: 'https://apiuploads.sigurban.com/storage-api/images/proyectos/2026/07/el-circilar.png',
+  og_image: 'https://apiuploads.sigurban.com/storage-api/images/og/2026/07/opengraph.jpg',
 }
 
 function normalizeSettings(input: Record<string, any> = {}) {
