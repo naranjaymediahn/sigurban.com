@@ -28,8 +28,8 @@
             <p style="margin-top:12px;color:var(--muted);line-height:1.7;">
               Nuestra meta <strong style="color:var(--text);">2026–2027</strong> es acompañar a <strong style="color:var(--text);">290 familias</strong> con atención cercana, beneficios financieros únicos y
               la confianza
-              como base de cada proyecto. Si querés conocer más, podés <NuxtLink to="/contactanos" style="color:var(--azul);font-weight:700;">escribirnos por el formulario de contacto</NuxtLink> o
-              <a :href="waHref" target="_blank" rel="noopener" style="color:var(--azul);font-weight:700;">hablar directo por WhatsApp</a>.
+              como base de cada proyecto. Si querés conocer más, podés <NuxtLink to="/contactanos" class="text-link">escribirnos por el formulario de contacto</NuxtLink> o
+              <a :href="waHref" target="_blank" rel="noopener" class="text-link">hablar directo por WhatsApp</a>.
             </p>
 
             <div class="value-grid" style="grid-template-columns:repeat(2,1fr);margin-top:32px;">
@@ -69,16 +69,16 @@
             <h3 style="font-size:16px;color:var(--azul);">Ubicación</h3>
             <p style="font-size:13.5px;color:var(--muted);margin-top:8px;">
               <Icon name="mapPin" :size="13" />
-              <a href="https://maps.app.goo.gl/gmM9sghU1TiGkmMX9" target="_blank" rel="noopener" style="color:var(--azul);font-weight:700;">Barrio el Centro, Edificio Baires Palomo, Siguatepeque, Comayagua, Honduras</a>
+              <a href="https://maps.app.goo.gl/gmM9sghU1TiGkmMX9" target="_blank" rel="noopener" class="text-link">Barrio el Centro, Edificio Baires Palomo, Siguatepeque, Comayagua, Honduras</a>
             </p>
             <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;" />
             <p style="font-size:13.5px;color:var(--muted);">
               <Icon name="whatsapp" :size="13" />
-              <a :href="waHref" target="_blank" rel="noopener" style="color:var(--azul);font-weight:700;">WhatsApp: +504 3173-1754</a>
+              <a :href="waHref" target="_blank" rel="noopener" class="text-link">WhatsApp: +504 3173-1754</a>
             </p>
             <p style="font-size:13.5px;color:var(--muted);margin-top:6px;">
               <Icon name="phoneCall" :size="13" />
-              <a href="tel:+50427735376" style="color:var(--azul);font-weight:700;">Oficina: +504 2773-5376</a>
+              <a href="tel:+50427735376" class="text-link">Oficina: +504 2773-5376</a>
             </p>
             <a class="btn btn-primary" style="width:100%;margin-top:16px;" :href="waHref" target="_blank"
               rel="noopener">
