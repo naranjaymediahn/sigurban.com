@@ -611,6 +611,25 @@
                   <label>Precio y notas de financiamiento</label>
                   <ElInput v-model="editingSliderProduct.logistics_es" placeholder="Precio referencial: consultar con un asesor. Financiamiento disponible." />
                 </div>
+
+                <div class="slider-section-divider">Galería de fotos (opcional)</div>
+                <span class="seo-note">Si tiene fotos, se muestran en el detalle del modelo con miniaturas. Si la dejás vacía, solo se muestra la imagen principal.</span>
+                <div v-for="(img, i) in editingSliderProduct.gallery" :key="'g' + i" class="cta-quote-row" style="margin-top:8px;">
+                  <ElInput v-model="editingSliderProduct.gallery[i]" placeholder="/images/modelos/... o URL completa" size="small" />
+                  <ElButton size="small" @click="openAssetBrowser('gallery-img-' + i, '/images/modelos')">📂</ElButton>
+                  <ElButton size="small" type="danger" plain @click="editingSliderProduct.gallery.splice(i, 1)">✕</ElButton>
+                </div>
+                <ElButton size="small" plain style="margin-top:8px;" @click="editingSliderProduct.gallery.push('')">+ Agregar foto</ElButton>
+
+                <div class="slider-section-divider">Videos del modelo (opcional)</div>
+                <span class="seo-note">Se muestran como "Videos del proyecto" debajo de la galería, igual que en la landing de Facebook. Usá solo el ID del video de YouTube (lo que va después de youtube.com/shorts/ o youtube.com/watch?v=).</span>
+                <div v-for="(v, i) in editingSliderProduct.videos" :key="'v' + i" class="cta-quote-row" style="margin-top:8px;">
+                  <ElInput v-model="v.title" placeholder="Título (ej. Recorrido interior)" size="small" />
+                  <ElInput v-model="v.description" placeholder="Descripción corta" size="small" />
+                  <ElInput v-model="v.youtubeId" placeholder="ID de YouTube" size="small" style="max-width:160px;" />
+                  <ElButton size="small" type="danger" plain @click="editingSliderProduct.videos.splice(i, 1)">✕</ElButton>
+                </div>
+                <ElButton size="small" plain style="margin-top:8px;" @click="editingSliderProduct.videos.push({ title: '', description: '', youtubeId: '' })">+ Agregar video</ElButton>
               </div>
               <template #footer>
                 <ElButton @click="sliderProductEditorOpen = false">Cancelar</ElButton>
@@ -1413,6 +1432,7 @@ function emptySliderProduct() {
     logistics: '',
     logistics_es: '',
     gallery: [],
+    videos: [],
   }
 }
 
@@ -1936,6 +1956,12 @@ function applyAsset(path) {
   if (assetTarget.value === 'hero') editingHeroSlide.value.image = path
   if (assetTarget.value === 'hero-video') editingHeroSlide.value.video = path
   if (assetTarget.value === 'hero-video-en') editingHeroSlide.value.video_en = path
+  if (assetTarget.value.startsWith('gallery-img-')) {
+    const index = Number(assetTarget.value.replace('gallery-img-', ''))
+    if (editingSliderProduct.value.gallery[index] !== undefined) {
+      editingSliderProduct.value.gallery[index] = path
+    }
+  }
   if (assetTarget.value.startsWith('bank-logo-')) {
     const index = Number(assetTarget.value.replace('bank-logo-', ''))
     if (bankPartnersForm.value[index]) {

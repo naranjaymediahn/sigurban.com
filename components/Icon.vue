@@ -47,6 +47,8 @@ const MAP = {
   instagram: 'bi-instagram',
   facebook: 'bi-facebook',
   youtube: 'bi-youtube',
+  play: 'bi-play-circle-fill',
+  photo: 'bi-images',
 }
 
 const cls = computed(() => MAP[props.name] || 'bi-circle')

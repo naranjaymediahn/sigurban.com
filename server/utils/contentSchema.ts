@@ -438,6 +438,7 @@ async function initSchema() {
   if (!(await hasColumn('slider_products', 'logistics'))) sliderAlterStatements.push('ADD COLUMN logistics VARCHAR(255) NULL')
   if (!(await hasColumn('slider_products', 'logistics_es'))) sliderAlterStatements.push('ADD COLUMN logistics_es VARCHAR(255) NULL')
   if (!(await hasColumn('slider_products', 'gallery_json'))) sliderAlterStatements.push('ADD COLUMN gallery_json TEXT NULL')
+  if (!(await hasColumn('slider_products', 'videos_json'))) sliderAlterStatements.push('ADD COLUMN videos_json TEXT NULL')
   for (const statement of sliderAlterStatements) {
     await query(`ALTER TABLE slider_products ${statement}`)
   }

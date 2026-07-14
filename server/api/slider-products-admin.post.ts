@@ -29,7 +29,9 @@ export default defineEventHandler(async (event) => {
       const data = rows.map((row) => {
         let gallery: string[] = []
         try { gallery = row.gallery_json ? JSON.parse(row.gallery_json) : [] } catch { gallery = [] }
-        return { ...row, gallery }
+        let videos: any[] = []
+        try { videos = row.videos_json ? JSON.parse(row.videos_json) : [] } catch { videos = [] }
+        return { ...row, gallery, videos }
       })
       return { ok: true, data }
     }
@@ -37,12 +39,13 @@ export default defineEventHandler(async (event) => {
     if (action === 'create') {
       const slug = product.slug || slugify(product.name_es || product.name_en || String(Date.now()))
       const galleryJson = Array.isArray(product.gallery) && product.gallery.length ? JSON.stringify(product.gallery) : null
+      const videosJson = Array.isArray(product.videos) && product.videos.length ? JSON.stringify(product.videos) : null
       await query(
         `INSERT INTO slider_products (slug, name_es, name_en, image, sort_order, is_active,
           category, category_es, category_en, subtitle, subtitle_es, subtitle_en,
           tagline_es, tagline_en, description_es, description_en,
-          format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es, gallery_json)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es, gallery_json, videos_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           slug, product.name_es, product.name_en, product.image,
           Number(product.sort_order) || 0, product.is_active ? 1 : 0,
@@ -56,7 +59,7 @@ export default defineEventHandler(async (event) => {
           product.shelf_life || null, product.shelf_life_es || null,
           product.store_temp || null, product.units_per_case || null,
           product.logistics || null, product.logistics_es || null,
-          galleryJson,
+          galleryJson, videosJson,
         ]
       )
       return { ok: true }
@@ -65,6 +68,7 @@ export default defineEventHandler(async (event) => {
     if (action === 'update') {
       const slug = product.slug || slugify(product.name_es || product.name_en || String(product.id))
       const galleryJson = Array.isArray(product.gallery) && product.gallery.length ? JSON.stringify(product.gallery) : null
+      const videosJson = Array.isArray(product.videos) && product.videos.length ? JSON.stringify(product.videos) : null
       await query(
         `UPDATE slider_products
          SET slug = ?, name_es = ?, name_en = ?, image = ?, sort_order = ?, is_active = ?,
@@ -77,6 +81,7 @@ export default defineEventHandler(async (event) => {
              store_temp = ?, units_per_case = ?,
              logistics = ?, logistics_es = ?,
              gallery_json = ?,
+             videos_json = ?,
              updated_at = NOW()
          WHERE id = ?`,
         [
@@ -92,7 +97,7 @@ export default defineEventHandler(async (event) => {
           product.shelf_life || null, product.shelf_life_es || null,
           product.store_temp || null, product.units_per_case || null,
           product.logistics || null, product.logistics_es || null,
-          galleryJson,
+          galleryJson, videosJson,
           product.id,
         ]
       )

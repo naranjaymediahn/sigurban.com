@@ -10,6 +10,13 @@
 //  units_per_case     -> parqueos
 //  logistics_es       -> precio / notas de financiamiento
 //  gallery            -> galería de fotos opcional (array de rutas de imagen)
+//  videos             -> videos opcionales (array de { title, description, youtubeId })
+const TULIPAN_VIDEOS = [
+    { title: "Recorrido interior", description: "Conocé espacios y distribución.", youtubeId: "EIwwAkCVGbM" },
+    { title: "Interior del modelo", description: "Detalles del interior y acabados.", youtubeId: "gVUOeypQPq8" },
+    { title: "Exterior y entorno", description: "Vista de fachada y alrededores.", youtubeId: "eVCm_bnMnpc" },
+]
+
 const TULIPAN_GALLERY = [
     "/landings/facebook/assets/img/Renders_30.png",
     "/landings/facebook/assets/img/Renders_31.png",
@@ -42,13 +49,14 @@ export const defaultModelos = [
         category_es: "Colonia El Circilar",
         subtitle_es: "60 m² · 3 dormitorios · 2 baños",
         tagline_es: "El modelo destacado de nuestra campaña #FBSIGURBAN",
-        description_es: "Modelo Tulipán: 60 m² de construcción, 3 dormitorios, 2 baños, 1 parqueo, sala, comedor, cocina y área de lavandería. Terreno de 150.60 V² incluido en el precio.",
+        description_es: "Tulipán es el hogar pensado para que tu familia crezca con espacio y comodidad: 3 dormitorios amplios, 2 baños completos y un parqueo techado te esperan, junto a una sala, comedor y cocina abiertos que invitan a compartir. Con 60 m² de construcción sobre un terreno de 150.60 V² (incluido en el precio) y un área de lavandería propia, cada rincón está diseñado para la vida diaria en Siguatepeque.",
         format_es: "60 m²",
         shelf_life_es: "3 dormitorios",
         store_temp: "2 baños",
         units_per_case: "1",
         logistics_es: "Precio: L 1,250,000 (terreno incluido) · Cuota desde L 6,500 · Prima 0% (promo) · Plazo hasta 30 años.",
         gallery: TULIPAN_GALLERY,
+        videos: TULIPAN_VIDEOS,
     },
     {
         slug: "oocarpa",

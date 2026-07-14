@@ -129,6 +129,7 @@ function buildInitialStore() {
     logistics: null,
     logistics_es: modelo.logistics_es ?? null,
     gallery: modelo.gallery ?? [],
+    videos: modelo.videos ?? [],
     created_at: createdAt,
     updated_at: createdAt,
   }))
@@ -385,6 +386,7 @@ export async function createFallbackSliderProduct(product: any) {
     logistics: product.logistics || null,
     logistics_es: product.logistics_es || null,
     gallery: Array.isArray(product.gallery) ? product.gallery : [],
+    videos: Array.isArray(product.videos) ? product.videos : [],
     created_at,
     updated_at: created_at,
   })
@@ -422,6 +424,7 @@ export async function updateFallbackSliderProduct(product: any) {
   target.logistics = product.logistics || null
   target.logistics_es = product.logistics_es || null
   target.gallery = Array.isArray(product.gallery) ? product.gallery : []
+  target.videos = Array.isArray(product.videos) ? product.videos : []
   target.updated_at = nowIso()
   store.sliderProducts = rows
   await writeStore(store)

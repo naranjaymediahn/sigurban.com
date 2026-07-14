@@ -969,15 +969,32 @@ button {
     }
 }
 .gallery-main {
+    position: relative;
+    width: 100%;
     border-radius: var(--radius);
     overflow: hidden;
-    aspect-ratio: 16/10;
+    aspect-ratio: 16/9;
+    max-height: 420px;
     background: var(--bg-soft);
 }
 .gallery-main img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+.gallery-count {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 30, 45, 0.65);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 20px;
 }
 .gallery-thumbs {
     display: flex;
@@ -1023,6 +1040,10 @@ button {
     border-radius: 8px;
     padding: 10px 12px;
 }
+.spec-list div .bi {
+    color: var(--verde-dark);
+    margin-bottom: 4px;
+}
 .spec-list strong {
     display: block;
     font-size: 15px;
@@ -1030,6 +1051,167 @@ button {
 .spec-list span {
     font-size: 11.5px;
     color: var(--muted);
+}
+
+/* ── Intro del modelo de casa ────────────────────────────── */
+.model-intro {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-top: 26px;
+    padding: 24px 26px;
+    background: linear-gradient(135deg, var(--bg-soft) 0%, #eef4f8 100%);
+    border-left: 4px solid var(--verde);
+    border-radius: 14px;
+}
+.model-intro-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--azul);
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(20, 40, 60, 0.08);
+}
+.model-intro-eyebrow {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--verde-dark);
+    margin-bottom: 8px;
+}
+.model-intro p {
+    margin: 0;
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 16px;
+}
+
+/* ── Videos del modelo de casa ───────────────────────────── */
+.model-videos {
+    margin-top: 36px;
+}
+.model-videos-head h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    color: var(--azul);
+}
+.model-videos-head .small-note {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--muted);
+}
+.model-videos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+}
+@media (max-width: 700px) {
+    .model-videos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.video-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.video-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+}
+.video-thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-soft);
+}
+.video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.video-thumb .bi {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+.video-card strong {
+    color: var(--azul);
+    font-size: 14.5px;
+}
+.video-card span {
+    font-size: 12.5px;
+    color: var(--muted);
+}
+.video-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 30, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+}
+.video-modal-inner {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+}
+.video-modal-close {
+    position: absolute;
+    top: -44px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px;
+}
+.video-modal-frame {
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+.video-modal-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ── Enlaces dentro de texto (FAQ, contenido de blog, etc.) ─ */
+.faq-answer a {
+    color: var(--azul);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: var(--verde);
+    text-underline-offset: 2px;
+}
+.faq-answer a:hover {
+    color: var(--verde-dark);
 }
 
 /* ── Blog post content ───────────────────────────────────── */
