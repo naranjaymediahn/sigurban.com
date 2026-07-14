@@ -1,12 +1,27 @@
 // Motor del chatbot Julia — versión propia (sin depender de n8n para responder).
 // Puerto simplificado de la lógica del workflow n8n "Messenger Brain".
 
-export type ChatLead = { name: string; dni: string; phone: string }
+export type ChatLead = { name: string; dni: string; phone: string; phoneCountryCode: string }
+export type ChatCountryFlags = { isSpain: boolean; isUSALegal: boolean; isUSAUnknown: boolean }
 export type ChatSession = {
   hasGreeted: boolean
   stage: 'info' | 'collecting' | 'awaiting_consent' | 'submitted' | 'in_flight' | 'handoff'
   lead: ChatLead
   collectingEnabled: boolean
+  // Una vez identificado el país del cliente (por palabras clave en cualquier turno), se
+  // conserva durante toda la conversación — antes se recalculaba solo con el mensaje actual
+  // y se perdía apenas el cliente cambiaba de tema.
+  countryFlags: ChatCountryFlags
+}
+
+// Combina las banderas ya conocidas de la sesión con lo detectado en el mensaje actual.
+// Una vez cierta, una bandera no vuelve a false; isUSAUnknown se "asciende" a isUSALegal
+// si en un turno posterior el cliente aporta la señal de estatus legal.
+export function mergeCountryFlags(existing: ChatCountryFlags, fresh: ChatCountryFlags): ChatCountryFlags {
+  const isSpain = existing.isSpain || fresh.isSpain
+  const isUSALegal = existing.isUSALegal || fresh.isUSALegal
+  const isUSAUnknown = (existing.isUSAUnknown || fresh.isUSAUnknown) && !isUSALegal
+  return { isSpain, isUSALegal, isUSAUnknown }
 }
 
 function stripAccents(s: string) {
@@ -25,8 +40,31 @@ export function extractDni(text: string) {
   return { digits: '', raw: '' }
 }
 
-export function extractPhone(text: string) {
+export type PhoneMatch = { digits: string, raw: string, countryCode: string }
+
+// countryFlags decide qué formato de teléfono priorizar: Honduras (8 dígitos, +504) por
+// defecto, o EEUU (10 dígitos, +1) / España (9 dígitos, +34) cuando ya sabemos que el
+// cliente vive en el extranjero — así no se intenta forzar un número de 10 dígitos de EEUU
+// dentro del formato hondureño de 8.
+export function extractPhone(text: string, countryFlags?: ChatCountryFlags): PhoneMatch {
   const s = String(text || '')
+
+  if (countryFlags?.isUSALegal || countryFlags?.isUSAUnknown) {
+    const usMatch = s.match(/\b(?:\+?1[-\s]?)?\(?(\d{3})\)?[-\s]?(\d{3})[-\s]?(\d{4})\b/)
+    if (usMatch) {
+      const digits = usMatch[1] + usMatch[2] + usMatch[3]
+      if (digits.length === 10) return { digits, raw: usMatch[0], countryCode: '+1' }
+    }
+  }
+
+  if (countryFlags?.isSpain) {
+    const esMatch = s.match(/\b(?:\+?34[-\s]?)?(\d{3})[-\s]?(\d{3})[-\s]?(\d{3})\b/)
+    if (esMatch) {
+      const digits = esMatch[1] + esMatch[2] + esMatch[3]
+      if (digits.length === 9) return { digits, raw: esMatch[0], countryCode: '+34' }
+    }
+  }
+
   const cands: { digits: string, raw: string }[] = []
   const re1 = /\b(?:\+?504[-\s]?)?(\d{4})[-\s]?(\d{4})\b/g
   let m: RegExpExecArray | null
@@ -36,7 +74,8 @@ export function extractPhone(text: string) {
   }
   const m2 = s.match(/\b(?:\+?504[-\s]?)?(\d{8})\b/)
   if (m2 && m2[1]?.length === 8) cands.push({ digits: m2[1], raw: m2[0] })
-  return cands.length ? cands[cands.length - 1] : { digits: '', raw: '' }
+  const hn = cands.length ? cands[cands.length - 1] : { digits: '', raw: '' }
+  return { ...hn, countryCode: '+504' }
 }
 
 const NAME_STOP_WORDS = [
@@ -46,6 +85,9 @@ const NAME_STOP_WORDS = [
   'si', 'no', 'ok', 'okay', 'gracias', 'listo', 'perfecto', 'dato', 'datos', 'enviar', 'envia',
   'crm', 'sistema', 'registro', 'registrado', 'tegucigalpa', 'siguatepeque', 'honduras', 'usa',
   'espana', 'financiamiento', 'credito', 'informacion',
+  // Palabras interrogativas / de consulta — un mensaje que las contiene es una pregunta, no un nombre.
+  'cuanto', 'cuantos', 'cuanta', 'cuantas', 'como', 'cuando', 'donde', 'cual', 'cuales', 'que',
+  'porque', 'quien', 'quienes', 'anos', 'meses', 'dias', 'banco', 'bancos', 'modelo', 'modelos',
 ]
 
 function cleanNameCandidate(s: string) {
@@ -70,7 +112,9 @@ export function looksLikeName(candidate: string) {
   return true
 }
 
-export function extractName(text: string): string {
+// Solo patrones explícitos ("mi nombre es X", "me llamo X", "no, es X"...). Se usa para
+// aceptar correcciones incluso cuando SESSION.lead.name ya tiene un valor.
+export function extractNameFromCorrectionPhrase(text: string): string {
   const raw = String(text || '').trim()
   if (!raw) return ''
 
@@ -91,8 +135,19 @@ export function extractName(text: string): string {
       if (looksLikeName(candidate)) return candidate
     }
   }
+  return ''
+}
 
-  // Fallback: si el texto entero parece solo un nombre (sin dígitos ni palabras de contexto)
+// Heurística completa: patrones explícitos + "todo el mensaje parece ser solo un nombre".
+// El fallback es deliberadamente permisivo (candidato, no verdad) — quien decide si es un
+// nombre real de persona antes de guardarlo es la IA (ver isRealPersonName en chat.post.ts).
+export function extractName(text: string): string {
+  const raw = String(text || '').trim()
+  if (!raw) return ''
+
+  const fromPhrase = extractNameFromCorrectionPhrase(raw)
+  if (fromPhrase) return fromPhrase
+
   const cleaned = cleanNameCandidate(raw)
   if (looksLikeName(cleaned) && !/\d/.test(raw)) return cleaned
 

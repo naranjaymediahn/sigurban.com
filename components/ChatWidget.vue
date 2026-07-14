@@ -62,7 +62,13 @@ const bodyRef = ref(null)
 const hasSentFirst = ref(false)
 
 const senderId = ref('')
-const session = ref({ hasGreeted: false, stage: 'info', lead: { name: '', dni: '', phone: '' }, collectingEnabled: false })
+const session = ref({
+  hasGreeted: false,
+  stage: 'info',
+  lead: { name: '', dni: '', phone: '', phoneCountryCode: '+504' },
+  collectingEnabled: false,
+  countryFlags: { isSpain: false, isUSALegal: false, isUSAUnknown: false },
+})
 const messages = ref([])
 
 function loadState() {

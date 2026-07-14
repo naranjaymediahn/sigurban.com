@@ -6,17 +6,17 @@ export const defaultFaqs = [
     },
     {
         q: "¿Cuál es el modelo y dónde lo puedo ver?",
-        a: "Tenemos varios modelos disponibles (Oocarpa, Anturio, Álamo, Laurel y más). Podés ver toda la información y fotos en /modelos-de-casa.",
+        a: 'Tenemos varios modelos disponibles (Oocarpa, Anturio, Álamo, Laurel y más). Podés ver toda la información y fotos en <a href="/modelos-de-casa">/modelos-de-casa</a>.',
         sort_order: 2,
     },
     {
         q: "¿Tienen fotos o diseños del modelo de casa?",
-        a: "Sí. Podés ver fotos, renders y la galería completa en la página de cada modelo, dentro de /modelos-de-casa.",
+        a: 'Sí. Podés ver fotos, renders y la galería completa en la página de cada modelo, dentro de <a href="/modelos-de-casa">/modelos-de-casa</a>.',
         sort_order: 3,
     },
     {
         q: "¿Pueden aplicar personas extranjeras o que están fuera del país?",
-        a: "Sí. Pueden aplicar si están legalmente con visa vigente en USA o España (sujeto a evaluación). Para revisarlo según tu caso, te apoyamos por WhatsApp con el código #FBSIGURBAN.",
+        a: 'Sí. Pueden aplicar si están legalmente con visa vigente en USA o España (sujeto a evaluación). Para revisarlo según tu caso, te apoyamos por WhatsApp con el código #FBSIGURBAN: <a href="https://api.whatsapp.com/send?phone=50431731754&text=%C2%A1Hola!%20%F0%9F%91%8B%F0%9F%8F%A1%20Vengo%20de%20las%20preguntas%20frecuentes%20y%20soy%20cliente%20en%20el%20extranjero%2C%20quisiera%20informaci%C3%B3n%20%23FBSIGURBAN" target="_blank" rel="noopener">escribinos por WhatsApp</a>.',
         sort_order: 4,
     },
     {
@@ -36,7 +36,12 @@ export const defaultFaqs = [
     },
     {
         q: "¿Las comisiones cuentan como salario?",
-        a: "Para revisarlo bien según tu caso, escribinos por WhatsApp con el código #FBSIGURBAN.",
+        a: 'Para revisarlo bien según tu caso, escribinos por WhatsApp con el código #FBSIGURBAN: <a href="https://api.whatsapp.com/send?phone=50431731754&text=%C2%A1Hola!%20%F0%9F%91%8B%F0%9F%8F%A1%20Vengo%20de%20las%20preguntas%20frecuentes%2C%20tengo%20una%20duda%20sobre%20mis%20ingresos%20%23FBSIGURBAN" target="_blank" rel="noopener">escribinos por WhatsApp</a>.',
         sort_order: 8,
+    },
+    {
+        q: "¿Dónde está ubicado el proyecto?",
+        a: 'El proyecto El Circilar está en Siguatepeque, a unos 5 minutos de la CA-5. Podés ver todos los proyectos en <a href="/proyectos">/proyectos</a> o consultar la ubicación exacta en <a href="https://maps.app.goo.gl/gmM9sghU1TiGkmMX9" target="_blank" rel="noopener">Google Maps</a>.',
+        sort_order: 9,
     },
 ]

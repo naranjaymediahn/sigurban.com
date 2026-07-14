@@ -120,7 +120,7 @@
               {{ item.q }}
               <Icon :name="openFaq === i ? 'close' : 'chevronRight'" :size="16" />
             </button>
-            <p v-if="openFaq === i" class="faq-answer">{{ item.a }}</p>
+            <p v-if="openFaq === i" class="faq-answer" v-html="formatFaqAnswer(item.a)" />
           </div>
         </div>
       </div>
@@ -137,6 +137,17 @@ import { ref, computed, onMounted } from 'vue'
 
 const waNumber = ref('50431731754')
 const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y quisiera información sobre Sig-Urban 😊')}`)
+
+// El texto del FAQ puede traer <a href="...">...</a> escrito a mano (desde /admin) o URLs
+// sueltas — las URLs sueltas se convierten en enlaces clicables automáticamente.
+function formatFaqAnswer(text) {
+  const raw = String(text || '')
+  if (/<a\s/i.test(raw)) return raw
+  return raw.replace(/(https?:\/\/[^\s<]+)/g, (url) => {
+    const clean = url.replace(/[.,;)]+$/, '')
+    return `<a href="${clean}" target="_blank" rel="noopener">${clean}</a>`
+  })
+}
 
 const form = ref({ reasons: [], livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' })
 const sending = ref(false)

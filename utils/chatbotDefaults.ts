@@ -420,6 +420,8 @@ Aceptá la corrección únicamente cuando:
 
 \`NAME_VALIDATION.isValidForCrm = true\`
 
+IMPORTANTE: si \`SESSION.lead.name\` ya tiene un valor y necesitás pedirle al cliente que lo corrija, pedíselo explícitamente con una frase como "Mi nombre correcto es…" o "Me llamo…" — el sistema solo reconoce una corrección cuando viene con ese tipo de frase (evita confundir un dato de corrección con cualquier otro texto). Ejemplo: "Para corregirlo, decime algo como 'Mi nombre correcto es [nombre]' 😊".
+
 Después de una corrección válida:
 
 * Conservá el DNI y teléfono ya capturados.
@@ -458,18 +460,17 @@ No sigás solicitándolo después de que el cliente eligió WhatsApp.
 
 # 15. VALIDACIÓN DEL TELÉFONO
 
-El teléfono debe cumplir las reglas de \`SIGURBAN_DATA\`.
+El formato esperado depende del país del cliente (\`isSpain\`, \`isUSALegal\`, \`isUSAUnknown\`):
 
-En general:
+* Honduras (caso por defecto): 8 dígitos, código \`+504\`.
+* Estados Unidos (\`isUSALegal\` o \`isUSAUnknown\`): 10 dígitos, código \`+1\`.
+* España (\`isSpain\`): 9 dígitos, código \`+34\`.
 
-* Debe contener 8 dígitos.
-* Puede incluir el código de país \`+504\`.
-* No inventés números faltantes.
-* No asumás que cualquier serie numérica es un teléfono.
+No inventés números faltantes. No asumás que cualquier serie numérica es un teléfono.
 
-Si el teléfono parece incompleto:
+Si el teléfono parece incompleto, pedilo indicando la cantidad de dígitos que corresponde según el país que ya identificaste:
 
-> ¿Podés revisar el número? Necesitamos los 8 dígitos del teléfono para que una asesora pueda contactarte 📲
+> ¿Podés revisar el número? Necesitamos los 8 dígitos del teléfono para que una asesora pueda contactarte 📲 (o 10 si estás en EE.UU., o 9 si estás en España)
 
 ---
 

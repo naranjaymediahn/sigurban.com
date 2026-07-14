@@ -3,8 +3,8 @@ import path from 'node:path'
 import { query } from '../utils/db'
 import { getSiteSettings } from '../utils/siteSettings'
 import {
-  extractDni, extractPhone, extractName, detectCountryFlags, detectTimeOfDay,
-  wantsPrequalify, stopPrequalify, consentYes, consentNo, wantsHandoff, maskDni,
+  extractDni, extractPhone, extractName, extractNameFromCorrectionPhrase, detectCountryFlags, detectTimeOfDay,
+  wantsPrequalify, stopPrequalify, consentYes, consentNo, wantsHandoff, maskDni, mergeCountryFlags,
   type ChatSession,
 } from '../utils/chatEngine'
 
@@ -47,7 +47,40 @@ async function callOpenAI(apiKey: string, model: string, systemPrompt: string, u
   return String(json?.choices?.[0]?.message?.content || '').trim()
 }
 
-async function sendLeadToCrm(settings: any, lead: { name: string, dni: string, phone: string }) {
+// Antes de guardar un candidato a nombre en la sesión, le preguntamos directamente al modelo
+// si es un nombre real de persona. Evita depender solo de una lista de palabras prohibidas
+// (que siempre se queda corta) para frases como "en cuantos años" o "cuánto cuesta".
+async function isRealPersonName(candidate: string, apiKey: string, model: string): Promise<boolean> {
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content: 'Respondé únicamente SI o NO, sin explicación. ¿El siguiente texto es el nombre completo real de una persona (nombre y apellido)? Si es una pregunta, una frase, un tema de conversación, una ubicación o cualquier cosa que no sea claramente un nombre propio de persona, respondé NO.',
+          },
+          { role: 'user', content: candidate },
+        ],
+        temperature: 0,
+        max_tokens: 3,
+      }),
+    })
+    if (!res.ok) return false
+    const json = await res.json()
+    const text = String(json?.choices?.[0]?.message?.content || '').trim()
+    return /^s[ií]/i.test(text)
+  } catch {
+    return false
+  }
+}
+
+async function sendLeadToCrm(settings: any, lead: { name: string, dni: string, phone: string, phoneCountryCode?: string }) {
   const config = useRuntimeConfig()
   const url = settings.n8n_lead_webhook_url || settings.crm_lead_endpoint || config.CRM_LEAD_ENDPOINT
   if (!url) return { ok: false, message: 'No hay endpoint configurado para enviar el lead.' }
@@ -57,8 +90,16 @@ async function sendLeadToCrm(settings: any, lead: { name: string, dni: string, p
     headers.Authorization = `Bearer ${config.CRM_LEAD_TOKEN}`
   }
 
+  // El CRM valida el body estrictamente (rechaza campos que no reconoce), así que no le
+  // agregamos un campo nuevo para el código de país — lo anteponemos al mismo campo "phone"
+  // que ya está probado, y solo cuando el cliente no es de Honduras (+504 es el formato ya
+  // validado end-to-end, así que ese caso queda exactamente igual que antes).
+  const countryCode = lead.phoneCountryCode || '+504'
+  const phone = countryCode === '+504' ? lead.phone : `${countryCode}${lead.phone}`
+  const payload = { name: lead.name, dni: lead.dni, phone }
+
   try {
-    const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(lead) })
+    const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) })
     const text = await res.text().catch(() => '')
     let body: any = null
     try { body = JSON.parse(text) } catch { body = null }
@@ -109,8 +150,14 @@ export default defineEventHandler(async (event) => {
       name: String(body?.session?.lead?.name || ''),
       dni: String(body?.session?.lead?.dni || ''),
       phone: String(body?.session?.lead?.phone || ''),
+      phoneCountryCode: String(body?.session?.lead?.phoneCountryCode || '+504'),
     },
     collectingEnabled: !!body?.session?.collectingEnabled,
+    countryFlags: {
+      isSpain: !!body?.session?.countryFlags?.isSpain,
+      isUSALegal: !!body?.session?.countryFlags?.isUSALegal,
+      isUSAUnknown: !!body?.session?.countryFlags?.isUSAUnknown,
+    },
   }
 
   if (!text) {
@@ -133,15 +180,30 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // ── Parseo determinístico (DNI, teléfono, nombre) ──────────────
-  const dni = extractDni(text)
-  const phone = extractPhone(text)
-  if (dni.digits.length === 13) session.lead.dni = dni.digits
-  if (phone.digits.length === 8) session.lead.phone = phone.digits
+  // ── País del cliente: se acumula en la sesión, no se recalcula solo con el mensaje actual ──
+  session.countryFlags = mergeCountryFlags(session.countryFlags, detectCountryFlags(text))
 
-  if (!session.lead.name) {
-    const name = extractName(text)
-    if (name) session.lead.name = name
+  // ── Parseo determinístico (DNI, teléfono, nombre) ──────────────
+  // El teléfono usa el formato del país ya identificado (EEUU: 10 dígitos + código +1,
+  // España: 9 dígitos + código +34, si no, Honduras: 8 dígitos + código +504).
+  const dni = extractDni(text)
+  const phone = extractPhone(text, session.countryFlags)
+  if (dni.digits.length === 13) session.lead.dni = dni.digits
+  if (phone.digits) {
+    session.lead.phone = phone.digits
+    session.lead.phoneCountryCode = phone.countryCode
+  }
+
+  // Sin nombre aún: probamos cualquier candidato (frase explícita o "todo el mensaje parece un nombre").
+  // Con nombre ya guardado: solo aceptamos correcciones con frase explícita ("mi nombre es...", "me llamo...",
+  // "no, es...") — así lo pide la sección 13 del prompt, para no confundir un dato de corrección con
+  // cualquier frase que el cliente escriba de casualidad. En ambos casos, antes de persistir el
+  // candidato le preguntamos a la IA si de verdad es un nombre de persona — ese filtro es lo que evita
+  // que una pregunta como "en cuantos años" quede guardada como si fuera un nombre.
+  const nameCandidate = session.lead.name ? extractNameFromCorrectionPhrase(text) : extractName(text)
+  if (nameCandidate && nameCandidate !== session.lead.name) {
+    const isName = await isRealPersonName(nameCandidate, config.OPENAI_API_KEY, config.OPENAI_MODEL)
+    if (isName) session.lead.name = nameCandidate
   }
 
   const wantsPq = wantsPrequalify(text)
@@ -167,7 +229,7 @@ export default defineEventHandler(async (event) => {
 
   const yes = consentYes(text)
   const no = consentNo(text)
-  const flags = detectCountryFlags(text)
+  const flags = { ...session.countryFlags, needsReferido: session.countryFlags.isSpain || session.countryFlags.isUSAUnknown }
   const timeOfDay = detectTimeOfDay()
 
   const leadReady = session.collectingEnabled && missing.length === 0 &&
