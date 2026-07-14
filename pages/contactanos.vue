@@ -22,11 +22,11 @@
 
             <form class="contact-form" @submit.prevent="submit">
               <div class="calc-row">
-                <label>¿En qué te podemos ayudar? (podés marcar varias)</label>
+                <label>¿En qué te podemos ayudar?</label>
                 <div class="check-group">
-                  <label class="check-item"><input type="checkbox" value="Quiero aplicar a una casa" v-model="form.reasons" /> Quiero aplicar a una casa</label>
-                  <label class="check-item"><input type="checkbox" value="Tengo una consulta general" v-model="form.reasons" /> Tengo una consulta general</label>
-                  <label class="check-item"><input type="checkbox" value="Prefiero que me contacten por WhatsApp" v-model="form.reasons" /> Prefiero que me contacten por WhatsApp</label>
+                  <label class="check-item"><input type="radio" name="reason" value="Quiero aplicar a una casa" v-model="form.reason" /> Quiero aplicar a una casa</label>
+                  <label class="check-item"><input type="radio" name="reason" value="Tengo una consulta general" v-model="form.reason" /> Tengo una consulta general</label>
+                  <label class="check-item"><input type="radio" name="reason" value="Prefiero que me contacten por WhatsApp" v-model="form.reason" /> Prefiero que me contacten por WhatsApp</label>
                 </div>
               </div>
 
@@ -149,14 +149,14 @@ function formatFaqAnswer(text) {
   })
 }
 
-const form = ref({ reasons: [], livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' })
+const form = ref({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' })
 const sending = ref(false)
 const sent = ref(false)
 const errorMsg = ref('')
 const faq = ref([])
 const openFaq = ref(-1)
 
-const wantsToApply = computed(() => form.value.reasons.includes('Quiero aplicar a una casa'))
+const wantsToApply = computed(() => form.value.reason === 'Quiero aplicar a una casa')
 
 async function submit() {
   sending.value = true
@@ -173,13 +173,13 @@ async function submit() {
           Teléfono: form.value.phone,
           Email: form.value.email,
           Estado: form.value.livesAbroad ? `Extranjero — ${countryLabel}` : 'Honduras',
-          Asunto: form.value.reasons.join(', ') || 'Consulta general',
+          Asunto: form.value.reason || 'Consulta general',
           Mensaje: form.value.message,
         },
       },
     })
     sent.value = true
-    form.value = { reasons: [], livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' }
+    form.value = { reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' }
   } catch {
     errorMsg.value = 'No pudimos enviar tu mensaje. Escribinos por WhatsApp mejor.'
   } finally {

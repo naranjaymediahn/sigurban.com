@@ -2,7 +2,7 @@
   <header class="site-header">
     <div class="container">
       <NuxtLink to="/" class="logo">
-        <img src="/images/sigurban-2.svg" alt="Sig-Urban" />
+        <img src="/images/isologo-sigurban-color.svg" alt="Sig-Urban" />
         <span class="logo-word">
           <strong>SIG-URBAN</strong>
           <small>Innovación y certificación</small>

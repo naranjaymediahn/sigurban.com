@@ -4,7 +4,7 @@
       <div class="footer-grid">
         <div class="footer-about">
           <div class="footer-logo">
-            <img src="/images/logo-sigurban-white.svg" alt="Sig-Urban" />
+            <img src="/images/isologo-sigurban-white.svg" alt="Sig-Urban" />
             <span class="logo-word">
               <strong>SIG-URBAN</strong>
               <small>Innovación y certificación</small>
