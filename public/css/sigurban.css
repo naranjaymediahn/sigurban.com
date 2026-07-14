@@ -963,6 +963,13 @@ button {
     gap: 36px;
     align-items: start;
 }
+/* Los ítems de grid tienen min-width:auto por defecto, así que no se achican por debajo
+   del ancho intrínseco de su contenido. La tira de miniaturas (scroll horizontal, 19 fotos
+   en una sola fila) tiene un ancho intrínseco enorme (~1586px) que sin esto empuja el
+   cálculo de la columna 1.4fr y descuadra todo el grid. min-width:0 es el fix estándar. */
+.detail-grid > * {
+    min-width: 0;
+}
 @media (max-width: 900px) {
     .detail-grid {
         grid-template-columns: 1fr;
