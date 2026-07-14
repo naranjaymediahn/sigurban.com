@@ -321,6 +321,7 @@ button {
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow);
+    aspect-ratio: 4/3;
 }
 .hero-image img,
 .hero-image video {
@@ -329,6 +330,17 @@ button {
     object-fit: cover;
     aspect-ratio: 4/3;
     display: block;
+    position: absolute;
+    inset: 0;
+}
+/* Fundido suave al pasar al siguiente slide */
+.hero-fade-enter-active,
+.hero-fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+.hero-fade-enter-from,
+.hero-fade-leave-to {
+    opacity: 0;
 }
 .hero-dots {
     position: absolute;

@@ -18,18 +18,21 @@
           </div>
         </div>
         <div class="hero-image">
-          <video
-            v-if="currentSlide.media_type === 'video' && currentSlide.video"
-            :key="currentSlide.id"
-            :src="currentSlide.video"
-            autoplay muted loop playsinline
-          />
-          <img
-            v-else
-            :src="currentSlide.image || '/landings/facebook/assets/img/Renders_30.png'"
-            :alt="currentSlide.alt_es || 'Casa modelo Sig-Urban'"
-            @error="onImgError"
-          />
+          <Transition name="hero-fade" mode="out-in">
+            <video
+              v-if="currentSlide.media_type === 'video' && currentSlide.video"
+              :key="'video-' + currentSlide.id"
+              :src="currentSlide.video"
+              autoplay muted loop playsinline
+            />
+            <img
+              v-else
+              :key="'img-' + currentSlide.id"
+              :src="currentSlide.image || '/landings/facebook/assets/img/Renders_30.png'"
+              :alt="currentSlide.alt_es || 'Casa modelo Sig-Urban'"
+              @error="onImgError"
+            />
+          </Transition>
           <div v-if="heroSlides.length > 1" class="hero-dots">
             <button
               v-for="(s, i) in heroSlides"
