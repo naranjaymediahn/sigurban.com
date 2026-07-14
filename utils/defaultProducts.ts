@@ -21,7 +21,7 @@ export const defaultProducts = [
         location_es: "Siguatepeque, Comayagua",
         description_es: "Vive en un entorno natural con seguridad y comodidad para tu familia.",
         description_long_es: "Fue el único desarrollo residencial contiguo al Parque Reserva Calanterique: 80 lotes con calles de acceso vehicular, agua potable, energía eléctrica, biodigestores certificados y áreas verdes, combinando vida residencial con preservación ambiental. Ofreció los modelos Oocarpa, Álamo, Laurel y Anturio.",
-        badge_es: "Agotado",
+        badge_es: "Entregado",
     },
     {
         slug: "residencial-hacienda-real",
@@ -32,7 +32,7 @@ export const defaultProducts = [
         location_es: "Siguatepeque, Comayagua",
         description_es: "Exclusividad, seguridad y confort en un entorno residencial de primer nivel.",
         description_long_es: "Fue una comunidad residencial de 97 lotes en una zona estratégica de alta plusvalía, con fácil acceso a centros comerciales, colegios, clínicas y hospitales. Contó con calles pavimentadas, agua potable, energía eléctrica, alcantarillado sanitario, áreas verdes, circuito cerrado de vigilancia y caseta de seguridad. Ofreció los modelos Oocarpa, Álamo, Laurel y Anturio.",
-        badge_es: "Agotado",
+        badge_es: "Entregado",
     },
     {
         slug: "las-teresas",
@@ -43,6 +43,6 @@ export const defaultProducts = [
         location_es: "Noroeste del Primer Batallón de Ingenieros, Siguatepeque, Comayagua",
         description_es: "Vive rodeado de naturaleza y seguridad en un entorno familiar.",
         description_long_es: "Fue un proyecto de lotificación y venta de terrenos con financiamiento garantizado y cuotas bajas. Contó con canchas deportivas, parques, puesto de bomberos, posta policial, escuela, centro de salud e iglesia, en una zona tranquila rodeada de los pinares de la ciudad. Ofreció los modelos Oocarpa, Álamo, Laurel y Anturio.",
-        badge_es: "Agotado",
+        badge_es: "Entregado",
     },
 ]
