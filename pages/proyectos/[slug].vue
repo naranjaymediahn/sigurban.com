@@ -93,7 +93,13 @@ onMounted(async () => {
       $fetch('/api/slider-products'),
       $fetch('/api/site-info'),
     ])
-    modelos.value = (m.data || []).slice(0, 4)
+    const all = m.data || []
+    // Un modelo "pertenece" a este proyecto cuando su Proyecto/Colonia (category_es, editable
+    // en /admin → Modelos de casa) coincide con el nombre del proyecto, y solo se muestra si
+    // además está marcado como "Disponible para construcción" — ambos campos se administran
+    // desde la ficha del modelo en /admin.
+    const propios = all.filter((mo) => mo.category_es === proyecto.value?.name_es && mo.is_available !== 0 && mo.is_available !== false)
+    modelos.value = propios.length ? propios : all.filter((mo) => mo.is_available !== 0 && mo.is_available !== false).slice(0, 4)
     waNumber.value = info.data?.whatsapp_number || '50431731754'
   } catch {}
 })

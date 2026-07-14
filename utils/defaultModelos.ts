@@ -91,7 +91,7 @@ export const defaultModelos = [
         store_temp: "1 baño",
         units_per_case: "1",
         logistics_es: "Precio referencial: consultar con un asesor. Financiamiento disponible.",
-        is_available: false,
+        is_available: true,
     },
     {
         slug: "alamo",
@@ -108,7 +108,7 @@ export const defaultModelos = [
         store_temp: "2 baños",
         units_per_case: "1",
         logistics_es: "Precio referencial: consultar con un asesor. Financiamiento disponible.",
-        is_available: false,
+        is_available: true,
     },
     {
         slug: "laurel",
