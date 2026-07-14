@@ -45,8 +45,8 @@ async function ensureSliderProductsSeed() {
       `INSERT INTO slider_products (slug, name_es, name_en, image, sort_order, is_active,
         category, category_es, category_en, subtitle, subtitle_es, subtitle_en,
         tagline_es, tagline_en, description_es, description_en,
-        format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es, gallery_json)
-       VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es, gallery_json, videos_json, is_available)
+       VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         modelo.slug, modelo.name_es, modelo.name_en, modelo.image, modelo.sort_order,
         null,
@@ -60,6 +60,8 @@ async function ensureSliderProductsSeed() {
         modelo.store_temp ?? null, modelo.units_per_case ?? null,
         null, modelo.logistics_es ?? null,
         (modelo as any).gallery?.length ? JSON.stringify((modelo as any).gallery) : null,
+        (modelo as any).videos?.length ? JSON.stringify((modelo as any).videos) : null,
+        (modelo as any).is_available === false ? 0 : 1,
       ]
     )
   }
@@ -439,6 +441,7 @@ async function initSchema() {
   if (!(await hasColumn('slider_products', 'logistics_es'))) sliderAlterStatements.push('ADD COLUMN logistics_es VARCHAR(255) NULL')
   if (!(await hasColumn('slider_products', 'gallery_json'))) sliderAlterStatements.push('ADD COLUMN gallery_json TEXT NULL')
   if (!(await hasColumn('slider_products', 'videos_json'))) sliderAlterStatements.push('ADD COLUMN videos_json TEXT NULL')
+  if (!(await hasColumn('slider_products', 'is_available'))) sliderAlterStatements.push('ADD COLUMN is_available TINYINT(1) NOT NULL DEFAULT 1')
   for (const statement of sliderAlterStatements) {
     await query(`ALTER TABLE slider_products ${statement}`)
   }

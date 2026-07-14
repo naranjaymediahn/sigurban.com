@@ -6,7 +6,7 @@ export default defineEventHandler(async () => {
   try {
     await ensureContentSchema()
     const rows = await query<any>(
-      `SELECT id, slug, name_es, name_en, image, sort_order, is_active,
+      `SELECT id, slug, name_es, name_en, image, sort_order, is_active, is_available,
               category, category_es, category_en, subtitle, subtitle_es, subtitle_en,
               tagline_es, tagline_en, description_es, description_en,
               format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es,

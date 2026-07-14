@@ -44,8 +44,8 @@ export default defineEventHandler(async (event) => {
         `INSERT INTO slider_products (slug, name_es, name_en, image, sort_order, is_active,
           category, category_es, category_en, subtitle, subtitle_es, subtitle_en,
           tagline_es, tagline_en, description_es, description_en,
-          format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es, gallery_json, videos_json)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          format, format_es, shelf_life, shelf_life_es, store_temp, units_per_case, logistics, logistics_es, gallery_json, videos_json, is_available)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           slug, product.name_es, product.name_en, product.image,
           Number(product.sort_order) || 0, product.is_active ? 1 : 0,
@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
           product.store_temp || null, product.units_per_case || null,
           product.logistics || null, product.logistics_es || null,
           galleryJson, videosJson,
+          product.is_available === false ? 0 : 1,
         ]
       )
       return { ok: true }
@@ -82,6 +83,7 @@ export default defineEventHandler(async (event) => {
              logistics = ?, logistics_es = ?,
              gallery_json = ?,
              videos_json = ?,
+             is_available = ?,
              updated_at = NOW()
          WHERE id = ?`,
         [
@@ -98,6 +100,7 @@ export default defineEventHandler(async (event) => {
           product.store_temp || null, product.units_per_case || null,
           product.logistics || null, product.logistics_es || null,
           galleryJson, videosJson,
+          product.is_available === false ? 0 : 1,
           product.id,
         ]
       )

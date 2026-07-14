@@ -59,6 +59,7 @@
 
           <aside class="detail-sidebar">
             <span class="card-badge" style="position:static;display:inline-block;">{{ modelo.category_es }}</span>
+            <span v-if="!isAvailable" class="card-badge soon" style="position:static;display:inline-block;margin-left:6px;">No disponible actualmente</span>
             <h3 style="margin-top:12px;font-size:20px;">{{ modelo.name_es }}</h3>
             <p style="font-size:13px;color:var(--muted);margin-top:4px;">{{ modelo.subtitle_es }}</p>
 
@@ -71,7 +72,7 @@
 
             <p v-if="modelo.logistics_es" style="font-size:13px;color:var(--muted);">{{ modelo.logistics_es }}</p>
 
-            <a class="btn btn-primary" style="width:100%;margin-top:14px;" :href="waHref" target="_blank" rel="noopener"><Icon name="whatsapp" :size="16" /> Cotizar por WhatsApp</a>
+            <a class="btn btn-primary" style="width:100%;margin-top:14px;" :href="waHref" target="_blank" rel="noopener"><Icon name="whatsapp" :size="16" /> {{ isAvailable ? 'Cotizar por WhatsApp' : 'Consultar otras opciones' }}</a>
             <NuxtLink class="btn btn-outline" style="width:100%;margin-top:10px;" to="/proyectos">Ver proyectos</NuxtLink>
           </aside>
         </div>
@@ -121,7 +122,15 @@ const videos = computed(() => Array.isArray(modelo.value?.videos) ? modelo.value
 function openVideo(youtubeId) { activeVideoId.value = youtubeId }
 function closeVideo() { activeVideoId.value = '' }
 
-const waHref = computed(() => `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent('¡Hola! 👋🏡 Vi esto en Redes sociales y me interesa el modelo ' + (modelo.value?.name_es || '') + ' 😊')}`)
+const isAvailable = computed(() => modelo.value?.is_available !== 0 && modelo.value?.is_available !== false)
+
+const waHref = computed(() => {
+  const nombre = modelo.value?.name_es || ''
+  const mensaje = isAvailable.value
+    ? `¡Hola! 👋🏡 Vi esto en Redes sociales y me interesa el modelo ${nombre} 😊`
+    : `¡Hola! 👋🏡 Vi el modelo ${nombre} en la web, sé que no está disponible por ahora pero quisiera saber qué otras opciones tienen 😊`
+  return `https://api.whatsapp.com/send?phone=${waNumber.value}&text=${encodeURIComponent(mensaje)}`
+})
 
 function onImgError(e) { e.target.src = '/images/bg_gradiente.svg' }
 

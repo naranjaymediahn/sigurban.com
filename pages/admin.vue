@@ -565,6 +565,11 @@
                     <ElSwitch v-model="editingSliderProduct.is_active" />
                   </div>
                 </div>
+                <div style="margin-top:8px;">
+                  <label>Disponible para construcción</label>
+                  <div><ElSwitch v-model="editingSliderProduct.is_available" /></div>
+                  <span class="seo-note">Si está apagado, el modelo se sigue mostrando en el sitio pero con un aviso de "No disponible actualmente" — útil para modelos que ya no se están construyendo.</span>
+                </div>
 
                 <div class="slider-section-divider">Información del modelo (detalle / popup)</div>
 
@@ -1413,6 +1418,7 @@ function emptySliderProduct() {
     image: '',
     sort_order: 0,
     is_active: true,
+    is_available: true,
     category: '',
     category_es: '',
     category_en: '',
@@ -2142,7 +2148,9 @@ async function deleteProduct(id) {
 }
 
 function openSliderProduct(product) {
-  editingSliderProduct.value = product ? { ...emptySliderProduct(), ...product, is_active: !!product.is_active } : emptySliderProduct()
+  editingSliderProduct.value = product
+    ? { ...emptySliderProduct(), ...product, is_active: !!product.is_active, is_available: product.is_available === 0 || product.is_available === false ? false : true }
+    : emptySliderProduct()
   sliderProductEditorOpen.value = true
 }
 

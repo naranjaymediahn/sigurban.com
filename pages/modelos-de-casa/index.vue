@@ -15,7 +15,10 @@
         <div v-if="loading" class="empty-state">Cargando...</div>
         <div v-else class="cards-grid">
           <NuxtLink v-for="m in modelos" :key="m.id" :to="`/modelos-de-casa/${m.slug}`" class="card">
-            <div class="card-media"><img :src="m.image" :alt="m.name_es" @error="onImgError" /></div>
+            <div class="card-media">
+              <img :src="m.image" :alt="m.name_es" @error="onImgError" />
+              <span v-if="m.is_available === 0 || m.is_available === false" class="card-badge soon">No disponible</span>
+            </div>
             <div class="card-body">
               <h3>{{ m.name_es }}</h3>
               <div class="card-specs">

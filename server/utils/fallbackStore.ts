@@ -110,6 +110,7 @@ function buildInitialStore() {
     image: modelo.image,
     sort_order: modelo.sort_order,
     is_active: 1,
+    is_available: (modelo as any).is_available === false ? 0 : 1,
     category: null,
     category_es: modelo.category_es ?? null,
     category_en: null,
@@ -367,6 +368,7 @@ export async function createFallbackSliderProduct(product: any) {
     image: product.image,
     sort_order: Number(product.sort_order) || 0,
     is_active: product.is_active ? 1 : 0,
+    is_available: product.is_available === false ? 0 : 1,
     category: product.category_en || product.category || null,
     category_es: product.category_es || null,
     category_en: product.category_en || null,
@@ -405,6 +407,7 @@ export async function updateFallbackSliderProduct(product: any) {
   target.image = product.image
   target.sort_order = Number(product.sort_order) || 0
   target.is_active = product.is_active ? 1 : 0
+  target.is_available = product.is_available === false ? 0 : 1
   target.category = product.category_en || product.category || null
   target.category_es = product.category_es || null
   target.category_en = product.category_en || null
