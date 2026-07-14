@@ -175,6 +175,11 @@ export default defineEventHandler(async (event) => {
 
   const sigurban = await loadKnowledgeBase()
 
+  let bankPartners: { name: string }[] = []
+  try {
+    bankPartners = JSON.parse(settings.bank_partners_json || '[]').map((b: any) => ({ name: b.name }))
+  } catch { /* noop */ }
+
   const userContent = JSON.stringify({
     consulta: text,
     SESSION: session,
@@ -189,7 +194,7 @@ export default defineEventHandler(async (event) => {
     missingFields: missing,
     consentYes: yes,
     consentNo: no,
-    SIGURBAN_DATA: sigurban,
+    SIGURBAN_DATA: { ...sigurban, bancosAliados: bankPartners },
   })
 
   let reply = ''

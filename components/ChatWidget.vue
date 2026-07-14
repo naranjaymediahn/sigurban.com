@@ -26,7 +26,7 @@
         <div v-if="loading" class="chat-typing">Julia está escribiendo…</div>
       </div>
 
-      <div v-if="!hasSentFirst" class="chat-quick">
+      <div v-if="quickReplies.length && !loading" class="chat-quick">
         <button v-for="q in quickReplies" :key="q" @click="send(q)">{{ q }}</button>
       </div>
 
@@ -39,11 +39,21 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 
 const STORAGE_KEY = 'sigurban_chat_state_v1'
 const SESSION_TTL_MS = 6 * 60 * 60 * 1000 // la sesión vence tras 6h de inactividad: Julia vuelve a saludar
-const quickReplies = ['Precio y cuota', 'Requisitos', 'Ubicación', 'Quiero precalificar']
+
+// Botones sugeridos por etapa de la conversación (session.stage, ya calculado por el backend).
+// Reglas simples y baratas — el modelo no genera los botones, así no arriesgamos el formato de su respuesta.
+const QUICK_REPLIES_BY_STAGE = {
+  info: ['Precio y cuota', 'Requisitos', 'Ubicación', 'Quiero precalificar'],
+  collecting: ['Prefiero WhatsApp', 'Solo quiero información'],
+  awaiting_consent: ['Sí, autorizo', 'Prefiero WhatsApp'],
+  handoff: ['Escribir por WhatsApp'],
+  submitted: ['Ver otros modelos', 'Hablar con una asesora'],
+}
+const quickReplies = computed(() => QUICK_REPLIES_BY_STAGE[session.value.stage] || QUICK_REPLIES_BY_STAGE.info)
 
 const open = ref(false)
 const draft = ref('')
