@@ -69,6 +69,38 @@
               </div>
 
               <div v-if="wantsToApply" class="calc-row">
+                <label class="check-item"><input type="checkbox" v-model="form.forOther" /> Quiero cotizar para otra persona</label>
+                <div v-if="form.forOther" class="abroad-note">
+                  <div class="work-grid">
+                    <select v-model="form.relation" class="country-select">
+                      <option value="">¿Qué es de vos esa persona?</option>
+                      <option value="Familiar">Familiar</option>
+                      <option value="Hermano/a">Hermano/a</option>
+                      <option value="Esposo/a">Esposo/a</option>
+                      <option value="Padre o madre">Padre o madre</option>
+                      <option value="Hijo/a">Hijo/a</option>
+                      <option value="Amigo/a">Amigo/a</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                    <select v-model="form.otherLives" class="country-select">
+                      <option value="honduras">Honduras</option>
+                      <option value="usa">🇺🇸 Estados Unidos</option>
+                      <option value="espana">🇪🇸 España</option>
+                      <option value="otro">🌎 Otro país</option>
+                    </select>
+                  </div>
+                  <input v-model="form.otherCity" type="text" maxlength="80" placeholder="Ciudad o zona (ej. Siguatepeque, Miami)" style="margin-top:8px;width:100%;" />
+                  <strong style="display:block;margin-top:10px;">Condiciones para cotizar a nombre de otra persona</strong>
+                  <ul style="margin:6px 0 6px 18px;padding:0;">
+                    <li>El crédito se aprueba a nombre de esa persona: ella firma y presenta sus propios documentos.</li>
+                    <li>Debe estar al día en la central de crédito (sin atrasos).</li>
+                    <li>Debe demostrar ingresos desde L 18,000 al mes (pueden sumarse con su pareja o un familiar).</li>
+                    <li>Documentos: identidad, RTN y constancia de trabajo. Si es comerciante: constitución y permiso de operación municipal.</li>
+                    <li>Los proyectos aplican para residentes en Honduras. Si vive en el extranjero, un familiar o persona de confianza en Honduras puede tramitar el crédito con ella.</li>
+                    <li>Necesitamos su consentimiento para usar sus datos.</li>
+                  </ul>
+                  Los datos de nombre e identidad son los de <strong>la persona que aplicará</strong>; el teléfono es para contactarte.
+                </div>
                 <label class="check-item"><input type="checkbox" v-model="form.noShareDni" /> Prefiero no compartir mi identidad por este medio</label>
                 <label class="check-item"><input type="checkbox" v-model="form.badCredit" /> Creo que tengo mal historial crediticio (central de riesgo)</label>
                 <div v-if="form.noShareDni" class="abroad-note">
@@ -182,7 +214,7 @@ function formatFaqAnswer(text) {
 const MSG_NO_DNI = 'Para precalificarte necesitamos tu número de identidad: con él consultamos tu historial en la central de crédito y enviamos tu solicitud al banco. Sin este dato no podemos continuar, pero cuando quieras seguir, con gusto te atendemos. Tus datos son confidenciales y se usan solo para este trámite.'
 const MSG_BAD_CREDIT = 'Para aprobar un crédito, el banco requiere estar al día en la central de riesgo. Por ahora no podríamos avanzar con tu solicitud, pero si regularizás tu situación, con gusto te ayudamos a precalificar. 🏡'
 const infoMsg = ref('')
-const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
+const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, forOther: false, relation: '', otherLives: 'honduras', otherCity: '', workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
 const form = ref(emptyForm())
 const route = useRoute()
 if (route.query.motivo === 'aplicar') form.value.reason = 'Quiero aplicar a una casa'
@@ -214,6 +246,7 @@ async function submit() {
     sending.value = false
     return
   }
+  if (wantsToApply.value && form.value.forOther && !form.value.relation) { errorMsg.value = 'Contanos qué es de vos la persona para quien cotizás.'; sending.value = false; return }
   // Estándar de datos: nombre en mayúsculas, teléfono y identidad validados antes de enviar
   const phoneStd = normalizePhone(form.value.livesAbroad ? `${form.value.phoneCode}${form.value.phone}` : form.value.phone)
   if (!phoneStd.ok) { errorMsg.value = phoneStd.reason || 'Revisá tu teléfono.'; sending.value = false; return }
@@ -230,6 +263,7 @@ async function submit() {
           Nombre: normalizeName(form.value.name),
           DNI: needsDni ? idStd.value : '',
           Teléfono: phoneStd.value,
+          'Cotiza para otra persona': form.value.forOther ? `Sí. Es mi ${form.value.relation}. Vive en: ${form.value.otherLives}${form.value.otherCity ? ' (' + form.value.otherCity + ')' : ''}` : '',
           'Lugar de trabajo': form.value.workplace,
           Posición: form.value.position,
           Salario: form.value.salary,

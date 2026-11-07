@@ -29,7 +29,9 @@ export default defineEventHandler(async (event) => {
       f['Salario'] && `Salario: L ${f['Salario']}`,
       f['Antigüedad'] && `Antigüedad: ${f['Antigüedad']}`,
     ].filter(Boolean).join(' | ')
-    if (extra) f['Mensaje'] = [f['Mensaje'], extra].filter(Boolean).join('\n')
+    const otra = f['Cotiza para otra persona'] ? `Cotiza para otra persona: ${f['Cotiza para otra persona']}` : ''
+    const todo = [extra, otra].filter(Boolean).join(' | ')
+    if (todo) f['Mensaje'] = [f['Mensaje'], todo].filter(Boolean).join('\n')
   }
   try {
     await query(
@@ -68,6 +70,7 @@ export default defineEventHandler(async (event) => {
         if (f['Posición']) body.workPosition = f['Posición']
         if (f['Salario']) body.salary = String(f['Salario']).replace(/[^0-9.]/g, '')
         if (f['Antigüedad']) body.workTime = f['Antigüedad']
+        if (f['Cotiza para otra persona']) body.contexto = `Cotización para otra persona. ${f['Cotiza para otra persona']}. Teléfono de contacto: ${f['Teléfono']}.`
         const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) })
         if (!r.ok) console.error('[submit] CRM respondió', r.status, (await r.text().catch(() => '')).slice(0, 200))
       } catch (crmErr: any) {
