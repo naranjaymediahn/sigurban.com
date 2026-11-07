@@ -172,8 +172,8 @@ export default defineEventHandler(async (event) => {
   const badCredit = /(tengo|estoy|tuve|me (reportaron|embargaron)|mi (historial|record|credito))[^.?]{0,40}(mal|malo|reportad|mora|central de riesgo|buro|embarg|deuda)/.test(flat)
   if (refusesDni || badCredit) {
     const reply = badCredit
-      ? 'Gracias por contarnos con tanta confianza. Para que un banco apruebe un crédito es necesario estar al día en la central de riesgo, así que por ahora no podríamos avanzar con tu solicitud. Si regularizás tu situación, con muchísimo gusto te ayudamos a precalificar. 🏡'
-      : 'Gracias por cuidar tus datos, lo entendemos 😊 Sin tu número de identidad no podemos continuar con la precalificación, porque lo necesitamos para enviar tu solicitud al banco y consultar la central de crédito. Si más adelante querés continuar, con gusto te atendemos.'
+      ? 'Para aprobar un crédito, el banco requiere estar al día en la central de riesgo. Por ahora no podríamos avanzar con tu solicitud, pero si regularizás tu situación, con gusto te ayudamos a precalificar. 🏡'
+      : 'Para precalificarte necesitamos tu número de identidad: con él consultamos tu historial en la central de crédito y enviamos tu solicitud al banco. Sin este dato no podemos continuar, pero cuando quieras seguir, con gusto te atendemos. Tus datos son confidenciales y se usan solo para este trámite.'
     session.collectingEnabled = false
     session.stage = 'info'
     session.hasGreeted = true

@@ -71,7 +71,15 @@
               <div v-if="wantsToApply" class="calc-row">
                 <label class="check-item"><input type="checkbox" v-model="form.noShareDni" /> Prefiero no compartir mi identidad por este medio</label>
                 <label class="check-item"><input type="checkbox" v-model="form.badCredit" /> Creo que tengo mal historial crediticio (central de riesgo)</label>
-                <p v-if="form.noShareDni" class="abroad-note">{{ MSG_NO_DNI }}</p>
+                <div v-if="form.noShareDni" class="abroad-note">
+                  <strong>Necesitamos tu identidad para continuar</strong>
+                  <ul style="margin:6px 0 6px 18px;padding:0;">
+                    <li>Consultamos tu historial en la central de crédito.</li>
+                    <li>Enviamos tu solicitud al banco.</li>
+                    <li>Tus datos son confidenciales y se usan solo para este trámite.</li>
+                  </ul>
+                  Sin este dato no podemos avanzar. Cuando quieras continuar, desmarcá esta opción e ingresá tu identidad.
+                </div>
                 <p v-if="form.badCredit" class="abroad-note">{{ MSG_BAD_CREDIT }}</p>
               </div>
 
@@ -171,8 +179,8 @@ function formatFaqAnswer(text) {
   })
 }
 
-const MSG_NO_DNI = 'Gracias por cuidar tus datos, lo entendemos 😊 Sin tu número de identidad no podemos continuar con la precalificación, porque lo necesitamos para enviar tu solicitud al banco y consultar la central de crédito. Si más adelante querés continuar, con gusto te atendemos.'
-const MSG_BAD_CREDIT = 'Gracias por contarnos con tanta confianza. Para que un banco apruebe un crédito es necesario estar al día en la central de riesgo, así que por ahora no podríamos avanzar con tu solicitud. Si regularizás tu situación, con muchísimo gusto te ayudamos a precalificar. 🏡'
+const MSG_NO_DNI = 'Para precalificarte necesitamos tu número de identidad: con él consultamos tu historial en la central de crédito y enviamos tu solicitud al banco. Sin este dato no podemos continuar, pero cuando quieras seguir, con gusto te atendemos. Tus datos son confidenciales y se usan solo para este trámite.'
+const MSG_BAD_CREDIT = 'Para aprobar un crédito, el banco requiere estar al día en la central de riesgo. Por ahora no podríamos avanzar con tu solicitud, pero si regularizás tu situación, con gusto te ayudamos a precalificar. 🏡'
 const infoMsg = ref('')
 const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
 const form = ref(emptyForm())
