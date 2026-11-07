@@ -118,7 +118,7 @@
                 <textarea v-model="form.message" rows="4" placeholder="Contanos qué proyecto te interesa o tu consulta..." />
               </div>
 
-              <button class="btn btn-primary" type="submit" :disabled="sending">{{ sending ? 'Enviando...' : 'Enviar mensaje' }}</button>
+              <button class="btn btn-primary" type="submit" :disabled="sending || (wantsToApply && (form.noShareDni || form.badCredit))" :title="wantsToApply && (form.noShareDni || form.badCredit) ? 'Desmarcá la opción de arriba para poder enviar tu solicitud' : ''">{{ sending ? 'Enviando...' : 'Enviar mensaje' }}</button>
               <p v-if="sent" class="form-note ok">¡Gracias! En breve una asesora te contacta.</p>
               <p v-if="errorMsg" class="form-note err">{{ errorMsg }}</p>
               <p v-if="infoMsg" class="form-note">{{ infoMsg }}</p>
