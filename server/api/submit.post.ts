@@ -14,6 +14,23 @@ export default defineEventHandler(async (event) => {
 
   // ── 1. Guardar en MySQL ─────────────────────────────────────────
   const f = fields as Record<string, string>
+
+  // Estándar de datos (también aquí, por si el formulario se envía sin pasar por el navegador)
+  if (type === 'contactanos') {
+    if (f['Nombre']) f['Nombre'] = normalizeName(f['Nombre'])
+    const ph = normalizePhone(f['Teléfono'])
+    if (!ph.ok) {
+      throw createError({ statusCode: 400, statusMessage: ph.reason || 'Teléfono inválido' })
+    }
+    f['Teléfono'] = ph.value
+    const extra = [
+      f['Lugar de trabajo'] && `Lugar de trabajo: ${f['Lugar de trabajo']}`,
+      f['Posición'] && `Posición: ${f['Posición']}`,
+      f['Salario'] && `Salario: L ${f['Salario']}`,
+      f['Antigüedad'] && `Antigüedad: ${f['Antigüedad']}`,
+    ].filter(Boolean).join(' | ')
+    if (extra) f['Mensaje'] = [f['Mensaje'], extra].filter(Boolean).join('\n')
+  }
   try {
     await query(
       `INSERT INTO distribution
@@ -36,6 +53,27 @@ export default defineEventHandler(async (event) => {
   } catch (dbErr: any) {
     console.error('[submit] MySQL error:', dbErr.message)
     // No detener el flujo, igual intentar enviar correo
+  }
+
+  // ── 1b. Quien quiere aplicar y trae identidad válida pasa también al CRM ──
+  if (type === 'contactanos' && f['Asunto'] === 'Quiero aplicar a una casa' && f['DNI']) {
+    const idStd = normalizeIdentity(f['DNI'], f['Teléfono'])
+    const url = settings.crm_lead_endpoint || config.CRM_LEAD_ENDPOINT
+    if (idStd.ok && url) {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+        if (config.CRM_LEAD_TOKEN) headers.Authorization = `Bearer ${config.CRM_LEAD_TOKEN}`
+        const body: Record<string, string> = { name: f['Nombre'], dni: idStd.value, phone: f['Teléfono'] }
+        if (f['Lugar de trabajo']) body.workAddress = f['Lugar de trabajo']
+        if (f['Posición']) body.workPosition = f['Posición']
+        if (f['Salario']) body.salary = String(f['Salario']).replace(/[^0-9.]/g, '')
+        if (f['Antigüedad']) body.workTime = f['Antigüedad']
+        const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) })
+        if (!r.ok) console.error('[submit] CRM respondió', r.status, (await r.text().catch(() => '')).slice(0, 200))
+      } catch (crmErr: any) {
+        console.error('[submit] CRM error:', crmErr.message)
+      }
+    }
   }
 
   // ── 2. Enviar correos ──────────────────────────────────────────

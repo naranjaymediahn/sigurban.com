@@ -65,18 +65,32 @@
 
               <div class="calc-row">
                 <label>Nombre completo</label>
-                <input v-model="form.name" type="text" required placeholder="Ej. María González" />
+                <input v-model="form.name" type="text" required autocomplete="name" style="text-transform:uppercase" placeholder="Ej. MARÍA GONZÁLEZ" @input="form.name = form.name.toLocaleUpperCase('es')" />
               </div>
 
               <div v-if="wantsToApply && !form.livesAbroad" class="calc-row">
-                <label>Número de identidad (DNI)</label>
-                <input v-model="form.dni" type="text" required placeholder="0801-1990-12345" />
+                <label>Número de identidad (13 dígitos)</label>
+                <input v-model="form.dni" type="text" required inputmode="numeric" maxlength="17" placeholder="0801-1990-12345" @input="formatDni" />
                 <span class="field-hint">Nos ayuda a precalificar tu perfil más rápido.</span>
               </div>
 
               <div class="calc-row">
-                <label>Teléfono {{ form.livesAbroad ? '(con código de área)' : '' }}</label>
-                <input v-model="form.phone" type="text" required :placeholder="form.livesAbroad ? '+1 305 555 0100' : '9999-9999'" />
+                <label>Teléfono</label>
+                <div class="phone-row">
+                  <input v-model="form.phoneCode" type="text" class="phone-code" :readonly="!form.livesAbroad || form.country !== 'otro'" aria-label="Código de país" />
+                  <input v-model="form.phone" type="tel" required inputmode="tel" :placeholder="form.livesAbroad ? (form.country === 'usa' ? '305 555 0100' : form.country === 'espana' ? '612 345 678' : 'Tu número sin el código') : '9999-9999'" />
+                </div>
+                <span class="field-hint">{{ form.livesAbroad ? 'Tu número con el código de tu país.' : 'Número de Honduras, 8 dígitos.' }}</span>
+              </div>
+
+              <div v-if="wantsToApply" class="calc-row work-box">
+                <label style="font-weight:600;">Datos laborales <span style="font-weight:400;color:var(--muted);">(opcional, nos ayudan a precalificarte)</span></label>
+                <div class="work-grid">
+                  <input v-model="form.workplace" type="text" maxlength="120" placeholder="Lugar de trabajo" />
+                  <input v-model="form.position" type="text" maxlength="120" placeholder="Posición o cargo" />
+                  <input v-model="form.salary" type="text" inputmode="numeric" maxlength="12" placeholder="Salario mensual (L)" />
+                  <input v-model="form.seniority" type="text" maxlength="60" placeholder="Antigüedad (ej. 3 años)" />
+                </div>
               </div>
 
               <div class="calc-row">
@@ -149,7 +163,8 @@ function formatFaqAnswer(text) {
   })
 }
 
-const form = ref({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' })
+const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
+const form = ref(emptyForm())
 const sending = ref(false)
 const sent = ref(false)
 const errorMsg = ref('')
@@ -158,9 +173,25 @@ const openFaq = ref(-1)
 
 const wantsToApply = computed(() => form.value.reason === 'Quiero aplicar a una casa')
 
+// Código de país según el selector
+watch(() => [form.value.livesAbroad, form.value.country], () => {
+  form.value.phoneCode = !form.value.livesAbroad ? '+504' : form.value.country === 'usa' ? '+1' : form.value.country === 'espana' ? '+34' : '+'
+})
+
+function formatDni() {
+  const d = form.value.dni.replace(/\D+/g, '').slice(0, 13)
+  form.value.dni = d.length > 8 ? `${d.slice(0, 4)}-${d.slice(4, 8)}-${d.slice(8)}` : d.length > 4 ? `${d.slice(0, 4)}-${d.slice(4)}` : d
+}
+
 async function submit() {
   sending.value = true
   errorMsg.value = ''
+  // Estándar de datos: nombre en mayúsculas, teléfono y identidad validados antes de enviar
+  const phoneStd = normalizePhone(form.value.livesAbroad ? `${form.value.phoneCode}${form.value.phone}` : form.value.phone)
+  if (!phoneStd.ok) { errorMsg.value = phoneStd.reason || 'Revisá tu teléfono.'; sending.value = false; return }
+  const needsDni = wantsToApply.value && !form.value.livesAbroad
+  const idStd = normalizeIdentity(form.value.dni, phoneStd.value)
+  if (needsDni && !idStd.ok) { errorMsg.value = idStd.reason || 'Revisá tu identidad.'; sending.value = false; return }
   try {
     const countryLabel = { usa: 'Estados Unidos', espana: 'España', otro: 'Otro país' }[form.value.country]
     await $fetch('/api/submit', {
@@ -168,9 +199,13 @@ async function submit() {
       body: {
         type: 'contactanos',
         fields: {
-          Nombre: form.value.name,
-          DNI: form.value.dni,
-          Teléfono: form.value.phone,
+          Nombre: normalizeName(form.value.name),
+          DNI: needsDni ? idStd.value : '',
+          Teléfono: phoneStd.value,
+          'Lugar de trabajo': form.value.workplace,
+          Posición: form.value.position,
+          Salario: form.value.salary,
+          Antigüedad: form.value.seniority,
           Email: form.value.email,
           Estado: form.value.livesAbroad ? `Extranjero — ${countryLabel}` : 'Honduras',
           Asunto: form.value.reason || 'Consulta general',
@@ -179,7 +214,7 @@ async function submit() {
       },
     })
     sent.value = true
-    form.value = { reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', email: '', message: '' }
+    form.value = emptyForm()
   } catch {
     errorMsg.value = 'No pudimos enviar tu mensaje. Escribinos por WhatsApp mejor.'
   } finally {
@@ -229,6 +264,10 @@ textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px soli
 .check-group { display: flex; flex-direction: column; gap: 8px; }
 .check-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text); font-weight: 400; }
 .check-item input { width: 16px; height: 16px; accent-color: var(--azul); }
+.phone-row { display:flex; gap:8px; }
+.phone-code { width:84px; flex:0 0 84px; text-align:center; }
+.work-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
+@media (max-width:560px) { .work-grid { grid-template-columns:1fr; } }
 .country-select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; background: var(--bg-soft); }
 .field-hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; display: block; }
 .abroad-note { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 6px; }
