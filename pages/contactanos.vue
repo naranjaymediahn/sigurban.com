@@ -144,7 +144,7 @@
                     <option value="espana">🇪🇸 España</option>
                     <option value="otro">🌎 Otro país</option>
                   </select>
-                  <input v-model="form.otherCity" type="text" maxlength="80" placeholder="Ciudad o zona (ej. Siguatepeque, Miami)" />
+                  <input v-model="form.otherCity" type="text" required maxlength="80" placeholder="Ciudad o zona (ej. Siguatepeque, Miami)" />
                 </div>
               </div>
 
@@ -174,12 +174,12 @@
               </div>
 
               <div v-if="wantsToApply" class="calc-row work-box" :style="{ order: O.work }">
-                <label style="font-weight:600;">Datos laborales <span style="font-weight:400;color:var(--muted);">(opcional, nos ayudan a precalificarte)</span></label>
+                <label style="font-weight:600;">Datos laborales <span style="font-weight:400;color:var(--muted);">(todos los campos son obligatorios)</span></label>
                 <div class="work-grid">
-                  <input v-model="form.workplace" type="text" maxlength="120" placeholder="Lugar de trabajo" />
-                  <input v-model="form.position" type="text" maxlength="120" placeholder="Posición o cargo" />
-                  <input v-model="form.salary" type="text" inputmode="numeric" maxlength="12" placeholder="Salario mensual (L)" />
-                  <input v-model="form.seniority" type="text" maxlength="60" placeholder="Antigüedad (ej. 3 años)" />
+                  <input v-model="form.workplace" type="text" required maxlength="120" placeholder="Lugar de trabajo" />
+                  <input v-model="form.position" type="text" required maxlength="120" placeholder="Posición o cargo" />
+                  <input v-model="form.salary" type="text" required inputmode="numeric" maxlength="12" placeholder="Salario mensual (L)" />
+                  <input v-model="form.seniority" type="text" required maxlength="60" placeholder="Antigüedad (ej. 3 años)" />
                 </div>
               </div>
 
