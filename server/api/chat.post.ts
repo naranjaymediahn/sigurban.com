@@ -117,6 +117,28 @@ async function sendLeadToCrm(settings: any, lead: { name: string, dni: string, p
   }
 }
 
+// Si OpenAI no responde (sin créditos, caído, etc.) se contesta con lo que ya sabemos de la base de conocimiento,
+// para que el chat siga siendo útil en vez de solo mostrar un error.
+function fallbackFromKb(kb: any, flat: string, promo: string): string {
+  const norm = (s: string) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const intents: any[] = Array.isArray(kb?.intents) ? [...kb.intents].sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0)) : []
+  const hit = intents.find((it) => Array.isArray(it.match) && it.match.some((m: string) => m && flat.includes(norm(m))))
+  const r = hit?.response
+  let body = ''
+  if (r?.type === 'text' && r.text) body = String(r.text)
+  else if (r?.type === 'offer_block') {
+    const o = kb.oferta || {}
+    body = [o.precio && `• Precio referencial: ${o.precio}`, o.cuotaMensual && `• Cuota mensual: ${o.cuotaMensual}`, o.prima && `• Prima: ${o.prima}`, o.plazo && `• Plazo: ${o.plazo}`, o.nota].filter(Boolean).join('\n')
+  } else if (r?.type === 'location_block') {
+    const u = kb.proyecto?.ubicacion || {}
+    body = [u.referencia && `• Referencia: ${u.referencia}`, u.colonia && `• Colonia: ${u.colonia}`, u.ciudad && `• Ciudad: ${u.ciudad}`, u.mapsUrl && `• Mapa: ${u.mapsUrl}`].filter(Boolean).join('\n')
+  } else if (r?.type === 'requirements_block') {
+    const q = kb.requisitos?.asalariados
+    body = Array.isArray(q) ? 'Requisitos para asalariados:\n' + q.map((x: string) => `• ${x}`).join('\n') : ''
+  }
+  const tail = `\n\nAhora mismo Julia no está disponible para responder preguntas más detalladas. Una asesora te atiende por WhatsApp con el código ${promo} 📲`
+  return body ? body + tail : `Ahora mismo Julia no está disponible 😔 Escribinos por WhatsApp con el código ${promo} y una asesora te ayuda 📲`
+}
 async function persistBestEffort(senderId: string, session: ChatSession, userText: string, botReply: string) {
   try {
     await query(
@@ -278,7 +300,8 @@ export default defineEventHandler(async (event) => {
   try {
     reply = await callOpenAI(config.OPENAI_API_KEY, config.OPENAI_MODEL, settings.chatbot_system_prompt, userContent)
   } catch (err: any) {
-    reply = 'Tuve un problema técnico respondiendo tu mensaje 😔 Probá de nuevo en un momento o escribinos por WhatsApp con el código ' + (settings.promo_code || '#FBSIGURBAN') + ' 📲'
+    console.error('[chat] OpenAI falló:', String(err?.message || err).slice(0, 300))
+    reply = fallbackFromKb(await loadKnowledgeBase(), flat, settings.promo_code || '#FBSIGURBAN')
   }
 
   session.hasGreeted = true
