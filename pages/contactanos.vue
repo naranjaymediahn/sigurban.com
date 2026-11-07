@@ -71,6 +71,7 @@
               <div v-if="wantsToApply" class="calc-row">
                 <label class="check-item"><input type="checkbox" v-model="form.forOther" /> Quiero cotizar para otra persona</label>
                 <div v-if="form.forOther" class="abroad-note">
+                  <input v-model="form.contactName" type="text" maxlength="80" autocomplete="name" style="text-transform:uppercase;width:100%;margin-bottom:8px;" placeholder="Tu nombre completo (quien escribe)" @input="form.contactName = form.contactName.toLocaleUpperCase('es')" />
                   <div class="work-grid">
                     <select v-model="form.relation" class="country-select">
                       <option value="">¿Qué es de vos esa persona?</option>
@@ -214,7 +215,7 @@ function formatFaqAnswer(text) {
 const MSG_NO_DNI = 'Para precalificarte necesitamos tu número de identidad: con él consultamos tu historial en la central de crédito y enviamos tu solicitud al banco. Sin este dato no podemos continuar, pero cuando quieras seguir, con gusto te atendemos. Tus datos son confidenciales y se usan solo para este trámite.'
 const MSG_BAD_CREDIT = 'Para aprobar un crédito, el banco requiere estar al día en la central de riesgo. Por ahora no podríamos avanzar con tu solicitud, pero si regularizás tu situación, con gusto te ayudamos a precalificar. 🏡'
 const infoMsg = ref('')
-const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, forOther: false, relation: '', otherLives: 'honduras', otherCity: '', workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
+const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, forOther: false, contactName: '', relation: '', otherLives: 'honduras', otherCity: '', workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
 const form = ref(emptyForm())
 const route = useRoute()
 if (route.query.motivo === 'aplicar') form.value.reason = 'Quiero aplicar a una casa'
@@ -246,7 +247,7 @@ async function submit() {
     sending.value = false
     return
   }
-  if (wantsToApply.value && form.value.forOther && !form.value.relation) { errorMsg.value = 'Contanos qué es de vos la persona para quien cotizás.'; sending.value = false; return }
+  if (wantsToApply.value && form.value.forOther && (!form.value.relation || !form.value.contactName.trim())) { errorMsg.value = 'Contanos tu nombre y qué es de vos la persona para quien cotizás.'; sending.value = false; return }
   // Estándar de datos: nombre en mayúsculas, teléfono y identidad validados antes de enviar
   const phoneStd = normalizePhone(form.value.livesAbroad ? `${form.value.phoneCode}${form.value.phone}` : form.value.phone)
   if (!phoneStd.ok) { errorMsg.value = phoneStd.reason || 'Revisá tu teléfono.'; sending.value = false; return }
@@ -263,7 +264,7 @@ async function submit() {
           Nombre: normalizeName(form.value.name),
           DNI: needsDni ? idStd.value : '',
           Teléfono: phoneStd.value,
-          'Cotiza para otra persona': form.value.forOther ? `Sí. Es mi ${form.value.relation}. Vive en: ${form.value.otherLives}${form.value.otherCity ? ' (' + form.value.otherCity + ')' : ''}` : '',
+          'Cotiza para otra persona': form.value.forOther ? `Sí. Escribió ${normalizeName(form.value.contactName)}, que es ${form.value.relation} de la persona. Vive en: ${form.value.otherLives}${form.value.otherCity ? ' (' + form.value.otherCity + ')' : ''}` : '',
           'Lugar de trabajo': form.value.workplace,
           Posición: form.value.position,
           Salario: form.value.salary,
