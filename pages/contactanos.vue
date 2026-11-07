@@ -184,6 +184,8 @@ const MSG_BAD_CREDIT = 'Para aprobar un crédito, el banco requiere estar al dí
 const infoMsg = ref('')
 const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
 const form = ref(emptyForm())
+const route = useRoute()
+if (route.query.motivo === 'aplicar') form.value.reason = 'Quiero aplicar a una casa'
 const sending = ref(false)
 const sent = ref(false)
 const errorMsg = ref('')

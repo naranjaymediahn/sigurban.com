@@ -72,7 +72,14 @@
 
             <p v-if="modelo.logistics_es" style="font-size:13px;color:var(--muted);">{{ modelo.logistics_es }}</p>
 
-            <a class="btn btn-primary" style="width:100%;margin-top:14px;" :href="waHref" target="_blank" rel="noopener"><Icon name="whatsapp" :size="16" /> {{ isAvailable ? 'Cotizar por WhatsApp' : 'Consultar otras opciones' }}</a>
+            <NuxtLink v-if="isAvailable" class="btn-aplicar" to="/contactanos?motivo=aplicar">
+              <span class="btn-aplicar-main">✔ Aplicar a esta casa</span>
+              <span class="btn-aplicar-sub">Precalificá gratis y sin compromiso</span>
+            </NuxtLink>
+            <NuxtLink v-else class="btn-aplicar" to="/contactanos">
+              <span class="btn-aplicar-main">Consultar otras opciones</span>
+              <span class="btn-aplicar-sub">Una asesora te ayuda</span>
+            </NuxtLink>
             <NuxtLink class="btn btn-outline" style="width:100%;margin-top:10px;" to="/proyectos">Ver proyectos</NuxtLink>
           </aside>
         </div>

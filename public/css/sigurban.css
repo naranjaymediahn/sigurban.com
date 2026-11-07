@@ -1426,3 +1426,9 @@ button {
     justify-content: center;
     flex-shrink: 0;
 }
+
+/* Botón Aplicar (página del modelo) */
+.btn-aplicar { display:flex; flex-direction:column; align-items:center; gap:2px; width:100%; margin-top:14px; padding:14px 16px; border-radius:14px; text-decoration:none; background:linear-gradient(135deg,#9dc155 0%,#7fae3a 100%); color:#16321f; box-shadow:0 10px 24px rgba(157,193,85,.38); transition:transform .15s ease, box-shadow .15s ease; }
+.btn-aplicar:hover { transform:translateY(-2px); box-shadow:0 14px 30px rgba(157,193,85,.5); }
+.btn-aplicar-main { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:17px; letter-spacing:.2px; }
+.btn-aplicar-sub { font-size:12.5px; opacity:.85; }
