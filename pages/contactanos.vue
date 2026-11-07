@@ -21,7 +21,8 @@
             </p>
 
             <form class="contact-form" @submit.prevent="submit">
-              <div class="calc-row">
+              <div class="form-flow">
+              <div class="calc-row" :style="{ order: O.reason }">
                 <label>¿En qué te podemos ayudar?</label>
                 <div class="check-group">
                   <label class="check-item"><input type="radio" name="reason" value="Quiero aplicar a una casa" v-model="form.reason" /> Quiero aplicar a una casa</label>
@@ -30,13 +31,25 @@
                 </div>
               </div>
 
-              <div class="calc-row">
+              <div v-if="wantsToApply" class="calc-row" :style="{ order: O.forOther }">
+                <label class="check-item" style="font-weight:600;"><input type="checkbox" v-model="form.forOther" /> Quiero cotizar para otra persona</label>
+              </div>
+
+              <div v-if="wantsToApply && form.forOther" class="sec-title" :style="{ order: O.secTu }">Tus datos <span>(quien escribe)</span></div>
+
+              <div v-if="wantsToApply && form.forOther" class="calc-row" :style="{ order: O.contact }">
+                <label>Tu nombre completo</label>
+                <input v-model="form.contactName" type="text" maxlength="80" autocomplete="name" style="text-transform:uppercase" placeholder="Ej. CARLOS MEJÍA" @input="form.contactName = form.contactName.toLocaleUpperCase('es')" />
+                <span class="field-hint">Para saber con quién hablar cuando te llamemos.</span>
+              </div>
+
+              <div class="calc-row" :style="{ order: O.abroadChk }">
                 <label class="check-item" style="font-weight:600;">
                   <input type="checkbox" v-model="form.livesAbroad" /> Vivo en el extranjero 🌎
                 </label>
               </div>
 
-              <div v-if="form.livesAbroad" class="calc-row">
+              <div v-if="form.livesAbroad" class="calc-row" :style="{ order: O.country }">
                 <label>¿Desde dónde nos escribís?</label>
                 <select v-model="form.country" class="country-select">
                   <option value="usa">🇺🇸 Estados Unidos</option>
@@ -45,7 +58,7 @@
                 </select>
               </div>
 
-              <div v-if="form.livesAbroad" class="abroad-note">
+              <div v-if="form.livesAbroad" class="abroad-note" :style="{ order: O.note }">
                 <p v-if="form.country === 'usa'">
                   🇺🇸 Si vivís en USA y soñás con tu casa propia en Siguatepeque: si tenés <strong>TPS, residencia permanente o ciudadanía</strong>, podés aplicar directamente
                   (tus ingresos deben ser demostrables y se evalúan caso por caso). Si tu estatus es distinto, existe una alternativa: un familiar o persona de
@@ -63,67 +76,8 @@
                 <p style="margin-top:8px;">Si aun así querés aplicar, contactanos y con gusto te explicamos con detalle, de forma clara y sin compromiso. 😊</p>
               </div>
 
-              <div class="calc-row">
-                <label>Nombre completo</label>
-                <input v-model="form.name" type="text" required autocomplete="name" style="text-transform:uppercase" placeholder="Ej. MARÍA GONZÁLEZ" @input="form.name = form.name.toLocaleUpperCase('es')" />
-              </div>
-
-              <div v-if="wantsToApply" class="calc-row">
-                <label class="check-item"><input type="checkbox" v-model="form.forOther" /> Quiero cotizar para otra persona</label>
-                <div v-if="form.forOther" class="abroad-note">
-                  <input v-model="form.contactName" type="text" maxlength="80" autocomplete="name" style="text-transform:uppercase;width:100%;margin-bottom:8px;" placeholder="Tu nombre completo (quien escribe)" @input="form.contactName = form.contactName.toLocaleUpperCase('es')" />
-                  <div class="work-grid">
-                    <select v-model="form.relation" class="country-select">
-                      <option value="">¿Qué es de vos esa persona?</option>
-                      <option value="Familiar">Familiar</option>
-                      <option value="Hermano/a">Hermano/a</option>
-                      <option value="Esposo/a">Esposo/a</option>
-                      <option value="Padre o madre">Padre o madre</option>
-                      <option value="Hijo/a">Hijo/a</option>
-                      <option value="Amigo/a">Amigo/a</option>
-                      <option value="Otro">Otro</option>
-                    </select>
-                    <select v-model="form.otherLives" class="country-select">
-                      <option value="honduras">Honduras</option>
-                      <option value="usa">🇺🇸 Estados Unidos</option>
-                      <option value="espana">🇪🇸 España</option>
-                      <option value="otro">🌎 Otro país</option>
-                    </select>
-                  </div>
-                  <input v-model="form.otherCity" type="text" maxlength="80" placeholder="Ciudad o zona (ej. Siguatepeque, Miami)" style="margin-top:8px;width:100%;" />
-                  <strong style="display:block;margin-top:10px;">Condiciones para cotizar a nombre de otra persona</strong>
-                  <ul style="margin:6px 0 6px 18px;padding:0;">
-                    <li>El crédito se aprueba a nombre de esa persona: ella firma y presenta sus propios documentos.</li>
-                    <li>Debe estar al día en la central de crédito (sin atrasos).</li>
-                    <li>Debe demostrar ingresos desde L 18,000 al mes (pueden sumarse con su pareja o un familiar).</li>
-                    <li>Documentos: identidad, RTN y constancia de trabajo. Si es comerciante: constitución y permiso de operación municipal.</li>
-                    <li>Los proyectos aplican para residentes en Honduras. Si vive en el extranjero, un familiar o persona de confianza en Honduras puede tramitar el crédito con ella.</li>
-                    <li>Necesitamos su consentimiento para usar sus datos.</li>
-                  </ul>
-                  Los datos de nombre e identidad son los de <strong>la persona que aplicará</strong>; el teléfono es para contactarte.
-                </div>
-                <label class="check-item"><input type="checkbox" v-model="form.noShareDni" /> Prefiero no compartir mi identidad por este medio</label>
-                <label class="check-item"><input type="checkbox" v-model="form.badCredit" /> Creo que tengo mal historial crediticio (central de riesgo)</label>
-                <div v-if="form.noShareDni" class="abroad-note">
-                  <strong>Necesitamos tu identidad para continuar</strong>
-                  <ul style="margin:6px 0 6px 18px;padding:0;">
-                    <li>Consultamos tu historial en la central de crédito.</li>
-                    <li>Enviamos tu solicitud al banco.</li>
-                    <li>Tus datos son confidenciales y se usan solo para este trámite.</li>
-                  </ul>
-                  Sin este dato no podemos avanzar. Cuando quieras continuar, desmarcá esta opción e ingresá tu identidad.
-                </div>
-                <p v-if="form.badCredit" class="abroad-note">{{ MSG_BAD_CREDIT }}</p>
-              </div>
-
-              <div v-if="wantsToApply && !form.livesAbroad && !form.noShareDni && !form.badCredit" class="calc-row">
-                <label>Número de identidad (13 dígitos)</label>
-                <input v-model="form.dni" type="text" required inputmode="numeric" maxlength="17" placeholder="0801-1990-12345" @input="formatDni" />
-                <span class="field-hint">Nos ayuda a precalificar tu perfil más rápido.</span>
-              </div>
-
-              <div class="calc-row">
-                <label>Teléfono</label>
+              <div class="calc-row" :style="{ order: O.phone }">
+                <label>{{ form.forOther ? 'Tu teléfono de contacto' : 'Teléfono' }}</label>
                 <div class="phone-row">
                   <input v-model="form.phoneCode" type="text" class="phone-code" :readonly="!form.livesAbroad || form.country !== 'otro'" aria-label="Código de país" />
                   <input v-model="form.phone" type="tel" required inputmode="tel" :placeholder="form.livesAbroad ? (form.country === 'usa' ? '305 555 0100' : form.country === 'espana' ? '612 345 678' : 'Tu número sin el código') : '9999-9999'" />
@@ -131,7 +85,72 @@
                 <span class="field-hint">{{ form.livesAbroad ? 'Tu número con el código de tu país.' : 'Número de Honduras, 8 dígitos.' }}</span>
               </div>
 
-              <div v-if="wantsToApply" class="calc-row work-box">
+              <div v-if="wantsToApply && form.forOther" class="sec-title" :style="{ order: O.secOtra }">Datos de la persona que aplicará <span>(a quien le vamos a cotizar)</span></div>
+
+              <div v-if="wantsToApply && form.forOther" class="calc-row" :style="{ order: O.relation }">
+                <label>¿Qué es de vos esa persona?</label>
+                <select v-model="form.relation" class="country-select">
+                  <option value="">Elegí una opción</option>
+                  <option value="Familiar">Familiar</option>
+                  <option value="Hermano/a">Hermano/a</option>
+                  <option value="Esposo/a">Esposo/a</option>
+                  <option value="Padre o madre">Padre o madre</option>
+                  <option value="Hijo/a">Hijo/a</option>
+                  <option value="Amigo/a">Amigo/a</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+
+              <div class="calc-row" :style="{ order: O.name }">
+                <label>{{ form.forOther ? 'Nombre completo de la persona que aplicará' : 'Nombre completo' }}</label>
+                <input v-model="form.name" type="text" required autocomplete="name" style="text-transform:uppercase" placeholder="Ej. MARÍA GONZÁLEZ" @input="form.name = form.name.toLocaleUpperCase('es')" />
+              </div>
+
+              <div v-if="wantsToApply && (form.forOther || !form.livesAbroad) && !form.noShareDni && !form.badCredit" class="calc-row" :style="{ order: O.dni }">
+                <label>{{ form.forOther ? 'Identidad de la persona que aplicará (13 dígitos)' : 'Número de identidad (13 dígitos)' }}</label>
+                <input v-model="form.dni" type="text" required inputmode="numeric" maxlength="17" placeholder="0801-1990-12345" @input="formatDni" />
+                <span class="field-hint">Nos ayuda a precalificar tu perfil más rápido.</span>
+              </div>
+
+              <div v-if="wantsToApply && form.forOther" class="calc-row" :style="{ order: O.lives }">
+                <label>¿Dónde vive esa persona?</label>
+                <div class="work-grid">
+                  <select v-model="form.otherLives" class="country-select">
+                    <option value="honduras">Honduras</option>
+                    <option value="usa">🇺🇸 Estados Unidos</option>
+                    <option value="espana">🇪🇸 España</option>
+                    <option value="otro">🌎 Otro país</option>
+                  </select>
+                  <input v-model="form.otherCity" type="text" maxlength="80" placeholder="Ciudad o zona (ej. Siguatepeque, Miami)" />
+                </div>
+              </div>
+
+              <div v-if="wantsToApply" class="calc-row" :style="{ order: O.noShare }">
+                <label class="check-item"><input type="checkbox" v-model="form.noShareDni" /> {{ form.forOther ? 'La persona prefiere no compartir su identidad por este medio' : 'Prefiero no compartir mi identidad por este medio' }}</label>
+                <div v-if="form.noShareDni" class="abroad-note">
+                  <strong>Necesitamos la identidad para continuar</strong>
+                  <ul style="margin:6px 0 6px 18px;padding:0;">
+                    <li>Consultamos el historial en la central de crédito.</li>
+                    <li>Enviamos la solicitud al banco.</li>
+                    <li>Los datos son confidenciales y se usan solo para este trámite.</li>
+                  </ul>
+                  Sin este dato no podemos avanzar. Cuando quieras continuar, desmarcá esta opción e ingresá la identidad.
+                </div>
+              </div>
+
+              <div v-if="wantsToApply && form.forOther" class="abroad-note" :style="{ order: O.cond }">
+                <strong>Condiciones para cotizar a nombre de otra persona</strong>
+                <ul style="margin:6px 0 0 18px;padding:0;">
+                  <li>El crédito se aprueba a nombre de esa persona: ella firma y presenta sus propios documentos.</li>
+                  <li>Debe estar al día en la central de crédito (sin atrasos).</li>
+                  <li>Debe demostrar ingresos desde L 18,000 al mes (pueden sumarse con su pareja o un familiar).</li>
+                  <li>Documentos: identidad, RTN y constancia de trabajo. Si es comerciante: constitución y permiso de operación municipal.</li>
+                  <li>Los proyectos aplican para residentes en Honduras. Si vive en el extranjero, un familiar o persona de confianza en Honduras puede tramitar el crédito con ella.</li>
+                  <li>Necesitamos su consentimiento para usar sus datos.</li>
+                </ul>
+              </div>
+
+              <div v-if="wantsToApply" class="calc-row work-box" :style="{ order: O.work }">
                 <label style="font-weight:600;">Datos laborales <span style="font-weight:400;color:var(--muted);">(opcional, nos ayudan a precalificarte)</span></label>
                 <div class="work-grid">
                   <input v-model="form.workplace" type="text" maxlength="120" placeholder="Lugar de trabajo" />
@@ -141,16 +160,21 @@
                 </div>
               </div>
 
-              <div class="calc-row">
+              <div v-if="wantsToApply" class="calc-row" :style="{ order: O.bad }">
+                <label class="check-item"><input type="checkbox" v-model="form.badCredit" /> {{ form.forOther ? 'Creo que la persona tiene mal historial crediticio (central de riesgo)' : 'Creo que tengo mal historial crediticio (central de riesgo)' }}</label>
+                <p v-if="form.badCredit" class="abroad-note">{{ MSG_BAD_CREDIT }}</p>
+              </div>
+
+              <div class="calc-row" :style="{ order: O.email }">
                 <label>Correo (opcional)</label>
                 <input v-model="form.email" type="email" placeholder="tucorreo@ejemplo.com" />
               </div>
 
-              <div class="calc-row">
+              <div class="calc-row" :style="{ order: O.msg }">
                 <label>Mensaje</label>
                 <textarea v-model="form.message" rows="4" placeholder="Contanos qué proyecto te interesa o tu consulta..." />
               </div>
-
+              </div>
               <button class="btn btn-primary" type="submit" :disabled="sending || (wantsToApply && (form.noShareDni || form.badCredit))" :title="wantsToApply && (form.noShareDni || form.badCredit) ? 'Desmarcá la opción de arriba para poder enviar tu solicitud' : ''">{{ sending ? 'Enviando...' : 'Enviar mensaje' }}</button>
               <p v-if="sent" class="form-note ok">¡Gracias! En breve una asesora te contacta.</p>
               <p v-if="errorMsg" class="form-note err">{{ errorMsg }}</p>
@@ -215,6 +239,10 @@ function formatFaqAnswer(text) {
 const MSG_NO_DNI = 'Para precalificarte necesitamos tu número de identidad: con él consultamos tu historial en la central de crédito y enviamos tu solicitud al banco. Sin este dato no podemos continuar, pero cuando quieras seguir, con gusto te atendemos. Tus datos son confidenciales y se usan solo para este trámite.'
 const MSG_BAD_CREDIT = 'Para aprobar un crédito, el banco requiere estar al día en la central de riesgo. Por ahora no podríamos avanzar con tu solicitud, pero si regularizás tu situación, con gusto te ayudamos a precalificar. 🏡'
 const infoMsg = ref('')
+// Orden de los bloques: en modo "otra persona" se separan Tus datos / Datos de la persona que aplicará
+const O = computed(() => form.value.forOther
+  ? { reason: 1, forOther: 2, secTu: 3, contact: 4, abroadChk: 5, country: 6, note: 7, phone: 8, secOtra: 9, relation: 10, name: 11, dni: 12, lives: 13, noShare: 14, cond: 15, work: 16, bad: 17, email: 18, msg: 19 }
+  : { reason: 1, forOther: 2, secTu: 3, contact: 4, abroadChk: 5, country: 6, note: 7, name: 8, dni: 9, phone: 10, secOtra: 11, relation: 12, lives: 13, noShare: 14, cond: 15, work: 16, bad: 17, email: 18, msg: 19 })
 const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, forOther: false, contactName: '', relation: '', otherLives: 'honduras', otherCity: '', workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
 const form = ref(emptyForm())
 const route = useRoute()
@@ -251,7 +279,7 @@ async function submit() {
   // Estándar de datos: nombre en mayúsculas, teléfono y identidad validados antes de enviar
   const phoneStd = normalizePhone(form.value.livesAbroad ? `${form.value.phoneCode}${form.value.phone}` : form.value.phone)
   if (!phoneStd.ok) { errorMsg.value = phoneStd.reason || 'Revisá tu teléfono.'; sending.value = false; return }
-  const needsDni = wantsToApply.value && !form.value.livesAbroad
+  const needsDni = wantsToApply.value && (form.value.forOther || !form.value.livesAbroad)
   const idStd = normalizeIdentity(form.value.dni, phoneStd.value)
   if (needsDni && !idStd.ok) { errorMsg.value = idStd.reason || 'Revisá tu identidad.'; sending.value = false; return }
   try {
@@ -327,6 +355,9 @@ textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px soli
 .check-group { display: flex; flex-direction: column; gap: 8px; }
 .check-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text); font-weight: 400; }
 .check-item input { width: 16px; height: 16px; accent-color: var(--azul); }
+.form-flow { display:flex; flex-direction:column; }
+.sec-title { font-weight:700; color:var(--azul); font-size:15px; padding:6px 0 4px; margin-top:10px; border-bottom:2px solid rgba(157,193,85,.45); }
+.sec-title span { font-weight:400; color:var(--muted); font-size:13px; }
 .phone-row { display:flex; gap:8px; }
 .phone-code { width:84px; flex:0 0 84px; text-align:center; }
 .work-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
