@@ -122,7 +122,9 @@
     "cta": {
       "texto": "Atención prioritaria con el código #FBSIGURBAN",
       "accionPrincipalUrl": "https://www.sigurban.com/FBSIGURBAN"
-    }
+    },
+    "modeloTulipanUrl": "https://sigurbancom.vercel.app/modelos-de-casa/tulipan",
+    "modeloTulipanNota": "Página del modelo con todas las fotos y 3 videos (recorrido interior, interior y exterior)."
   },
   "asesoraDigital": {
     "nombre": "Julia",
@@ -649,7 +651,7 @@
       ],
       "response": {
         "type": "text",
-        "text": "Podés ver fotos, renders y la galería aquí: https://sigurban.com/landings/facebook/#galeria"
+        "text": "Podés ver todas las fotos y los videos del modelo Tulipán aquí: https://sigurbancom.vercel.app/modelos-de-casa/tulipan 🏡\nTambién está la galería de la landing: https://sigurban.com/landings/facebook/#galeria"
       },
       "followUp": "offer_prequalify"
     },
