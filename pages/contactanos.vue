@@ -79,7 +79,30 @@
               <div class="calc-row" :style="{ order: O.phone }">
                 <label>{{ form.forOther ? 'Tu teléfono de contacto' : 'Teléfono' }}</label>
                 <div class="phone-row">
-                  <input v-model="form.phoneCode" type="text" class="phone-code" :readonly="!form.livesAbroad || form.country !== 'otro'" aria-label="Código de país" />
+                  <select v-model="form.phoneCode" class="phone-code" :disabled="!form.livesAbroad" aria-label="Código de país">
+                    <option value="+504">🇭🇳 +504</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+34">🇪🇸 +34</option>
+                    <option disabled>──────────</option>
+                    <option value="+52">🇲🇽 +52</option>
+                    <option value="+502">🇬🇹 +502</option>
+                    <option value="+503">🇸🇻 +503</option>
+                    <option value="+505">🇳🇮 +505</option>
+                    <option value="+506">🇨🇷 +506</option>
+                    <option value="+507">🇵🇦 +507</option>
+                    <option value="+57">🇨🇴 +57</option>
+                    <option value="+58">🇻🇪 +58</option>
+                    <option value="+51">🇵🇪 +51</option>
+                    <option value="+593">🇪🇨 +593</option>
+                    <option value="+56">🇨🇱 +56</option>
+                    <option value="+54">🇦🇷 +54</option>
+                    <option value="+55">🇧🇷 +55</option>
+                    <option value="+53">🇨🇺 +53</option>
+                    <option value="+39">🇮🇹 +39</option>
+                    <option value="+33">🇫🇷 +33</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+49">🇩🇪 +49</option>
+                  </select>
                   <input v-model="form.phone" type="tel" required inputmode="tel" :placeholder="form.livesAbroad ? (form.country === 'usa' ? '305 555 0100' : form.country === 'espana' ? '612 345 678' : 'Tu número sin el código') : '9999-9999'" />
                 </div>
                 <span class="field-hint">{{ form.livesAbroad ? 'Tu número con el código de tu país.' : 'Número de Honduras, 8 dígitos.' }}</span>
@@ -257,7 +280,7 @@ const wantsToApply = computed(() => form.value.reason === 'Quiero aplicar a una 
 
 // Código de país según el selector
 watch(() => [form.value.livesAbroad, form.value.country], () => {
-  form.value.phoneCode = !form.value.livesAbroad ? '+504' : form.value.country === 'usa' ? '+1' : form.value.country === 'espana' ? '+34' : '+'
+  form.value.phoneCode = !form.value.livesAbroad ? '+504' : form.value.country === 'usa' ? '+1' : form.value.country === 'espana' ? '+34' : '+52'
 })
 
 function formatDni() {
@@ -359,7 +382,7 @@ textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px soli
 .sec-title { font-weight:700; color:var(--azul); font-size:15px; padding:6px 0 4px; margin-top:10px; border-bottom:2px solid rgba(157,193,85,.45); }
 .sec-title span { font-weight:400; color:var(--muted); font-size:13px; }
 .phone-row { display:flex; gap:8px; }
-.phone-code { width:84px; flex:0 0 84px; text-align:center; }
+.phone-code { width:112px; flex:0 0 112px; padding:10px 6px; border-radius:8px; border:1px solid var(--border); font-family:inherit; font-size:14px; background:var(--bg-soft); }
 .work-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
 @media (max-width:560px) { .work-grid { grid-template-columns:1fr; } }
 .country-select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; background: var(--bg-soft); }
