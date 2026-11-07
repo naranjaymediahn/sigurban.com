@@ -166,6 +166,21 @@ export default defineEventHandler(async (event) => {
 
   const settings = await getSiteSettings()
 
+  // Trato amable cuando la persona no quiere dar su identidad o cree tener mal historial crediticio
+  const flat = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const refusesDni = /(prefiero no|no quiero|no voy a|no puedo|no deseo)[^.?]{0,30}(dni|identidad|cedula|documento)|no (te )?(doy|comparto|paso|brindo)[^.?]{0,20}(dni|identidad)/.test(flat)
+  const badCredit = /(tengo|estoy|tuve|me (reportaron|embargaron)|mi (historial|record|credito))[^.?]{0,40}(mal|malo|reportad|mora|central de riesgo|buro|embarg|deuda)/.test(flat)
+  if (refusesDni || badCredit) {
+    const reply = badCredit
+      ? 'Gracias por contarnos con tanta confianza. Para que un banco apruebe un crédito es necesario estar al día en la central de riesgo, así que por ahora no podríamos avanzar con tu solicitud. Si regularizás tu situación, con muchísimo gusto te ayudamos a precalificar. 🏡'
+      : 'Gracias por cuidar tus datos, lo entendemos 😊 Sin tu número de identidad no podemos continuar con la precalificación, porque lo necesitamos para enviar tu solicitud al banco y consultar la central de crédito. Si más adelante querés continuar, con gusto te atendemos.'
+    session.collectingEnabled = false
+    session.stage = 'info'
+    session.hasGreeted = true
+    await persistBestEffort(senderId, session, text, reply)
+    return { ok: true, senderId, reply, session, leadSent: false }
+  }
+
   if (settings.chatbot_enabled === '0') {
     return { ok: true, reply: 'El chat no está disponible en este momento. Escribinos por WhatsApp 📲', session, leadSent: false }
   }

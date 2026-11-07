@@ -68,7 +68,14 @@
                 <input v-model="form.name" type="text" required autocomplete="name" style="text-transform:uppercase" placeholder="Ej. MARÍA GONZÁLEZ" @input="form.name = form.name.toLocaleUpperCase('es')" />
               </div>
 
-              <div v-if="wantsToApply && !form.livesAbroad" class="calc-row">
+              <div v-if="wantsToApply" class="calc-row">
+                <label class="check-item"><input type="checkbox" v-model="form.noShareDni" /> Prefiero no compartir mi identidad por este medio</label>
+                <label class="check-item"><input type="checkbox" v-model="form.badCredit" /> Creo que tengo mal historial crediticio (central de riesgo)</label>
+                <p v-if="form.noShareDni" class="abroad-note">{{ MSG_NO_DNI }}</p>
+                <p v-if="form.badCredit" class="abroad-note">{{ MSG_BAD_CREDIT }}</p>
+              </div>
+
+              <div v-if="wantsToApply && !form.livesAbroad && !form.noShareDni && !form.badCredit" class="calc-row">
                 <label>Número de identidad (13 dígitos)</label>
                 <input v-model="form.dni" type="text" required inputmode="numeric" maxlength="17" placeholder="0801-1990-12345" @input="formatDni" />
                 <span class="field-hint">Nos ayuda a precalificar tu perfil más rápido.</span>
@@ -106,6 +113,7 @@
               <button class="btn btn-primary" type="submit" :disabled="sending">{{ sending ? 'Enviando...' : 'Enviar mensaje' }}</button>
               <p v-if="sent" class="form-note ok">¡Gracias! En breve una asesora te contacta.</p>
               <p v-if="errorMsg" class="form-note err">{{ errorMsg }}</p>
+              <p v-if="infoMsg" class="form-note">{{ infoMsg }}</p>
             </form>
           </div>
 
@@ -163,7 +171,10 @@ function formatFaqAnswer(text) {
   })
 }
 
-const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
+const MSG_NO_DNI = 'Gracias por cuidar tus datos, lo entendemos 😊 Sin tu número de identidad no podemos continuar con la precalificación, porque lo necesitamos para enviar tu solicitud al banco y consultar la central de crédito. Si más adelante querés continuar, con gusto te atendemos.'
+const MSG_BAD_CREDIT = 'Gracias por contarnos con tanta confianza. Para que un banco apruebe un crédito es necesario estar al día en la central de riesgo, así que por ahora no podríamos avanzar con tu solicitud. Si regularizás tu situación, con muchísimo gusto te ayudamos a precalificar. 🏡'
+const infoMsg = ref('')
+const emptyForm = () => ({ reason: '', livesAbroad: false, country: 'usa', name: '', dni: '', phone: '', phoneCode: '+504', noShareDni: false, badCredit: false, workplace: '', position: '', salary: '', seniority: '', email: '', message: '' })
 const form = ref(emptyForm())
 const sending = ref(false)
 const sent = ref(false)
@@ -186,6 +197,13 @@ function formatDni() {
 async function submit() {
   sending.value = true
   errorMsg.value = ''
+  infoMsg.value = ''
+  // Quien prefiere no dar su identidad o cree tener mal historial: se le explica con amabilidad y no se envía la solicitud
+  if (wantsToApply.value && (form.value.noShareDni || form.value.badCredit)) {
+    infoMsg.value = form.value.badCredit ? MSG_BAD_CREDIT : MSG_NO_DNI
+    sending.value = false
+    return
+  }
   // Estándar de datos: nombre en mayúsculas, teléfono y identidad validados antes de enviar
   const phoneStd = normalizePhone(form.value.livesAbroad ? `${form.value.phoneCode}${form.value.phone}` : form.value.phone)
   if (!phoneStd.ok) { errorMsg.value = phoneStd.reason || 'Revisá tu teléfono.'; sending.value = false; return }
