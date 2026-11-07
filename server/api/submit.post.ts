@@ -70,7 +70,6 @@ export default defineEventHandler(async (event) => {
         if (f['Posición']) body.workPosition = f['Posición']
         if (f['Salario']) body.salary = String(f['Salario']).replace(/[^0-9.]/g, '')
         if (f['Antigüedad']) body.workTime = f['Antigüedad']
-        if (f['Cotiza para otra persona']) body.contexto = `Cotización para otra persona. ${f['Cotiza para otra persona']}. Teléfono de contacto: ${f['Teléfono']}.`
         const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) })
         if (!r.ok) console.error('[submit] CRM respondió', r.status, (await r.text().catch(() => '')).slice(0, 200))
       } catch (crmErr: any) {
